@@ -1,10 +1,9 @@
 package com.gershaveut.jwg.graph;
 
-import com.gershaveut.jwg.util.Vector2DInt;
+import org.dyn4j.dynamics.Body;
 
 public class NodeElement implements Node {
-    private Vector2DInt position;
-
+    private final Body body = new Body();
     private final String name;
     private final String author;
     private final Node parent;
@@ -31,12 +30,7 @@ public class NodeElement implements Node {
     }
 
     @Override
-    public Vector2DInt getPosition() {
-        return position;
-    }
-
-    @Override
-    public void setPosition(Vector2DInt position) {
-        this.position = position;
+    public Body getBody() {
+        return body;
     }
 }
