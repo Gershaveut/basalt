@@ -1,22 +1,13 @@
 package com.gershaveut.jwg.graph;
 
-import com.gershaveut.jwg.util.Point2DInt;
+import com.gershaveut.jwg.util.Vector2DInt;
 
-import java.awt.geom.Point2D;
+public class NodeElement implements Node {
+    private Vector2DInt position;
 
-public class NodeElement implements NodeInfo {
-    public Point2DInt position = new Point2DInt();
-
-    private String name;
-    private String author;
-    private NodeInfo parent;
-
-    public NodeElement(NodeInfo nodeInfo) {
-        name = nodeInfo.getName();
-        author = nodeInfo.getAuthor();
-        parent = nodeInfo.getParent();
-        position = nodeInfo.getPosition();
-    }
+    private final String name;
+    private final String author;
+    private final Node parent;
 
     public NodeElement(String name, String author, NodeElement parent) {
         this.name = name;
@@ -35,12 +26,17 @@ public class NodeElement implements NodeInfo {
     }
 
     @Override
-    public NodeInfo getParent() {
+    public Node getParent() {
         return parent;
     }
 
     @Override
-    public Point2DInt getPosition() {
+    public Vector2DInt getPosition() {
         return position;
+    }
+
+    @Override
+    public void setPosition(Vector2DInt position) {
+        this.position = position;
     }
 }
