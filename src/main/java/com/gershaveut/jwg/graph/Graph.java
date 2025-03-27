@@ -26,16 +26,24 @@ public class Graph extends JPanel {
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
 
-        nodes.forEach(nodeElement -> {
-            graphics.fillOval(nodeElement.getPosition().getXInt(), nodeElement.getPosition().getYInt(), NODE_SIZE, NODE_SIZE);
+        nodes.forEach(node -> {
+            var x = node.getPosition().getXInt();
+            var y = node.getPosition().getYInt();
 
-            var parent = nodeElement.getParent();
+            graphics.fillOval(x, y, NODE_SIZE, NODE_SIZE);
+
+            graphics.drawString(node.getName(), x, y);
+            graphics.drawString(node.getAuthor(), x, (int) (y + NODE_SIZE * 1.5));
+
+            var parent = node.getParent();
+
+            var nodeOffset = NODE_SIZE / 2;
 
             if (parent != null) {
-                var nodeOffset = NODE_SIZE / 2;
+                var parentX = parent.getPosition().getXInt();
+                var parentY = parent.getPosition().getYInt();
 
-                graphics.drawLine(nodeElement.getPosition().getXInt() + nodeOffset, nodeElement.getPosition().getYInt() + nodeOffset,
-                        parent.getPosition().getXInt() + nodeOffset, parent.getPosition().getYInt() + nodeOffset);
+                graphics.drawLine(x + nodeOffset, y + nodeOffset, parentX + nodeOffset, parentY + nodeOffset);
             }
         });
     }
