@@ -1,7 +1,7 @@
-package com.gershaveut.jwg;
+package dev.code_offline.basalt;
 
-import com.gershaveut.jwg.graph.Graph;
-import com.gershaveut.jwg.graph.NodeElement;
+import dev.code_offline.basalt.graph.Graph;
+import dev.code_offline.basalt.graph.NodeElement;
 
 import javax.swing.*;
 import java.util.List;

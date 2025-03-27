@@ -1,4 +1,4 @@
-package com.gershaveut.jwg.graph;
+package dev.code_offline.basalt.graph;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Geometry;
