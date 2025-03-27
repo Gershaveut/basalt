@@ -1,5 +1,6 @@
-package dev.code_offline.basalt.graph;
+package dev.code_offline.basalt.view;
 
+import dev.code_offline.basalt.model.Node;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
