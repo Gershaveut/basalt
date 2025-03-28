@@ -9,10 +9,11 @@ import org.dyn4j.world.World;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class Graph extends JPanel implements MouseListener, MouseMotionListener {
+public class Graph extends JPanel implements MouseListener, MouseMotionListener, ComponentListener, MouseWheelListener {
     private final int NODE_SIZE = 25;
 
     private final World<Body> world = new World<>();
@@ -30,68 +31,10 @@ public class Graph extends JPanel implements MouseListener, MouseMotionListener 
 
         addMouseListener(this);
         addMouseMotionListener(this);
+        addComponentListener(this);
+        addMouseWheelListener(this);
 
         initializeNodes();
-
-        // отслеживание изменения размера окна для центрирования графа
-        // TODO: при изменение размера окна ВСЕГДА происходит центрирование, нужно ли это?
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                if (getWidth() > 0 && getHeight() > 0) {
-                    centerGraph();
-                }
-            }
-        });
-
-        // перемещение области
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) {
-                    lastMousePos = e.getPoint();
-                }
-            }
-        });
-        addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                if (lastMousePos != null) {
-                    offsetX += (e.getX() - lastMousePos.x);
-                    offsetY += (e.getY() - lastMousePos.y);
-                    lastMousePos = e.getPoint();
-                    repaint();
-                }
-            }
-        });
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) {
-                    lastMousePos = null;
-                }
-            }
-        });
-
-        // масштабирование
-        addMouseWheelListener(e -> {
-            double mouseX = e.getX();
-            double mouseY = e.getY();
-
-            double graphMouseX = (mouseX - offsetX) / scale;
-            double graphMouseY = (mouseY - offsetY) / scale;
-
-            double wheelDelta = e.getPreciseWheelRotation();
-            double scaleFactor = Math.pow(1.1, -wheelDelta);
-            scale *= scaleFactor;
-
-            scale = Math.max(0.3, Math.min(5.0, scale));
-
-            offsetX = mouseX - graphMouseX * scale;
-            offsetY = mouseY - graphMouseY * scale;
-
-            repaint();
-        });
     }
 
     private void initializeNodes() {
@@ -108,12 +51,18 @@ public class Graph extends JPanel implements MouseListener, MouseMotionListener 
 
     private void centerGraph() {
         if (!nodes.isEmpty()) {
-            double minX = nodes.stream().mapToDouble(n -> n.getBody().getTransform().getTranslationX()).min().getAsDouble();
-            double maxX = nodes.stream().mapToDouble(n -> n.getBody().getTransform().getTranslationX()).max().getAsDouble();
-            double minY = nodes.stream().mapToDouble(n -> n.getBody().getTransform().getTranslationY()).min().getAsDouble();
-            double maxY = nodes.stream().mapToDouble(n -> n.getBody().getTransform().getTranslationY()).max().getAsDouble();
+            var arrayX = nodes.stream().mapToDouble(n -> n.getBody().getWorldCenter().x).toArray();
+            var arrayY = nodes.stream().mapToDouble(n -> n.getBody().getWorldCenter().y).toArray();
+
+            double minX = Arrays.stream(arrayX).min().orElseThrow();
+            double maxX = Arrays.stream(arrayX).max().orElseThrow();
+
+            double minY = Arrays.stream(arrayY).min().orElseThrow();
+            double maxY = Arrays.stream(arrayY).max().orElseThrow();
+
             double graphWidth = maxX - minX;
             double graphHeight = maxY - minY;
+
             offsetX = ((getWidth() / scale - graphWidth) / 2 - minX);
             offsetY = ((getHeight() / scale - graphHeight) / 2 - minY);
             repaint();
@@ -126,7 +75,7 @@ public class Graph extends JPanel implements MouseListener, MouseMotionListener 
 
         Graphics2D g2d = (Graphics2D) graphics;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.translate((int) offsetX,  (int) offsetY);
+        g2d.translate((int) offsetX, (int) offsetY);
         g2d.scale(scale, scale);
 
         nodes.forEach(node -> {
@@ -155,18 +104,21 @@ public class Graph extends JPanel implements MouseListener, MouseMotionListener 
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
     }
 
+    // перемещение области
     @Override
     public void mousePressed(MouseEvent e) {
-        nodes.forEach(node -> {
-        });
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            lastMousePos = e.getPoint();
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            lastMousePos = null;
+        }
     }
 
     @Override
@@ -179,10 +131,57 @@ public class Graph extends JPanel implements MouseListener, MouseMotionListener 
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        if (lastMousePos != null) {
+            offsetX += (e.getX() - lastMousePos.x);
+            offsetY += (e.getY() - lastMousePos.y);
+            lastMousePos = e.getPoint();
+            repaint();
+        }
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
+    }
+
+    // отслеживание изменения размера окна для центрирования графа
+    // TODO: при изменение размера окна ВСЕГДА происходит центрирование, нужно ли это?
+    @Override
+    public void componentResized(ComponentEvent e) {
+        if (getWidth() > 0 && getHeight() > 0) {
+            centerGraph();
+        }
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
+    }
+
+    // масштабирование
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        double mouseX = e.getX();
+        double mouseY = e.getY();
+
+        double graphMouseX = (mouseX - offsetX) / scale;
+        double graphMouseY = (mouseY - offsetY) / scale;
+
+        double wheelDelta = e.getPreciseWheelRotation();
+        double scaleFactor = Math.pow(1.1, -wheelDelta);
+        scale *= scaleFactor;
+
+        scale = Math.max(0.3, Math.min(5.0, scale));
+
+        offsetX = mouseX - graphMouseX * scale;
+        offsetY = mouseY - graphMouseY * scale;
+
         repaint();
     }
 }
