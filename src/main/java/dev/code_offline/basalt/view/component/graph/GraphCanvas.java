@@ -20,7 +20,7 @@ import java.util.Random;
 public class GraphCanvas extends JComponent implements MouseListener, MouseMotionListener, ComponentListener, MouseWheelListener, StepListener<Body> {
     private final double NANO_TO_BASE = 1.0e9;
     private final int NODE_SIZE = 25;
-    private final int MOVE_GRAPH = MouseEvent.BUTTON2;
+    private final int MOVE_GRAPH = MouseEvent.BUTTON3;
     private final int MOVE_NODE = MouseEvent.BUTTON1;
 
     // настройки физики
@@ -69,8 +69,8 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
                     Thread.sleep(5);
                 } catch (InterruptedException ignored) {
                 }
-            }
-        });
+			}
+        }, "PhysicThread");
 
         world.addStepListener(this);
         physicThread.start();
@@ -81,7 +81,7 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
             var body = node.getBody();
             var random = new Random();
 
-            body.translate(random.nextInt(500), random.nextInt(500));
+            body.translate(random.nextInt(2500), random.nextInt(2500));
             body.addFixture(Geometry.createCircle(NODE_SIZE));
             body.setMass(MassType.NORMAL);
 
@@ -116,7 +116,7 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
         super.paintComponent(graphics);
 
         Graphics2D g2d = (Graphics2D) graphics;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // TODO: убийца ФПС
         g2d.translate((int) offset.x, (int) offset.y);
         g2d.scale(scale, scale);
 
@@ -173,6 +173,21 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
             offset.x += (e.getX() - lastMousePos.x);
             offset.y += (e.getY() - lastMousePos.y);
             lastMousePos = e.getPoint();
+            
+            repaint();
+        }
+        
+        // перемещение ноды
+        if (draggedNode != null) {
+            Vector2 targetPos = getMouseWorldPosition();
+            
+            if (targetPos == null)
+                return;
+            
+            Vector2 nodePos = draggedNode.getBody().getWorldCenter();
+            Vector2 force = targetPos.subtract(nodePos);
+            
+            draggedNode.getBody().translate(force);
         }
     }
 
@@ -201,27 +216,13 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
 
         offset.x = mouseX - graphMouseX * scale;
         offset.y = mouseY - graphMouseY * scale;
-
+        
+        repaint();
     }
 
     @Override
     public void end(TimeStep step, PhysicsWorld world) {
-        SwingUtilities.invokeLater(() -> {
-            repaint();
-
-            // перемещение ноды
-            if (draggedNode != null) {
-                Vector2 target = getMouseWorldPosition();
-
-                if (target == null)
-                    return;
-
-                Vector2 current = draggedNode.getBody().getWorldCenter();
-                Vector2 force = target.subtract(current).multiply(FORCE_POWER);
-
-                draggedNode.getBody().applyForce(force);
-            }
-        });
+		SwingUtilities.invokeLater(this::repaint);
     }
 
     @Override
@@ -245,12 +246,14 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
     @Override
     public void postSolve(TimeStep step, PhysicsWorld world) {}
 
-    // возврощает позицию мыши в мировом представлении
+    // возвращает позицию мыши в мировом представлении
     public Vector2 getMouseWorldPosition() {
-        if (getMousePosition() == null)
+        var mousePosition = getMousePosition();
+        
+        if (mousePosition == null)
             return null;
 
-        return Util.pointToVector(getMousePosition()).subtract(offset).divide(scale);
+        return Util.pointToVector(mousePosition).subtract(offset).divide(scale);
     }
 
     public Vector2 getOffset() {
