@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.model;
+package dev.code_offline.basalt.view.component.graph;
 
 import org.dyn4j.dynamics.Body;
 

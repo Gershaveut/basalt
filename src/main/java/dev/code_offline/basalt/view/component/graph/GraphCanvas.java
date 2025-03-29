@@ -1,6 +1,6 @@
-package dev.code_offline.basalt.view;
+package dev.code_offline.basalt.view.component.graph;
 
-import dev.code_offline.basalt.model.Node;
+import dev.code_offline.basalt.Util;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
@@ -13,8 +13,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class Graph extends JPanel implements MouseListener, MouseMotionListener, ComponentListener, MouseWheelListener {
+public class GraphCanvas extends JComponent implements MouseListener, MouseMotionListener, ComponentListener, MouseWheelListener {
+    private final double NANO_TO_BASE = 1.0e9;
     private final int NODE_SIZE = 25;
+    private final int MOVE_GRAPH = MouseEvent.BUTTON2;
+    private final int MOVE_NODE = MouseEvent.BUTTON1;
 
     private final World<Body> world = new World<>();
 
@@ -24,17 +27,37 @@ public class Graph extends JPanel implements MouseListener, MouseMotionListener,
     private double offsetX = 0, offsetY = 0;
     private double scale = 1.0;
 
-    public Graph(List<Node> nodes) {
+    private final Thread physicThread;
+
+    private long last;
+
+    public GraphCanvas(List<Node> nodes) {
         this.nodes = nodes;
 
         world.setGravity(0, 0);
 
-        addMouseListener(this);
-        addMouseMotionListener(this);
-        addComponentListener(this);
-        addMouseWheelListener(this);
+        this.addMouseListener(this);
+        this.addMouseMotionListener(this);
+        this.addComponentListener(this);
+        this.addMouseWheelListener(this);
 
         initializeNodes();
+
+        physicThread = new Thread(() -> {
+            while (true) {
+                long time = System.nanoTime();
+
+                long diff = time - this.last;
+                this.last = time;
+                double elapsedTime = (double) diff / NANO_TO_BASE;
+
+                world.update(elapsedTime);
+
+                Thread.yield();
+            }
+        });
+
+        physicThread.start();
     }
 
     private void initializeNodes() {
@@ -42,7 +65,7 @@ public class Graph extends JPanel implements MouseListener, MouseMotionListener,
             var body = node.getBody();
             var random = new Random();
 
-            body.translate(random.nextInt(700), random.nextInt(700));
+            body.translate(random.nextInt(500), random.nextInt(500));
             body.addFixture(Geometry.createCircle(NODE_SIZE));
             body.setMass(MassType.NORMAL);
             world.addBody(body);
@@ -99,7 +122,7 @@ public class Graph extends JPanel implements MouseListener, MouseMotionListener,
             }
         });
 
-        world.step(1);
+        g2d.dispose();
     }
 
     @Override
@@ -109,14 +132,20 @@ public class Graph extends JPanel implements MouseListener, MouseMotionListener,
     // перемещение области
     @Override
     public void mousePressed(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
+        if (e.getButton() == MOVE_GRAPH) {
             lastMousePos = e.getPoint();
+        } else if (e.getButton() == MOVE_NODE) {
+            nodes.forEach(node -> {
+                if (node.getBody().getWorldCenter().distance(Util.pointToVector(e.getLocationOnScreen())) <= NODE_SIZE) {
+
+                }
+            });
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
+        if (e.getButton() == MOVE_GRAPH) {
             lastMousePos = null;
         }
     }
@@ -144,7 +173,6 @@ public class Graph extends JPanel implements MouseListener, MouseMotionListener,
     }
 
     // отслеживание изменения размера окна для центрирования графа
-    // TODO: при изменение размера окна ВСЕГДА происходит центрирование, нужно ли это?
     @Override
     public void componentResized(ComponentEvent e) {
         if (getWidth() > 0 && getHeight() > 0) {
