@@ -206,20 +206,22 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
 
     @Override
     public void end(TimeStep step, PhysicsWorld world) {
-        SwingUtilities.invokeLater(this::repaint);
+        SwingUtilities.invokeLater(() -> {
+            repaint();
 
-        // перемещение ноды
-        if (draggedNode != null) {
-            Vector2 target = getMouseWorldPosition();
+            // перемещение ноды
+            if (draggedNode != null) {
+                Vector2 target = getMouseWorldPosition();
 
-            if (target == null)
-                return;
+                if (target == null)
+                    return;
 
-            Vector2 current = draggedNode.getBody().getWorldCenter();
-            Vector2 force = target.subtract(current).multiply(FORCE_POWER);
+                Vector2 current = draggedNode.getBody().getWorldCenter();
+                Vector2 force = target.subtract(current).multiply(FORCE_POWER);
 
-            draggedNode.getBody().applyForce(force);
-        }
+                draggedNode.getBody().applyForce(force);
+            }
+        });
     }
 
     @Override

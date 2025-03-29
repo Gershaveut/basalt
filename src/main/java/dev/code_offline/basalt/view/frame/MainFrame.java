@@ -1,7 +1,6 @@
 package dev.code_offline.basalt.view.frame;
 
 import dev.code_offline.basalt.view.component.GraphPanel;
-import dev.code_offline.basalt.view.component.graph.GraphCanvas;
 import dev.code_offline.basalt.view.component.graph.Node;
 import dev.code_offline.basalt.view.component.graph.NodeElement;
 
