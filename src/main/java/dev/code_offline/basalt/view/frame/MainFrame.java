@@ -20,7 +20,7 @@ public class MainFrame extends JFrame {
         List<Node> nodes = List.of(nodeParent,
                 new NodeElement("Test", "Gershaveut", nodeParent),
                 new NodeElement("Test", "Gershaveut", nodeParent),
-                new NodeElement("Test", "Gershaveut", null)
+                new NodeElement("Test", "Gershaveut", nodeParent)
         );
 
         this.add(new GraphPanel(nodes));

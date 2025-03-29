@@ -2,9 +2,13 @@ package dev.code_offline.basalt.view.component.graph;
 
 import dev.code_offline.basalt.Util;
 import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.TimeStep;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
+import org.dyn4j.geometry.Vector2;
+import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
+import org.dyn4j.world.listener.StepListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,28 +17,34 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class GraphCanvas extends JComponent implements MouseListener, MouseMotionListener, ComponentListener, MouseWheelListener {
+public class GraphCanvas extends JComponent implements MouseListener, MouseMotionListener, ComponentListener, MouseWheelListener, StepListener<Body> {
     private final double NANO_TO_BASE = 1.0e9;
     private final int NODE_SIZE = 25;
     private final int MOVE_GRAPH = MouseEvent.BUTTON2;
     private final int MOVE_NODE = MouseEvent.BUTTON1;
 
-    private final World<Body> world = new World<>();
+    // настройки физики
+    private final Vector2 GRAVITY = new Vector2();
+    private final double DAMPING = 0.5;
+    private final int FORCE_POWER = 1000;
 
-    private final List<Node> nodes;
+    public final World<Body> world = new World<>();
+    public final List<Node> nodes;
 
     private Point lastMousePos;
-    private double offsetX = 0, offsetY = 0;
+    private Vector2 offset = new Vector2();
+
     private double scale = 1.0;
 
-    private final Thread physicThread;
+    private Node draggedNode;
 
+    private final Thread physicThread;
     private long last;
 
     public GraphCanvas(List<Node> nodes) {
         this.nodes = nodes;
 
-        world.setGravity(0, 0);
+        world.setGravity(GRAVITY);
 
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
@@ -45,6 +55,7 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
 
         physicThread = new Thread(() -> {
             while (true) {
+                // расчёт сколько секунд прошло с последнего вызова
                 long time = System.nanoTime();
 
                 long diff = time - this.last;
@@ -53,10 +64,15 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
 
                 world.update(elapsedTime);
 
-                Thread.yield();
+                try {
+                    // освобождение процессора
+                    Thread.sleep(5);
+                } catch (InterruptedException ignored) {
+                }
             }
         });
 
+        world.addStepListener(this);
         physicThread.start();
     }
 
@@ -68,6 +84,10 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
             body.translate(random.nextInt(500), random.nextInt(500));
             body.addFixture(Geometry.createCircle(NODE_SIZE));
             body.setMass(MassType.NORMAL);
+
+            body.setLinearDamping(DAMPING);
+            body.setAngularDamping(DAMPING);
+
             world.addBody(body);
         });
     }
@@ -86,9 +106,8 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
             double graphWidth = maxX - minX;
             double graphHeight = maxY - minY;
 
-            offsetX = ((getWidth() / scale - graphWidth) / 2 - minX);
-            offsetY = ((getHeight() / scale - graphHeight) / 2 - minY);
-            repaint();
+            offset.x = ((getWidth() / scale - graphWidth) / 2 - minX);
+            offset.y = ((getHeight() / scale - graphHeight) / 2 - minY);
         }
     }
 
@@ -98,7 +117,7 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
 
         Graphics2D g2d = (Graphics2D) graphics;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.translate((int) offsetX, (int) offsetY);
+        g2d.translate((int) offset.x, (int) offset.y);
         g2d.scale(scale, scale);
 
         nodes.forEach(node -> {
@@ -125,10 +144,6 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
         g2d.dispose();
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-    }
-
     // перемещение области
     @Override
     public void mousePressed(MouseEvent e) {
@@ -136,8 +151,8 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
             lastMousePos = e.getPoint();
         } else if (e.getButton() == MOVE_NODE) {
             nodes.forEach(node -> {
-                if (node.getBody().getWorldCenter().distance(Util.pointToVector(e.getLocationOnScreen())) <= NODE_SIZE) {
-
+                if (node.getBody().getWorldCenter().distance(getMouseWorldPosition()) <= NODE_SIZE) {
+                    draggedNode = node;
                 }
             });
         }
@@ -147,29 +162,18 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MOVE_GRAPH) {
             lastMousePos = null;
+        } else if (e.getButton() == MOVE_NODE) {
+            draggedNode = null;
         }
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
         if (lastMousePos != null) {
-            offsetX += (e.getX() - lastMousePos.x);
-            offsetY += (e.getY() - lastMousePos.y);
+            offset.x += (e.getX() - lastMousePos.x);
+            offset.y += (e.getY() - lastMousePos.y);
             lastMousePos = e.getPoint();
-            repaint();
         }
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
     }
 
     // отслеживание изменения размера окна для центрирования графа
@@ -180,26 +184,14 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
         }
     }
 
-    @Override
-    public void componentMoved(ComponentEvent e) {
-    }
-
-    @Override
-    public void componentShown(ComponentEvent e) {
-    }
-
-    @Override
-    public void componentHidden(ComponentEvent e) {
-    }
-
     // масштабирование
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         double mouseX = e.getX();
         double mouseY = e.getY();
 
-        double graphMouseX = (mouseX - offsetX) / scale;
-        double graphMouseY = (mouseY - offsetY) / scale;
+        double graphMouseX = (mouseX - offset.x) / scale;
+        double graphMouseY = (mouseY - offset.y) / scale;
 
         double wheelDelta = e.getPreciseWheelRotation();
         double scaleFactor = Math.pow(1.1, -wheelDelta);
@@ -207,9 +199,63 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
 
         scale = Math.max(0.3, Math.min(5.0, scale));
 
-        offsetX = mouseX - graphMouseX * scale;
-        offsetY = mouseY - graphMouseY * scale;
+        offset.x = mouseX - graphMouseX * scale;
+        offset.y = mouseY - graphMouseY * scale;
 
-        repaint();
+    }
+
+    @Override
+    public void end(TimeStep step, PhysicsWorld world) {
+        SwingUtilities.invokeLater(this::repaint);
+
+        // перемещение ноды
+        if (draggedNode != null) {
+            Vector2 target = getMouseWorldPosition();
+
+            if (target == null)
+                return;
+
+            Vector2 current = draggedNode.getBody().getWorldCenter();
+            Vector2 force = target.subtract(current).multiply(FORCE_POWER);
+
+            draggedNode.getBody().applyForce(force);
+        }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {}
+    @Override
+    public void mouseClicked(MouseEvent e) {}
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+    @Override
+    public void mouseExited(MouseEvent e) {}
+    @Override
+    public void componentMoved(ComponentEvent e) {}
+    @Override
+    public void componentShown(ComponentEvent e) {}
+    @Override
+    public void componentHidden(ComponentEvent e) {}
+    @Override
+    public void begin(TimeStep step, PhysicsWorld world) {}
+    @Override
+    public void updatePerformed(TimeStep step, PhysicsWorld world) {}
+    @Override
+    public void postSolve(TimeStep step, PhysicsWorld world) {}
+
+    // возврощает позицию мыши в мировом представлении
+    public Vector2 getMouseWorldPosition() {
+        if (getMousePosition() == null)
+            return null;
+
+        return Util.pointToVector(getMousePosition()).subtract(offset).divide(scale);
+    }
+
+    public Vector2 getOffset() {
+        return offset;
+    }
+
+    public double getScale() {
+        return scale;
     }
 }
