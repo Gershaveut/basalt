@@ -3,6 +3,7 @@ package dev.code_offline.basalt.view.component.graph;
 import dev.code_offline.basalt.Util;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.TimeStep;
+import org.dyn4j.dynamics.joint.DistanceJoint;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
@@ -17,19 +18,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class GraphCanvas extends JComponent implements MouseListener, MouseMotionListener, ComponentListener, MouseWheelListener, StepListener<Body> {
+public class GraphCanvas extends AbstractButton implements MouseListener, MouseMotionListener, ComponentListener, MouseWheelListener, StepListener<Body> {
     private final double NANO_TO_BASE = 1.0e9;
+
     private final int NODE_SIZE = 25;
     private final int MOVE_GRAPH = MouseEvent.BUTTON3;
     private final int MOVE_NODE = MouseEvent.BUTTON1;
 
     // настройки физики
     private final Vector2 GRAVITY = new Vector2();
+    private final MassType NODE_MASS = MassType.NORMAL;
     private final double DAMPING = 0.5;
-    private final int FORCE_POWER = 1000;
-
+    private final double REST_DISTANCE = 150;
+    private final double SPRING_FREQUENCY = 8;
     public final World<Body> world = new World<>();
-    public final List<Node> nodes;
+
+    public List<Node> nodes;
 
     private Point lastMousePos;
     private Vector2 offset = new Vector2();
@@ -38,23 +42,26 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
 
     private Node draggedNode;
 
-    private final Thread physicThread;
+    private boolean physicThreadLive; // нужно что-бы дать знать когда потоку на покой
+    private final Runnable physicThreadRun;
+    private Thread physicThread;
     private long last;
 
     public GraphCanvas(List<Node> nodes) {
         this.nodes = nodes;
-
-        world.setGravity(GRAVITY);
 
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.addComponentListener(this);
         this.addMouseWheelListener(this);
 
-        initializeNodes();
+        physicThreadRun = () -> {
+            physicThreadLive = true;
 
-        physicThread = new Thread(() -> {
-            while (true) {
+            while (physicThreadLive) { // если false поток завершит работу
+                if (!isVisible() || !isEnabled()) // отключение физики если компонент недоступен
+                    return;
+
                 // расчёт сколько секунд прошло с последнего вызова
                 long time = System.nanoTime();
 
@@ -69,11 +76,20 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
                     Thread.sleep(5);
                 } catch (InterruptedException ignored) {
                 }
-			}
-        }, "PhysicThread");
+            }
+        };
 
-        world.addStepListener(this);
-        physicThread.start();
+
+
+        if (!nodes.isEmpty()) {
+            physicThread = new Thread(physicThreadRun, "PhysicThread");
+
+            initializeNodes();
+
+            world.setGravity(GRAVITY);
+            world.addStepListener(this);
+            physicThread.start();
+        }
     }
 
     private void initializeNodes() {
@@ -81,14 +97,25 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
             var body = node.getBody();
             var random = new Random();
 
-            body.translate(random.nextInt(2500), random.nextInt(2500));
-            body.addFixture(Geometry.createCircle(NODE_SIZE));
-            body.setMass(MassType.NORMAL);
+            body.translate(random.nextInt(250), random.nextInt(250));
+            body.addFixture(Geometry.createCircle((double) NODE_SIZE / 2));
+            body.setMass(NODE_MASS);
 
             body.setLinearDamping(DAMPING);
             body.setAngularDamping(DAMPING);
 
             world.addBody(body);
+
+            node.getLinks().forEach(link -> {
+                var linkBody = link.getBody();
+
+                DistanceJoint<Body> joint = new DistanceJoint<>(body, linkBody, body.getTransform().getTranslation(), linkBody.getTransform().getTranslation());
+                joint.setRestDistance(REST_DISTANCE);
+                joint.setSpringEnabled(true);
+                joint.setSpringDamperEnabled(true);
+                joint.setSpringFrequency(SPRING_FREQUENCY);
+                world.addJoint(joint);
+            });
         });
     }
 
@@ -111,6 +138,32 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
         }
     }
 
+    private Node getFocusatedNode() {
+        for (Node node : nodes) {
+            if (node.getBody().getWorldCenter().distance(getMouseWorldPosition()) <= NODE_SIZE) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    // функция для обновления графа
+    public void restart() {
+        physicThreadLive = false;
+
+        try {
+            physicThread.join();
+        } catch (InterruptedException ignored) {
+        }
+
+        nodes.clear();
+        initializeNodes();
+
+        physicThread = new Thread(physicThreadRun, "PhysicThread");
+        physicThread.start();
+    }
+
     @Override
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
@@ -129,19 +182,27 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
             g2d.drawString(node.getName(), x, y);
             g2d.drawString(node.getAuthor(), x, (int) (y + NODE_SIZE * 1.5));
 
-            var parent = node.getParent();
-
             var nodeOffset = NODE_SIZE / 2;
 
-            if (parent != null) {
-                var parentX = (int) parent.getBody().getWorldCenter().x;
-                var parentY = (int) parent.getBody().getWorldCenter().y;
+            node.getLinks().forEach(link -> {
+                var linkX = (int) link.getBody().getWorldCenter().x;
+                var linkY = (int) link.getBody().getWorldCenter().y;
 
-                g2d.drawLine(x + nodeOffset, y + nodeOffset, parentX + nodeOffset, parentY + nodeOffset);
-            }
+                g2d.drawLine(x + nodeOffset, y + nodeOffset, linkX + nodeOffset, linkY + nodeOffset);
+            });
         });
 
         g2d.dispose();
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        var focusNode = getFocusatedNode();
+
+        if (focusNode == null)
+            return;
+
+        fireActionPerformed(new ActionEvent(focusNode, 0, "node_clicked"));
     }
 
     // перемещение области
@@ -150,11 +211,13 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
         if (e.getButton() == MOVE_GRAPH) {
             lastMousePos = e.getPoint();
         } else if (e.getButton() == MOVE_NODE) {
-            nodes.forEach(node -> {
-                if (node.getBody().getWorldCenter().distance(getMouseWorldPosition()) <= NODE_SIZE) {
-                    draggedNode = node;
-                }
-            });
+            var focusNode = getFocusatedNode();
+
+            if (focusNode == null)
+                return;
+
+            draggedNode = focusNode;
+            draggedNode.getBody().setMass(MassType.INFINITE);
         }
     }
 
@@ -163,7 +226,10 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
         if (e.getButton() == MOVE_GRAPH) {
             lastMousePos = null;
         } else if (e.getButton() == MOVE_NODE) {
-            draggedNode = null;
+            if (draggedNode != null) {
+                draggedNode.getBody().setMass(NODE_MASS);
+                draggedNode = null;
+            }
         }
     }
 
@@ -227,8 +293,6 @@ public class GraphCanvas extends JComponent implements MouseListener, MouseMotio
 
     @Override
     public void mouseMoved(MouseEvent e) {}
-    @Override
-    public void mouseClicked(MouseEvent e) {}
     @Override
     public void mouseEntered(MouseEvent e) {}
     @Override

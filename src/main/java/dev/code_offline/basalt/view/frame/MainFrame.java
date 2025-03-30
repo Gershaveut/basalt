@@ -18,14 +18,14 @@ public class MainFrame extends JFrame {
 		
         List<Node> nodes = new ArrayList<>();
         
-        for (int i = 0; i < 999; i++) {
-			NodeElement parent = null;
+        for (int i = 0; i < 25; i++) {
 			var random = new Random();
-			
-			if (random.nextInt(15) == 1)
-				parent = (NodeElement) nodes.get(random.nextInt(nodes.size()));
-			
-            nodes.add(new NodeElement("Test", "Gershaveut", parent));
+			var linkList = new ArrayList<Node>();
+
+			if (random.nextInt(3) == 1 && nodes.size() > 1)
+                linkList.add(nodes.get(random.nextInt(nodes.size() - 1)));
+
+            nodes.add(new NodeElement("Test", "Gershaveut", linkList));
         }
 
         this.add(new GraphPanel(nodes));
