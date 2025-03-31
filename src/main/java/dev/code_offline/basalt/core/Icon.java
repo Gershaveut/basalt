@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.view;
+package dev.code_offline.basalt.core;
 
 import dev.code_offline.basalt.Main;
 

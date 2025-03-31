@@ -1,6 +1,8 @@
 package dev.code_offline.basalt;
 
-import dev.code_offline.basalt.view.frame.MainFrame;
+import dev.code_offline.basalt.controller.GraphController;
+import dev.code_offline.basalt.model.graph.Graph;
+import dev.code_offline.basalt.view.MainFrame;
 
 import javax.swing.*;
 
