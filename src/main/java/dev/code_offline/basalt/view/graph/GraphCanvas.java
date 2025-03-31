@@ -75,12 +75,12 @@ public class GraphCanvas extends JPanel implements  StepListener<Body>{
             initializeNodes();
 
             world.setGravity(GRAVITY);
+            world.addStepListener(this);
             physicThread.start();
         }
 
         centerGraph();
     }
-
 
     private void initializeNodes() {
         graph.getNodes().forEach(node -> {
