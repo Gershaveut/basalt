@@ -20,7 +20,7 @@ public class GraphPanel extends JPanel {
         this.add(graphCanvas, BorderLayout.CENTER);
 
         if (Main.DEBUG) {
-            var debugPanel = new JPanel();
+            var debugPanel = new JPanel(new GridLayout(0, 1));
 
             var offsetLabel = new JLabel();
             var scaleLocationLabel = new JLabel();
@@ -30,7 +30,6 @@ public class GraphPanel extends JPanel {
             debugPanel.add(scaleLocationLabel);
             debugPanel.add(mouseLocationLabel);
 
-            debugPanel.setLayout(new GridLayout(0, 1));
             debugPanel.setBorder(new BevelBorder(BevelBorder.RAISED));
             this.add(debugPanel, BorderLayout.SOUTH);
 

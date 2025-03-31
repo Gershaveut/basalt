@@ -8,7 +8,7 @@ public enum Icon {
     FOLDER("folder"),
     GRAPH("graph");
 
-    private static final int ICON_SIZE = 50;
+    private static final int ICON_SIZE = 30;
 
     private String path;
 
