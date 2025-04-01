@@ -37,7 +37,6 @@ public class GraphPanel extends JPanel {
                 void update(MouseEvent e) {
                     offsetLabel.setText("Graph offset: " + (int) graphCanvas.getOffset().x + " " +  (int) graphCanvas.getOffset().y);
                     scaleLocationLabel.setText("Graph scale: " + graphCanvas.getScale());
-
                     mouseLocationLabel.setText("Mouse location: " + graphCanvas.getMouseWorldPosition());
                 }
 

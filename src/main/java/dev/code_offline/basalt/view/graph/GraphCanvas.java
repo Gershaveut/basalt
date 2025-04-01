@@ -13,6 +13,7 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.StepListener;
+import org.dyn4j.world.listener.StepListenerAdapter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class GraphCanvas extends JPanel implements  StepListener<Body>{
+public class GraphCanvas extends JPanel {
     private final double NANO_TO_BASE = 1.0e9;
 
     private final int NODE_SIZE = 25;
@@ -32,10 +33,16 @@ public class GraphCanvas extends JPanel implements  StepListener<Body>{
     private final double DAMPING = 0.5;
     private final double REST_DISTANCE = 150;
     private final double SPRING_FREQUENCY = 8;
+
+    public World<Body> getWorld() {
+        return world;
+    }
+
     public final World<Body> world = new World<>();
 
     private final Graph graph;
-    private Vector2 offset = new Vector2();
+    private final Vector2 offset = new Vector2();
+
     private double scale = 1.0;
 
     private boolean physicThreadLive; // нужно что-бы дать знать когда потоку на покой
@@ -67,20 +74,33 @@ public class GraphCanvas extends JPanel implements  StepListener<Body>{
             }
         };
 
-
-
         if (!graph.getNodes().isEmpty()) {
             physicThread = new Thread(physicThreadRun, "PhysicThread");
 
             initializeNodes();
 
             world.setGravity(GRAVITY);
-            world.addStepListener(this);
             physicThread.start();
         }
-
-        centerGraph();
     }
+
+    public Vector2 getOffset() {
+        return offset;
+    }
+
+    public void setOffset(double x, double y) {
+        offset.x = x;
+        offset.y = y;
+    }
+
+    public double getScale() {
+        return scale;
+    }
+
+    public void setScale(double scale) {
+        this.scale = scale;
+    }
+
 
     private void initializeNodes() {
         graph.getNodes().forEach(node -> {
@@ -109,26 +129,6 @@ public class GraphCanvas extends JPanel implements  StepListener<Body>{
         });
     }
 
-    private void centerGraph() {
-        if (!graph.getNodes().isEmpty()) {
-            var arrayX = graph.getNodes().stream().mapToDouble(n -> n.getBody().getWorldCenter().x).toArray();
-            var arrayY = graph.getNodes().stream().mapToDouble(n -> n.getBody().getWorldCenter().y).toArray();
-
-            double minX = Arrays.stream(arrayX).min().orElseThrow();
-            double maxX = Arrays.stream(arrayX).max().orElseThrow();
-
-            double minY = Arrays.stream(arrayY).min().orElseThrow();
-            double maxY = Arrays.stream(arrayY).max().orElseThrow();
-
-            double graphWidth = maxX - minX;
-            double graphHeight = maxY - minY;
-
-            offset.x = ((getWidth() / scale - graphWidth) / 2 - minX);
-            offset.y = ((getHeight() / scale - graphHeight) / 2 - minY);
-        }
-    }
-
-
 
     // функция для обновления графа
     public void restart() {
@@ -145,6 +145,7 @@ public class GraphCanvas extends JPanel implements  StepListener<Body>{
         physicThread = new Thread(physicThreadRun, "PhysicThread");
         physicThread.start();
     }
+
 
     @Override
     public void paintComponent(Graphics graphics) {
@@ -177,46 +178,14 @@ public class GraphCanvas extends JPanel implements  StepListener<Body>{
         g2d.dispose();
     }
 
+
     // возвращает позицию мыши в мировом представлении
     public Vector2 getMouseWorldPosition() {
         var mousePosition = getMousePosition();
-        
+
         if (mousePosition == null)
             return null;
 
         return Util.pointToVector(mousePosition).subtract(offset).divide(scale);
-    }
-
-    public Vector2 getOffset() {
-        return offset;
-    }
-    public void setOffset(double x, double y) {
-        offset.x = x;
-        offset.y = y;
-    }
-
-    public double getScale() {
-        return scale;
-    }
-
-
-    @Override
-    public void end(TimeStep step, PhysicsWorld world) {
-        SwingUtilities.invokeLater(this::repaint);
-    }
-
-    @Override
-    public void begin(TimeStep step, PhysicsWorld<Body, ?> world) {
-
-    }
-
-    @Override
-    public void updatePerformed(TimeStep step, PhysicsWorld<Body, ?> world) {
-
-    }
-
-    @Override
-    public void postSolve(TimeStep step, PhysicsWorld<Body, ?> world) {
-
     }
 }

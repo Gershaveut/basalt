@@ -3,10 +3,16 @@ import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.model.graph.NodeElement;
 import dev.code_offline.basalt.view.graph.GraphPanel;
+import org.dyn4j.dynamics.TimeStep;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
+import org.dyn4j.world.PhysicsWorld;
+import org.dyn4j.world.listener.StepListenerAdapter;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 import java.util.List;
 
 public class GraphController {
@@ -18,13 +24,36 @@ public class GraphController {
     private Point lastMousePos;
     private Node draggedNode;
 
-    private Graph graph;
-    private GraphPanel graphPanel;
+    private final Graph graph;
+    private final GraphPanel graphPanel;
 
     public GraphController(Graph graph, GraphPanel graphPanel) {
         this.graph = graph;
         this.graphPanel = graphPanel;
         setupListeners();
+        centerGraph();
+    }
+
+
+    private void centerGraph() {
+        if (!graph.getNodes().isEmpty()) {
+            var arrayX = graph.getNodes().stream().mapToDouble(n -> n.getBody().getWorldCenter().x).toArray();
+            var arrayY = graph.getNodes().stream().mapToDouble(n -> n.getBody().getWorldCenter().y).toArray();
+
+            double minX = Arrays.stream(arrayX).min().orElseThrow();
+            double maxX = Arrays.stream(arrayX).max().orElseThrow();
+
+            double minY = Arrays.stream(arrayY).min().orElseThrow();
+            double maxY = Arrays.stream(arrayY).max().orElseThrow();
+
+            double graphWidth = maxX - minX;
+            double graphHeight = maxY - minY;
+
+            var x = ((graphPanel.graphCanvas.getWidth() / graphPanel.graphCanvas.getScale() - graphWidth) / 2 - minX);
+            var y = ((graphPanel.graphCanvas.getHeight() / graphPanel.graphCanvas.getScale() - graphHeight) / 2 - minY);
+
+            graphPanel.graphCanvas.setOffset(x, y);
+        }
     }
 
     public void setupListeners() {
@@ -85,6 +114,26 @@ public class GraphController {
                 }
             }
         });
+
+        graphPanel.graphCanvas.getWorld().addStepListener(new StepListenerAdapter<>() {
+                @Override
+                public void end(TimeStep step, PhysicsWorld world) {
+                    SwingUtilities.invokeLater(graphPanel.graphCanvas::repaint);
+                }
+            }
+        );
+
+        graphPanel.graphCanvas.addComponentListener(
+            new ComponentAdapter() {
+                // отслеживание изменения размера окна для центрирования графа
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    if (graphPanel.graphCanvas.getWidth() > 0 && graphPanel.graphCanvas.getHeight() > 0) {
+                        centerGraph();
+                    }
+                }
+            }
+        );
     }
 
 

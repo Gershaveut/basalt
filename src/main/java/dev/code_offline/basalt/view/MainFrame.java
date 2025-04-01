@@ -18,10 +18,6 @@ import static dev.code_offline.basalt.core.Icon.FOLDER;
 import static dev.code_offline.basalt.core.Icon.GRAPH;
 
 public class MainFrame extends JFrame {
-    private GraphController graphController;
-
-    private final GridBagLayout layout = new GridBagLayout();
-
     public MainFrame() throws HeadlessException {
         this.setLayout(new BorderLayout());
         this.setSize(600, 600);
@@ -32,10 +28,11 @@ public class MainFrame extends JFrame {
         graph.initializeSampleData();
 
         var graphPanel = new GraphPanel(graph);
-        graphController = new GraphController(graph, graphPanel);
-
         this.add(graphPanel);
-        this.add(new ToolPanel(), BorderLayout.WEST);
+        var toolPanel = new ToolPanel();
+        this.add(toolPanel, BorderLayout.WEST);
+
+        new GraphController(graph, graphPanel);
 
         this.setVisible(true);
     }
