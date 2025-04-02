@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Main-Class: dev.code_offline.basalt.Main
 Created-By: 1.0 (Code Offline)
-Class-Path: dyn4j-5.0.2.jar
+Class-Path: javadocking-1.4.2.jar dyn4j-5.0.2.jar

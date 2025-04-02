@@ -10,10 +10,8 @@ public class ToolPanel extends JPanel {
     private final int TOOL_BUTTON_SIZE = 50;
 
     public ToolPanel() {
-        initComponents();
-    }
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-    private void initComponents() {
         var project = new JButton(Icon.FOLDER.getIcon());
         var graph = new JButton(Icon.GRAPH.getIcon());
 
