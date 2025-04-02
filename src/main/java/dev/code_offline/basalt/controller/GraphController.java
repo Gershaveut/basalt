@@ -1,4 +1,5 @@
 package dev.code_offline.basalt.controller;
+
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.view.graph.GraphCanvas;

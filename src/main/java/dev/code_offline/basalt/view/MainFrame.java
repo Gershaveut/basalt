@@ -11,7 +11,8 @@ import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.graph.GraphPanel;
-import dev.code_offline.basalt.view.tool_panel.ToolPanel;
+import dev.code_offline.basalt.view.tool.FolderPanel;
+import dev.code_offline.basalt.view.tool.ToolPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,6 +29,7 @@ public class MainFrame extends JFrame {
 
         var graphPanel = new GraphPanel(graph);
         var toolPanel = new ToolPanel();
+        var folderPanel = new FolderPanel();
 
         new GraphController(graph, graphPanel);
 
@@ -37,7 +39,7 @@ public class MainFrame extends JFrame {
         DockingManager.setDockModel(dockModel);
 
         Dockable graphDock = new DefaultDockable("Window1", graphPanel, "Граф", null, DockingMode.ALL);
-        Dockable folderDock = new DefaultDockable("Window2", new JTree(), "Проект", null, DockingMode.ALL);
+        Dockable folderDock = new DefaultDockable("Window2", folderPanel, "Проект", null, DockingMode.ALL);
 
         TabDock rightTabDock = new TabDock();
         TabDock leftTabDock = new TabDock();

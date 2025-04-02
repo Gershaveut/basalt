@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.view.tool_panel;
+package dev.code_offline.basalt.view.tool;
 
 import dev.code_offline.basalt.core.Icon;
 
