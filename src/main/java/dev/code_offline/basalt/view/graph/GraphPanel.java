@@ -1,22 +1,22 @@
-package dev.code_offline.basalt.view.component;
+package dev.code_offline.basalt.view.graph;
 
 import dev.code_offline.basalt.Main;
-import dev.code_offline.basalt.view.component.graph.GraphCanvas;
-import dev.code_offline.basalt.view.component.graph.Node;
+import dev.code_offline.basalt.model.graph.Graph;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.List;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 
 public class GraphPanel extends JPanel {
-    private final GraphCanvas graphCanvas;
+    public final GraphCanvas graphCanvas;
 
-    public GraphPanel(List<Node> nodes) {
+    public GraphPanel(Graph graph) {
         super(new BorderLayout());
 
-        graphCanvas = new GraphCanvas(nodes);
+        graphCanvas = new GraphCanvas(graph);
         this.add(graphCanvas, BorderLayout.CENTER);
 
         if (Main.DEBUG) {
@@ -37,7 +37,6 @@ public class GraphPanel extends JPanel {
                 void update(MouseEvent e) {
                     offsetLabel.setText("Graph offset: " + (int) graphCanvas.getOffset().x + " " +  (int) graphCanvas.getOffset().y);
                     scaleLocationLabel.setText("Graph scale: " + graphCanvas.getScale());
-
                     mouseLocationLabel.setText("Mouse location: " + graphCanvas.getMouseWorldPosition());
                 }
 

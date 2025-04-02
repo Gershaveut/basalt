@@ -1,4 +1,4 @@
-package dev.code_offline.basalt;
+package dev.code_offline.basalt.core;
 
 import org.dyn4j.geometry.Vector2;
 
