@@ -11,10 +11,6 @@ public class Graph {
         this.nodes = new ArrayList<>();
     }
 
-    public void addNode(Node node) {
-        nodes.add(node);
-    }
-
     public List<Node> getNodes() {
         return nodes;
     }

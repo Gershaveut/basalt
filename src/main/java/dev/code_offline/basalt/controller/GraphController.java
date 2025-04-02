@@ -1,7 +1,6 @@
 package dev.code_offline.basalt.controller;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
-import dev.code_offline.basalt.model.graph.NodeElement;
 import dev.code_offline.basalt.view.graph.GraphPanel;
 import org.dyn4j.dynamics.TimeStep;
 import org.dyn4j.geometry.MassType;
@@ -13,7 +12,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
-import java.util.List;
 
 public class GraphController {
     private final MassType NODE_MASS = MassType.NORMAL;
@@ -145,10 +143,5 @@ public class GraphController {
         }
 
         return null;
-    }
-
-    public void addNode(String title, String author, List<Node> children) {
-        graph.addNode(new NodeElement(title, author, children));
-        graphPanel.graphCanvas.repaint();
     }
 }

@@ -2,13 +2,13 @@ package dev.code_offline.basalt.view.graph;
 
 import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.model.graph.Graph;
-import dev.code_offline.basalt.model.graph.Node;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.List;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 
 public class GraphPanel extends JPanel {
     public final GraphCanvas graphCanvas;

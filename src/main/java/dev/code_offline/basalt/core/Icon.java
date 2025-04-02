@@ -10,7 +10,7 @@ public enum Icon {
 
     private static final int ICON_SIZE = 30;
 
-    private String path;
+    private final String path;
 
     Icon(String path) {
         this.path = path;

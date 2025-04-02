@@ -1,10 +1,10 @@
 package dev.code_offline.basalt.view.tool_panel;
 
+import dev.code_offline.basalt.core.Icon;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-
-import dev.code_offline.basalt.core.Icon;
 
 public class ToolPanel extends JPanel {
     private final int TOOL_BUTTON_SIZE = 50;

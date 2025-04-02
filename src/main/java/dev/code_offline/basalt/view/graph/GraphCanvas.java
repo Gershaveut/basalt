@@ -2,24 +2,15 @@ package dev.code_offline.basalt.view.graph;
 
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.graph.Graph;
-import dev.code_offline.basalt.model.graph.Node;
-import dev.code_offline.basalt.model.graph.NodeElement;
 import org.dyn4j.dynamics.Body;
-import org.dyn4j.dynamics.TimeStep;
 import org.dyn4j.dynamics.joint.DistanceJoint;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
-import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
-import org.dyn4j.world.listener.StepListener;
-import org.dyn4j.world.listener.StepListenerAdapter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 public class GraphCanvas extends JPanel {
