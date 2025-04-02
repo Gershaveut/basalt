@@ -16,20 +16,16 @@ import java.util.Random;
 public class GraphCanvas extends JPanel {
     private final double NANO_TO_BASE = 1.0e9;
 
-    private final int NODE_SIZE = 25;
+    public final int NODE_SIZE = 25;
 
     // настройки физики
-    private final Vector2 GRAVITY = new Vector2();
-    private final MassType NODE_MASS = MassType.NORMAL;
-    private final double DAMPING = 0.5;
-    private final double REST_DISTANCE = 150;
-    private final double SPRING_FREQUENCY = 8;
+    public final Vector2 GRAVITY = new Vector2();
+    public final MassType NODE_MASS = MassType.NORMAL;
+    public final double DAMPING = 0.5;
+    public final double REST_DISTANCE = 150;
+    public final double SPRING_FREQUENCY = 8;
 
-    public World<Body> getWorld() {
-        return world;
-    }
-
-    public final World<Body> world = new World<>();
+    private final World<Body> world = new World<>();
 
     private final Graph graph;
     private final Vector2 offset = new Vector2();
@@ -92,6 +88,9 @@ public class GraphCanvas extends JPanel {
         this.scale = scale;
     }
 
+    public World<Body> getWorld() {
+        return world;
+    }
 
     private void initializeNodes() {
         graph.getNodes().forEach(node -> {
