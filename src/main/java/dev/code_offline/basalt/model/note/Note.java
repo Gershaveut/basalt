@@ -1,19 +1,20 @@
 package dev.code_offline.basalt.model.note;
 
 import dev.code_offline.basalt.model.graph.Node;
+import dev.code_offline.basalt.model.user.User;
 import org.dyn4j.dynamics.Body;
 
 import java.util.List;
 
 public class Note implements Node {
-    public String name;
-    public String author;
+    private String name;
+    private User author;
 
-    public String text;
+    private String text;
 
     private final Body body = new Body();
 
-    public Note(String name, String author, String text) {
+    public Note(String name, User author, String text) {
         this.name = name;
         this.author = author;
         this.text = text;
@@ -26,7 +27,7 @@ public class Note implements Node {
 
     @Override
     public String getAuthor() {
-        return author;
+        return author.getName();
     }
 
     @Override
@@ -37,5 +38,13 @@ public class Note implements Node {
     @Override
     public Body getBody() {
         return body;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public User getAuthorUser() {
+        return author;
     }
 }
