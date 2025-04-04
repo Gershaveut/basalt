@@ -11,6 +11,7 @@ import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.graph.GraphPanel;
+import dev.code_offline.basalt.view.markdown.MarkdownEditor;
 import dev.code_offline.basalt.view.tool.FolderPanel;
 import dev.code_offline.basalt.view.tool.ToolPanel;
 
@@ -68,6 +69,8 @@ public class MainFrame extends JFrame {
 
         add(splitPane, BorderLayout.CENTER);
         add(toolPanel, BorderLayout.WEST);
+
+        add(new MarkdownEditor());
 
         this.setVisible(true);
     }
