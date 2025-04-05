@@ -2,17 +2,28 @@ package dev.code_offline.basalt.view.tool;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
+import dev.code_offline.basalt.model.Note;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+
 
 public class FolderPanel extends JPanel implements BasaltDockable {
+    private final JTree tree = new JTree(new Object[0]);
+
     public FolderPanel() {
         super(new BorderLayout());
 
-        var tree = new JTree();
-
         add(tree, BorderLayout.CENTER);
+    }
+
+    public void setNotes(List<Note> notes) {
+        tree.setModel(new JTree(notes.toArray()).getModel());
+    }
+
+    public JTree getTree() {
+        return tree;
     }
 
     @Override

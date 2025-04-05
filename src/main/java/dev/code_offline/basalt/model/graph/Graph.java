@@ -8,22 +8,14 @@ public class Graph {
     private final List<Node> nodes;
 
     public Graph() {
-        this.nodes = new ArrayList<>();
+        nodes = new ArrayList<>();
+    }
+
+    public Graph(List<Node> nodes) {
+        this.nodes = nodes;
     }
 
     public List<Node> getNodes() {
         return nodes;
-    }
-
-    public void initializeSampleData() {
-        for (int i = 0; i < 25; i++) {
-            var random = new Random();
-            var linkList = new ArrayList<Node>();
-
-            if (random.nextInt(3) == 1 && nodes.size() > 1)
-                linkList.add(nodes.get(random.nextInt(nodes.size() - 1)));
-
-            nodes.add(new NodeElement("Test", "Gershaveut", linkList));
-        }
     }
 }

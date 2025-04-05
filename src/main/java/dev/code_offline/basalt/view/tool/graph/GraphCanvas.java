@@ -2,6 +2,7 @@ package dev.code_offline.basalt.view.tool.graph;
 
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.graph.Graph;
+import dev.code_offline.basalt.model.graph.Node;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.joint.DistanceJoint;
 import org.dyn4j.geometry.Geometry;
@@ -11,9 +12,12 @@ import org.dyn4j.world.World;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Random;
 
-public class GraphCanvas extends JPanel {
+public class GraphCanvas extends JComponent {
     private final double NANO_TO_BASE = 1.0e9;
 
     public final int NODE_SIZE = 25;
@@ -27,7 +31,7 @@ public class GraphCanvas extends JPanel {
 
     private final World<Body> world = new World<>();
 
-    private final Graph graph;
+    private Graph graph;
     private final Vector2 offset = new Vector2();
 
     private double scale = 1.0;
@@ -61,12 +65,13 @@ public class GraphCanvas extends JPanel {
             }
         };
 
+        world.setGravity(GRAVITY);
+
         if (!graph.getNodes().isEmpty()) {
             physicThread = new Thread(physicThreadRun, "PhysicThread");
 
             initializeNodes();
 
-            world.setGravity(GRAVITY);
             physicThread.start();
         }
     }
@@ -122,14 +127,15 @@ public class GraphCanvas extends JPanel {
 
     // функция для обновления графа
     public void restart() {
-        physicThreadLive = false;
+        if (physicThreadLive) {
+            physicThreadLive = false;
 
-        try {
-            physicThread.join();
-        } catch (InterruptedException ignored) {
+            try {
+                physicThread.join();
+            } catch (InterruptedException ignored) {
+            }
         }
 
-        graph.getNodes().clear();
         initializeNodes();
 
         physicThread = new Thread(physicThreadRun, "PhysicThread");
@@ -177,5 +183,25 @@ public class GraphCanvas extends JPanel {
             return null;
 
         return Util.pointToVector(mousePosition).subtract(offset).divide(scale);
+    }
+
+    public Node getFocusatedNode() {
+        for (Node node : graph.getNodes()) {
+            if (node.getBody().getWorldCenter().distance(getMouseWorldPosition()) <= NODE_SIZE) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    public Graph getGraph() {
+        return graph;
+    }
+
+    public void setGraph(Graph graph) {
+        this.graph = graph;
+
+        restart();
     }
 }

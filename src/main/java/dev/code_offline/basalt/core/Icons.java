@@ -27,7 +27,7 @@ public enum Icons {
     }
 
     public static ImageIcon getIcon(String path) {
-        return filterIcon(new ImageIcon(iconPrefix(path)));
+        return new ImageIcon(filterIcon(new ImageIcon(iconPrefix(path))).getImage().getScaledInstance(ICON_SIZE, ICON_SIZE, 0));
     }
 
     public static ImageIcon filterIcon (ImageIcon icon) {

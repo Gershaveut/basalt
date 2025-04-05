@@ -7,6 +7,7 @@ import com.javadocking.dock.TabDock;
 import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
+import dev.code_offline.basalt.controller.NoteController;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.tool.FolderPanel;
 import dev.code_offline.basalt.view.tool.MarkdownEditorPanel;
@@ -26,7 +27,6 @@ public class MainFrame extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         var graph = new Graph();
-        graph.initializeSampleData();
 
         var graphPanel = new GraphPanel(graph);
 
@@ -36,6 +36,7 @@ public class MainFrame extends JFrame {
         List<Tool> tools = new ArrayList<>();
 
         new GraphController(graph, graphPanel);
+        new NoteController(graphPanel, markdownEditorPanel, folderPanel);
 
         // создание модели
         FloatDockModel dockModel = new FloatDockModel();

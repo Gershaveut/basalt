@@ -70,23 +70,12 @@ public class GraphController implements ComponentListener, MouseListener, MouseM
         graphCanvas.getWorld().addStepListener(this);
     }
 
-
-    private Node getFocusatedNode() {
-        for (Node node : graph.getNodes()) {
-            if (node.getBody().getWorldCenter().distance(graphPanel.graphCanvas.getMouseWorldPosition()) <= graphCanvas.NODE_SIZE) {
-                return node;
-            }
-        }
-
-        return null;
-    }
-
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MOVE_GRAPH) {
             lastMousePos = e.getPoint();
         } else if (e.getButton() == MOVE_NODE) {
-            var focusNode = getFocusatedNode();
+            var focusNode = graphCanvas.getFocusatedNode();
 
             if (focusNode == null)
                 return;
