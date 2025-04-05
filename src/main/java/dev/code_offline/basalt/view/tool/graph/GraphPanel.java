@@ -1,7 +1,10 @@
 package dev.code_offline.basalt.view.tool.graph;
 
+import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.Main;
+import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.graph.Graph;
+import dev.code_offline.basalt.view.tool.BasaltDockable;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -10,7 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
-public class GraphPanel extends JPanel {
+public class GraphPanel extends JPanel implements BasaltDockable {
     public final GraphCanvas graphCanvas;
 
     public GraphPanel(Graph graph) {
@@ -59,5 +62,30 @@ public class GraphPanel extends JPanel {
             graphCanvas.addMouseMotionListener(mouseAdapter);
             graphCanvas.addMouseWheelListener(mouseAdapter);
         }
+    }
+
+    @Override
+    public String getID() {
+        return "graph";
+    }
+
+    @Override
+    public String getTitle() {
+        return "Граф";
+    }
+
+    @Override
+    public Component getContent() {
+        return this;
+    }
+
+    @Override
+    public int getDockingModes() {
+        return DockingMode.ALL;
+    }
+
+    @Override
+    public ImageIcon getIconOriginal() {
+        return Icons.GRAPH.getIcon();
     }
 }

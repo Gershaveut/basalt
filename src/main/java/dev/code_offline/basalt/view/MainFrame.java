@@ -4,17 +4,19 @@ import com.javadocking.DockingManager;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
-import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.Dockable;
-import com.javadocking.dockable.DockingMode;
 import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.tool.FolderPanel;
+import dev.code_offline.basalt.view.tool.MarkdownEditorPanel;
+import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainFrame extends JFrame {
     public MainFrame() throws HeadlessException {
@@ -27,44 +29,66 @@ public class MainFrame extends JFrame {
         graph.initializeSampleData();
 
         var graphPanel = new GraphPanel(graph);
-        var toolPanel = new ToolPanel();
+
         var folderPanel = new FolderPanel();
+        var markdownEditorPanel = new MarkdownEditorPanel();
+
+        List<Tool> tools = new ArrayList<>();
 
         new GraphController(graph, graphPanel);
 
+        // создание модели
         FloatDockModel dockModel = new FloatDockModel();
-        dockModel.addOwner("frame0", this);
+        dockModel.addOwner("main_frame", this);
 
         DockingManager.setDockModel(dockModel);
 
-        Dockable graphDock = new DefaultDockable("Window1", graphPanel, "Граф", null, DockingMode.ALL);
-        Dockable folderDock = new DefaultDockable("Window2", folderPanel, "Проект", null, DockingMode.ALL);
+        // создание инструментов
+        var graphDock = new Tool(graphPanel);
+        var folderDock = new Tool(folderPanel);
+        var markdownEditorDock = new Tool(markdownEditorPanel);
 
-        TabDock rightTabDock = new TabDock();
-        TabDock leftTabDock = new TabDock();
+        // добавление в список инструментов
+        tools.add(graphDock);
+        tools.add(folderDock);
+        tools.add(markdownEditorDock);
 
+        var toolPanel = new ToolPanel(tools);
+
+        // создание табов
+        var rightTabDock = new TabDock();
+        var leftTabDock = new TabDock();
+
+        // добавление инструментов в табы
         rightTabDock.addDockable(graphDock, new Position(0));
         leftTabDock.addDockable(folderDock, new Position(0));
 
-        SplitDock rightSplitDock = new SplitDock();
-        SplitDock leftSplitDock = new SplitDock();
+        // создание доков
+        var rightSplitDock = new SplitDock();
+        var leftSplitDock = new SplitDock();
 
+        // добавление табов в доки
         rightSplitDock.addChildDock(rightTabDock, new Position(Position.CENTER));
         leftSplitDock.addChildDock(leftTabDock, new Position(Position.CENTER));
 
-        dockModel.addRootDock("rightdock", rightSplitDock, this);
-        dockModel.addRootDock("leftdock", leftSplitDock, this);
+        // добавление доков в модель
+        dockModel.addRootDock("right_dock", rightSplitDock, this);
+        dockModel.addRootDock("left_dock", leftSplitDock, this);
 
-        JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        // создание сплит панелей
+        var rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        var splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
+        // настройка разделителя
         rightSplitPane.setDividerSize(0);
         splitPane.setDividerLocation(150);
 
+        // добавление доков в сплит панели
         rightSplitPane.add(rightSplitDock);
         splitPane.setRightComponent(rightSplitPane);
         splitPane.setLeftComponent(leftSplitDock);
 
+        // добавление компонентов
         add(splitPane, BorderLayout.CENTER);
         add(toolPanel, BorderLayout.WEST);
 

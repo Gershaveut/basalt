@@ -10,8 +10,4 @@ public class Main {
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(MainFrame::new);
 	}
-
-	public static String assetsPrefix(String path) {
-		return "src/main/resources/assets/" + path;
-	}
 }

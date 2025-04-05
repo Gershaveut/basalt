@@ -1,5 +1,7 @@
 package dev.code_offline.basalt.view.tool;
 
+import com.javadocking.dockable.DockingMode;
+import dev.code_offline.basalt.core.Icons;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -9,7 +11,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class MarkdownEditorPanel extends JPanel {
+public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
     private final JTextArea inputArea;
     private final JEditorPane previewPane;
     private final Parser markdownParser;
@@ -52,13 +54,37 @@ public class MarkdownEditorPanel extends JPanel {
         previewPane.setText("<html><body>" + html + "</body></html>");
     }
 
-    public String getContent() {
+    public String getText() {
         return inputArea.getText();
     }
 
-    public void setContent(String content) {
+    public void setText(String content) {
         inputArea.setText(content);
         updatePreview();
     }
 
+    @Override
+    public String getID() {
+        return "markdown_editor";
+    }
+
+    @Override
+    public String getTitle() {
+        return "Редактор";
+    }
+
+    @Override
+    public Component getContent() {
+        return this;
+    }
+
+    @Override
+    public int getDockingModes() {
+        return DockingMode.ALL;
+    }
+
+    @Override
+    public ImageIcon getIconOriginal() {
+        return Icons.EDIT_NOTE.getIcon();
+    }
 }
