@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.view.markdown;
+package dev.code_offline.basalt.view.tool;
 
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -9,13 +9,13 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class MarkdownEditor extends JPanel {
+public class MarkdownEditorPanel extends JPanel {
     private final JTextArea inputArea;
     private final JEditorPane previewPane;
     private final Parser markdownParser;
     private final HtmlRenderer htmlRenderer;
 
-    public MarkdownEditor() {
+    public MarkdownEditorPanel() {
         setLayout(new GridLayout(1, 2, 10, 0));
 
         markdownParser = Parser.builder().build();

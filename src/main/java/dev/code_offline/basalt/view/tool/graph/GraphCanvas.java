@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.view.graph;
+package dev.code_offline.basalt.view.tool.graph;
 
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.graph.Graph;

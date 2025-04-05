@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.model.note;
+package dev.code_offline.basalt.model;
 
 import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.model.user.User;

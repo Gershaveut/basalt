@@ -2,8 +2,8 @@ package dev.code_offline.basalt.controller;
 
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
-import dev.code_offline.basalt.view.graph.GraphCanvas;
-import dev.code_offline.basalt.view.graph.GraphPanel;
+import dev.code_offline.basalt.view.tool.graph.GraphCanvas;
+import dev.code_offline.basalt.view.tool.graph.GraphPanel;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.TimeStep;
 import org.dyn4j.geometry.MassType;
