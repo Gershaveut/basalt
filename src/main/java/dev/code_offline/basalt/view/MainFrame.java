@@ -4,11 +4,11 @@ import com.javadocking.DockingManager;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
-import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
 import dev.code_offline.basalt.controller.NoteController;
 import dev.code_offline.basalt.model.graph.Graph;
+import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.tool.FolderPanel;
 import dev.code_offline.basalt.view.tool.MarkdownEditorPanel;
 import dev.code_offline.basalt.view.tool.Tool;
@@ -26,8 +26,9 @@ public class MainFrame extends JFrame {
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        var graph = new Graph();
+        var menuBar = new MenuBar();
 
+        var graph = new Graph();
         var graphPanel = new GraphPanel(graph);
 
         var folderPanel = new FolderPanel();
@@ -93,6 +94,7 @@ public class MainFrame extends JFrame {
         add(splitPane, BorderLayout.CENTER);
         add(toolPanel, BorderLayout.WEST);
 
+        this.setJMenuBar(menuBar);
         this.setVisible(true);
     }
 }
