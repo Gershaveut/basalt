@@ -4,8 +4,10 @@ import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.DockableState;
 import com.javadocking.dockable.StateActionDockable;
 import com.javadocking.dockable.action.DefaultDockableStateActionFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
 
 public final class Tool extends StateActionDockable implements BasaltDockable {
     private final BasaltDockable basaltDockable;
@@ -18,7 +20,32 @@ public final class Tool extends StateActionDockable implements BasaltDockable {
     }
 
     @Override
-    public ImageIcon getIconOriginal() {
+    public String getID(){
+        return basaltDockable.getID();
+    }
+
+    @Override
+    public String getTitle() {
+        return basaltDockable.getTitle();
+    }
+
+    @Override
+    public Component getContent() {
+        return basaltDockable.getContent();
+    }
+
+    @Override
+    public int getDockingModes() {
+        return basaltDockable.getDockingModes();
+    }
+
+    @Override
+    public @Nullable ImageIcon getIconOriginal() {
         return basaltDockable.getIconOriginal();
+    }
+
+    @Override
+    public @Nullable Icon getIcon() {
+        return basaltDockable.getIcon();
     }
 }

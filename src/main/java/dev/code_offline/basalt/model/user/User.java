@@ -1,12 +1,15 @@
 package dev.code_offline.basalt.model.user;
 
-public class User {
-    private String name;
-    private int id;
-    private Role role;
-    private String description;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-    public User(String name, int id, Role role, String description) {
+public class User {
+    private final String name;
+    private final int id;
+    private final Role role;
+    @Nullable
+    private final String description;
+
+    public User(String name, int id, Role role, @Nullable String description) {
         this.name = name;
         this.id = id;
         this.role = role;
@@ -25,7 +28,7 @@ public class User {
         return role;
     }
 
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return description;
     }
 }

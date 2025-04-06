@@ -3,6 +3,7 @@ package dev.code_offline.basalt.view.tool.graph;
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.joint.DistanceJoint;
 import org.dyn4j.geometry.Geometry;
@@ -12,9 +13,6 @@ import org.dyn4j.world.World;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Random;
 
 public class GraphCanvas extends JComponent {
@@ -38,7 +36,7 @@ public class GraphCanvas extends JComponent {
 
     private boolean physicThreadLive; // нужно что-бы дать знать когда потоку на покой
     private final Runnable physicThreadRun;
-    private Thread physicThread;
+    private @Nullable Thread physicThread;
     private long last;
 
     public GraphCanvas(Graph graph) {
@@ -131,6 +129,7 @@ public class GraphCanvas extends JComponent {
             physicThreadLive = false;
 
             try {
+                assert physicThread != null;
                 physicThread.join();
             } catch (InterruptedException ignored) {
             }
@@ -176,7 +175,7 @@ public class GraphCanvas extends JComponent {
 
 
     // возвращает позицию мыши в мировом представлении
-    public Vector2 getMouseWorldPosition() {
+    public @Nullable Vector2 getMouseWorldPosition() {
         var mousePosition = getMousePosition();
 
         if (mousePosition == null)
@@ -185,7 +184,7 @@ public class GraphCanvas extends JComponent {
         return Util.pointToVector(mousePosition).subtract(offset).divide(scale);
     }
 
-    public Node getFocusatedNode() {
+    public @Nullable Node getFocusatedNode() {
         for (Node node : graph.getNodes()) {
             if (node.getBody().getWorldCenter().distance(getMouseWorldPosition()) <= NODE_SIZE) {
                 return node;

@@ -4,6 +4,7 @@ import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.view.tool.graph.GraphCanvas;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.TimeStep;
 import org.dyn4j.geometry.MassType;
@@ -24,8 +25,8 @@ public class GraphController implements ComponentListener, MouseListener, MouseM
     private final double SCALE_MIN = 0.3;
     private final double SCALE_POW = 1.1;
 
-    private Point lastMousePos;
-    private Node draggedNode;
+    private @Nullable Point lastMousePos;
+    private @Nullable Node draggedNode;
 
     private final Graph graph;
     private final GraphPanel graphPanel;
@@ -110,7 +111,7 @@ public class GraphController implements ComponentListener, MouseListener, MouseM
 
         // перемещение ноды
         if (draggedNode != null) {
-            Vector2 targetPos = graphCanvas.getMouseWorldPosition();
+            var targetPos = graphCanvas.getMouseWorldPosition();
 
             if (targetPos == null)
                 return;

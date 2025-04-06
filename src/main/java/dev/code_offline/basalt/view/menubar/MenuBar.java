@@ -32,9 +32,7 @@ public class MenuBar extends JMenuBar {
     private JMenuItem menuItem(String name, Runnable action) {
         var menuItem = new JMenuItem(name);
 
-        menuItem.addActionListener((e) -> {
-            action.run();
-        });
+        menuItem.addActionListener((e) -> action.run());
 
         return menuItem;
     }

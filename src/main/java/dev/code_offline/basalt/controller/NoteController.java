@@ -9,6 +9,7 @@ import dev.code_offline.basalt.model.user.User;
 import dev.code_offline.basalt.view.tool.FolderPanel;
 import dev.code_offline.basalt.view.tool.MarkdownEditorPanel;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.MouseAdapter;
@@ -22,7 +23,7 @@ public class NoteController {
     private final MarkdownEditorPanel markdownEditorPanel;
     private final FolderPanel folderPanel;
 
-    private Note selectedNote;
+    private @Nullable Note selectedNote;
 
     public NoteController(GraphPanel graphPanel, MarkdownEditorPanel markdownEditorPanel, FolderPanel folderPanel) {
         this.graphPanel = graphPanel;

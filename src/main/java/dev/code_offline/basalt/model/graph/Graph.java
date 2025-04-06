@@ -2,7 +2,6 @@ package dev.code_offline.basalt.model.graph;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Graph {
     private final List<Node> nodes;

@@ -1,7 +1,5 @@
 package dev.code_offline.basalt.core;
 
-import dev.code_offline.basalt.Main;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.FilteredImageSource;
