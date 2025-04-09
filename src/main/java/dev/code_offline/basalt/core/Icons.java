@@ -9,7 +9,10 @@ import java.awt.image.RGBImageFilter;
 public enum Icons {
     FOLDER("folder"),
     GRAPH("graph"),
-    EDIT_NOTE("edit_note");
+    EDIT_NOTE("edit_note"),
+    EDIT("edit"),
+    PREVIEW("preview"),
+    STACK("stack");
 
     private static final int ICON_SIZE = 30;
     private static final Color COLOR = Color.BLACK;
@@ -22,6 +25,10 @@ public enum Icons {
 
     public ImageIcon getIcon() {
         return getIcon(path);
+    }
+
+    public ImageIcon getIcon(int size) {
+        return new ImageIcon(getIcon().getImage().getScaledInstance(size, size, 0));
     }
 
     public static ImageIcon getIcon(String path) {

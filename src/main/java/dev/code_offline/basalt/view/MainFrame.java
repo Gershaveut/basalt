@@ -30,30 +30,22 @@ public class MainFrame extends JFrame {
 
         var graph = new Graph();
         var graphPanel = new GraphPanel(graph);
-
         var folderPanel = new FolderPanel();
-        var markdownEditorPanel = new MarkdownEditorPanel();
 
         List<Tool> tools = new ArrayList<>();
 
-        new GraphController(graph, graphPanel);
-        new NoteController(graphPanel, markdownEditorPanel, folderPanel);
-
         // создание модели
-        FloatDockModel dockModel = new FloatDockModel();
+        var dockModel = new FloatDockModel();
         dockModel.addOwner("main_frame", this);
-
         DockingManager.setDockModel(dockModel);
 
         // создание инструментов
         var graphDock = new Tool(graphPanel);
         var folderDock = new Tool(folderPanel);
-        var markdownEditorDock = new Tool(markdownEditorPanel);
 
         // добавление в список инструментов
-        tools.add(graphDock);
         tools.add(folderDock);
-        tools.add(markdownEditorDock);
+        tools.add(graphDock);
 
         var toolPanel = new ToolPanel(tools);
 
@@ -62,8 +54,8 @@ public class MainFrame extends JFrame {
         var leftTabDock = new TabDock();
 
         // добавление инструментов в табы
-        rightTabDock.addDockable(graphDock, new Position(0));
-        leftTabDock.addDockable(folderDock, new Position(0));
+        rightTabDock.addDockable(graphDock, new Position());
+        leftTabDock.addDockable(folderDock, new Position());
 
         // создание доков
         var rightSplitDock = new SplitDock();
@@ -93,6 +85,9 @@ public class MainFrame extends JFrame {
         // добавление компонентов
         add(splitPane, BorderLayout.CENTER);
         add(toolPanel, BorderLayout.WEST);
+
+        new GraphController(graph, graphPanel);
+        new NoteController(graphPanel, folderPanel, rightTabDock);
 
         this.setJMenuBar(menuBar);
         this.setVisible(true);
