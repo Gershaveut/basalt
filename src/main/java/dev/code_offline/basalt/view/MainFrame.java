@@ -7,6 +7,7 @@ import com.javadocking.dock.TabDock;
 import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
 import dev.code_offline.basalt.controller.NoteController;
+import dev.code_offline.basalt.controller.SettingsController;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.tool.FolderPanel;
@@ -89,6 +90,7 @@ public class MainFrame extends JFrame {
 
         new GraphController(graph, graphPanel);
         new NoteController(graphPanel, folderPanel, rightTabDock);
+        new SettingsController(menuBar.getSettingsFrame());
 
         this.setJMenuBar(menuBar);
         this.setVisible(true);

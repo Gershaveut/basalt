@@ -1,6 +1,7 @@
 package dev.code_offline.basalt.view.menubar;
 
 import dev.code_offline.basalt.view.AboutFrame;
+import dev.code_offline.basalt.view.SettingsFrame;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -11,6 +12,7 @@ public class MenuBar extends JMenuBar {
     private final EventListenerList listeners = new EventListenerList();
 
     private final AboutFrame aboutFrame = new AboutFrame();
+    private final SettingsFrame settingsFrame = new SettingsFrame();
 
     public MenuBar() {
         var fileMenu = new JMenu("Файл");
@@ -18,6 +20,8 @@ public class MenuBar extends JMenuBar {
 
         fileMenu.add(menuItem("Новый файл", () -> notifyAll(MenuBarListener::newFile)));
         fileMenu.add(menuItem("Закрыть проект", () -> notifyAll(MenuBarListener::closeProject)));
+        fileMenu.addSeparator();
+        fileMenu.add(menuItem("Настройки", this::settings));
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Сохранить", () -> notifyAll(MenuBarListener::save)));
         fileMenu.addSeparator();
@@ -55,5 +59,13 @@ public class MenuBar extends JMenuBar {
 
     private void about() {
         aboutFrame.setVisible(true);
+    }
+
+    private void settings() {
+        settingsFrame.setVisible(true);
+    }
+
+    public SettingsFrame getSettingsFrame() {
+        return settingsFrame;
     }
 }

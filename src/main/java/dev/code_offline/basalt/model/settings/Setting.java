@@ -1,0 +1,48 @@
+package dev.code_offline.basalt.model.settings;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+import javax.swing.event.EventListenerList;
+
+public class Setting {
+    private final String name;
+    private final Object defaultValue;
+    private @Nullable Object value;
+
+    private final EventListenerList listeners = new EventListenerList();
+
+    public Setting(String name, Object defaultValue) {
+        this.name = name;
+        this.defaultValue = defaultValue;
+
+        this.value = this.defaultValue;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Object getDefaultValue() {
+        return defaultValue;
+    }
+
+    public @Nullable Object getValue() {
+        return value;
+    }
+
+    public void setValue(@Nullable Object value) {
+        this.value = value;
+
+        for (SettingListener listener : listeners.getListeners(SettingListener.class)) {
+            listener.valueChanged(value);
+        }
+    }
+
+    public void addSettingListener(SettingListener settingListener) {
+        listeners.add(SettingListener.class, settingListener);
+    }
+
+    public void removeSettingListener(SettingListener settingListener) {
+        listeners.remove(SettingListener.class, settingListener);
+    }
+}
