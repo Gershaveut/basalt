@@ -1,5 +1,7 @@
 package dev.code_offline.basalt.view.menubar;
 
+import dev.code_offline.basalt.view.AboutFrame;
+
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.util.Arrays;
@@ -8,8 +10,11 @@ import java.util.function.Consumer;
 public class MenuBar extends JMenuBar {
     private final EventListenerList listeners = new EventListenerList();
 
+    private final AboutFrame aboutFrame = new AboutFrame();
+
     public MenuBar() {
         var fileMenu = new JMenu("Файл");
+        var helpMenu = new JMenu("Помощь");
 
         fileMenu.add(menuItem("Новый файл", () -> notifyAll(MenuBarListener::newFile)));
         fileMenu.add(menuItem("Закрыть проект", () -> notifyAll(MenuBarListener::closeProject)));
@@ -18,7 +23,10 @@ public class MenuBar extends JMenuBar {
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Выход", this::exit));
 
+        helpMenu.add(menuItem("О программе", this::about));
+
         add(fileMenu);
+        add(helpMenu);
     }
 
     public void addMenuBarListener(MenuBarListener menuBarListener) {
@@ -43,5 +51,9 @@ public class MenuBar extends JMenuBar {
 
     private void exit() {
         System.exit(0);
+    }
+
+    private void about() {
+        aboutFrame.setVisible(true);
     }
 }

@@ -12,7 +12,8 @@ public enum Icons {
     EDIT_NOTE("edit_note"),
     EDIT("edit"),
     PREVIEW("preview"),
-    STACK("stack");
+    STACK("stack"),
+    BASALT("basalt");
 
     private static final int ICON_SIZE = 30;
     private static final Color COLOR = Color.BLACK;
@@ -31,8 +32,16 @@ public enum Icons {
         return new ImageIcon(getIcon().getImage().getScaledInstance(size, size, 0));
     }
 
+    public ImageIcon getRawIcon() {
+        return getRawIcon(path);
+    }
+
+    public static ImageIcon getRawIcon(String path) {
+        return new ImageIcon(iconPrefix(path));
+    }
+
     public static ImageIcon getIcon(String path) {
-        return new ImageIcon(filterIcon(new ImageIcon(iconPrefix(path))).getImage().getScaledInstance(ICON_SIZE, ICON_SIZE, 0));
+        return new ImageIcon(filterIcon(getRawIcon(path)).getImage().getScaledInstance(ICON_SIZE, ICON_SIZE, 0));
     }
 
     public static ImageIcon filterIcon (ImageIcon icon) {

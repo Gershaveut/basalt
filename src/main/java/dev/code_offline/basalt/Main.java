@@ -1,5 +1,6 @@
 package dev.code_offline.basalt;
 
+import dev.code_offline.basalt.view.AboutFrame;
 import dev.code_offline.basalt.view.MainFrame;
 
 import javax.swing.*;

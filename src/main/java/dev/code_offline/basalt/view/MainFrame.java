@@ -21,6 +21,7 @@ import java.util.List;
 
 public class MainFrame extends JFrame {
     public MainFrame() throws HeadlessException {
+        this.setTitle("Basalt");
         this.setLayout(new BorderLayout());
         this.setSize(600, 600);
         this.setLocationRelativeTo(null);
