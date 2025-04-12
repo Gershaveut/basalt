@@ -6,20 +6,30 @@ import javax.swing.event.EventListenerList;
 
 public class Setting {
     private final String name;
+    private final @Nullable String description;
     private final Object defaultValue;
     private @Nullable Object value;
 
     private final EventListenerList listeners = new EventListenerList();
 
-    public Setting(String name, Object defaultValue) {
+    public Setting(String name, @Nullable String description, Object defaultValue) {
         this.name = name;
+        this.description = description;
         this.defaultValue = defaultValue;
 
         this.value = this.defaultValue;
     }
 
+    public Setting(String name, Object defaultValue) {
+        this(name, null, defaultValue);
+    }
+
     public String getName() {
         return name;
+    }
+
+    public @Nullable String getDescription() {
+        return description;
     }
 
     public Object getDefaultValue() {

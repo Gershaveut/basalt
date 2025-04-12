@@ -10,14 +10,13 @@ import java.util.HashSet;
 
 public class SettingsController {
     public SettingsController(SettingsFrame settingsFrame) {
-
         var settingsTabs = new HashSet<SettingsTab>();
 
-        var generalTab = new SettingsTab("Основные");
+        var generalTab = new SettingsTab("Основные", "Основные настройки программы");
 
-        var serverCategory = new SettingsCategory("Сервер");
+        var serverCategory = new SettingsCategory("Сервер", "Настройки подключаемого сервера");
 
-        var serverIP = new Setting("Адрес сервера", "localhost:8080");
+        var serverIP = new Setting("Адрес сервера", "Куда подключаться клиенту", "localhost:8080");
         serverIP.addSettingListener(System.out::println);
 
         serverCategory.add(serverIP);
