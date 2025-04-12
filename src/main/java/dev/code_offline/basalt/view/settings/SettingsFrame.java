@@ -1,19 +1,25 @@
-package dev.code_offline.basalt.view;
+package dev.code_offline.basalt.view.settings;
 
 import dev.code_offline.basalt.model.settings.SettingsModel;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.EventListenerList;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class SettingsFrame extends JFrame {
-    private SettingsModel model;
+    private final EventListenerList listeners = new EventListenerList();
 
-    private JPanel settingsMenu;
-    private JPanel settingsTab;
+    private @Nullable SettingsModel model;
+    private @Nullable SettingsModel revertSettingsModel;
 
-    private CardLayout settingsTabLayout;
+    private final JPanel settingsMenu;
+    private final JPanel settingsTab;
+
+    private final CardLayout settingsTabLayout;
 
     public SettingsFrame() {
         this.setTitle("Настройки");
@@ -23,6 +29,7 @@ public class SettingsFrame extends JFrame {
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
         var splitPanel = new JSplitPane();
+        var actionPanel = new JPanel();
 
         settingsTabLayout = new CardLayout();
 
@@ -37,15 +44,69 @@ public class SettingsFrame extends JFrame {
         splitPanel.setLeftComponent(scrollMenu);
         splitPanel.setRightComponent(settingsTab);
 
+        var okButton = new JButton("ОК");
+        var cancelButton = new JButton("Отмена");
+        var applyButton = new JButton("Применить");
+
+        okButton.addActionListener(e -> {
+            notifyListeners((listener) -> {
+                assert revertSettingsModel != null;
+                listener.saveSettings(revertSettingsModel);
+            });
+
+            this.setVisible(false);
+        });
+
+        cancelButton.addActionListener(e -> {
+            notifyListeners((listener) -> {
+                assert revertSettingsModel != null;
+                listener.revertSettings(revertSettingsModel);
+            });
+
+            this.setVisible(false);
+        });
+
+        applyButton.addActionListener(e -> {
+            notifyListeners((listener) -> {
+                assert revertSettingsModel != null;
+                listener.saveSettings(revertSettingsModel);
+            });
+        });
+
+        actionPanel.add(okButton);
+        actionPanel.add(cancelButton);
+        actionPanel.add(applyButton);
+
+        actionPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
         add(splitPanel);
+        add(actionPanel, BorderLayout.SOUTH);
     }
 
     public SettingsFrame(SettingsModel model) {
         this();
-        loadSettings();
+
+        setModel(model);
     }
 
-    private void loadSettings() {
+    private JSeparator getSeparator() {
+        var separator = new JSeparator(JSeparator.HORIZONTAL);
+        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+
+        return separator;
+    }
+
+    private JLabel createDescriptionLabel(@Nullable String text) {
+        var label = new JLabel(text);
+
+        label.setFont(label.getFont().deriveFont(Font.ITALIC));
+
+        return label;
+    }
+
+    public void setModel(SettingsModel model) {
+        this.model = model;
+
         settingsTab.removeAll();
 
         var tabBorder = new EmptyBorder(0, 15, 0, 0);
@@ -91,7 +152,13 @@ public class SettingsFrame extends JFrame {
                     settingPanel.add(settingBox);
                     settingPanel.add(createDescriptionLabel(setting.getDescription()));
 
-                    switch (setting.getDefaultValue()) {
+                    var value = setting.getDefaultValue();
+
+                    if (setting.getValue() != null) {
+                        value = setting.getValue();
+                    }
+
+                    switch (value) {
                         case String s:
                             var field = new JTextField();
                             field.setMaximumSize(new Dimension(200, settingBox.getPreferredSize().height));
@@ -135,23 +202,24 @@ public class SettingsFrame extends JFrame {
         });
     }
 
-    private JSeparator getSeparator() {
-        var separator = new JSeparator(JSeparator.HORIZONTAL);
-        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-
-        return separator;
+    public void addSettingsListener(SettingsListener settingsListener) {
+        listeners.add(SettingsListener.class, settingsListener);
     }
 
-    private JLabel createDescriptionLabel(@Nullable String text) {
-        var label = new JLabel(text);
-
-        label.setFont(label.getFont().deriveFont(Font.ITALIC));
-
-        return label;
+    public void removeSettingsListener(SettingsListener settingsListener) {
+        listeners.remove(SettingsListener.class, settingsListener);
     }
 
-    public void setModel(SettingsModel model) {
-        this.model = model;
-        loadSettings();
+    private void notifyListeners(Consumer<SettingsListener> action) {
+        Arrays.stream(listeners.getListeners(SettingsListener.class)).toList().forEach(action);
+    }
+
+    @Override
+    public void setVisible(boolean b) {
+        if (b && model != null) {
+            revertSettingsModel = model.clone();
+        }
+
+        super.setVisible(b);
     }
 }

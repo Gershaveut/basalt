@@ -1,7 +1,7 @@
 package dev.code_offline.basalt.view.menubar;
 
 import dev.code_offline.basalt.view.AboutFrame;
-import dev.code_offline.basalt.view.SettingsFrame;
+import dev.code_offline.basalt.view.settings.SettingsFrame;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -18,12 +18,12 @@ public class MenuBar extends JMenuBar {
         var fileMenu = new JMenu("Файл");
         var helpMenu = new JMenu("Помощь");
 
-        fileMenu.add(menuItem("Новый файл", () -> notifyAll(MenuBarListener::newFile)));
-        fileMenu.add(menuItem("Закрыть проект", () -> notifyAll(MenuBarListener::closeProject)));
+        fileMenu.add(menuItem("Новый файл", () -> notifyListeners(MenuBarListener::newFile)));
+        fileMenu.add(menuItem("Закрыть проект", () -> notifyListeners(MenuBarListener::closeProject)));
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Настройки", this::settings));
         fileMenu.addSeparator();
-        fileMenu.add(menuItem("Сохранить", () -> notifyAll(MenuBarListener::save)));
+        fileMenu.add(menuItem("Сохранить", () -> notifyListeners(MenuBarListener::save)));
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Выход", this::exit));
 
@@ -49,7 +49,7 @@ public class MenuBar extends JMenuBar {
         return menuItem;
     }
 
-    private void notifyAll(Consumer<MenuBarListener> action) {
+    private void notifyListeners(Consumer<MenuBarListener> action) {
         Arrays.stream(listeners.getListeners(MenuBarListener.class)).toList().forEach(action);
     }
 

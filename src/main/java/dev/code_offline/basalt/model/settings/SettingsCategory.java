@@ -5,10 +5,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SettingsCategory {
+public class SettingsCategory implements Cloneable {
     private final String name;
     private final @Nullable String description;
-    private final Set<Setting> settings = new HashSet<>();
+    private Set<Setting> settings = new HashSet<>();
 
     public SettingsCategory(String name, @Nullable String description) {
         this.name = name;
@@ -33,5 +33,17 @@ public class SettingsCategory {
 
     public void add(Setting setting) {
         settings.add(setting);
+    }
+
+    @Override
+    public SettingsCategory clone() {
+        try {
+            SettingsCategory cloned = (SettingsCategory) super.clone();
+            cloned.settings = new HashSet<>();
+            settings.forEach(setting -> cloned.settings.add(setting.clone()));
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError("Cloneable not implemented correctly", e);
+        }
     }
 }
