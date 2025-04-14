@@ -20,6 +20,6 @@ public class Util {
     }
 
     public static String assetsPrefix(String path) {
-        return "src/main/resources/assets/" + path;
+        return "resources/assets/" + path;
     }
 }
