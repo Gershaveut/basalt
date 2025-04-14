@@ -17,6 +17,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 public class NoteController {
@@ -52,7 +53,7 @@ public class NoteController {
 
     private void Sync() {
         folderPanel.setNotes(notes);
-        graphPanel.graphCanvas.setGraph(new Graph(Util.castList(notes, Node.class)));
+        graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notes)));
     }
 
     private void selectNote(Note note) {

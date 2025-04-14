@@ -45,7 +45,7 @@ public class Note implements Node {
 
     @Override
     public List<Node> getLinks() {
-        return Util.castList(links, Node.class);
+        return new ArrayList<>(links);
     }
 
     @Override
