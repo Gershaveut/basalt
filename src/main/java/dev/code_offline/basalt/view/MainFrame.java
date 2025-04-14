@@ -11,7 +11,6 @@ import dev.code_offline.basalt.controller.SettingsController;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.tool.FolderPanel;
-import dev.code_offline.basalt.view.tool.MarkdownEditorPanel;
 import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
 
@@ -19,7 +18,6 @@ import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.List;
 
 public class MainFrame extends JFrame {

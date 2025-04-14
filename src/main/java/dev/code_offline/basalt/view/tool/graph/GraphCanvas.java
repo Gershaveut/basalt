@@ -1,5 +1,6 @@
 package dev.code_offline.basalt.view.tool.graph;
 
+import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
@@ -58,7 +59,8 @@ public class GraphCanvas extends JComponent {
                 try {
                     // освобождение процессора
                     Thread.sleep(5);
-                } catch (InterruptedException ignored) {
+                } catch (InterruptedException e) {
+                    Main.logger.severe("Physic thread error: " + e.getMessage());
                 }
             }
         };
@@ -131,7 +133,8 @@ public class GraphCanvas extends JComponent {
             try {
                 assert physicThread != null;
                 physicThread.join();
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
 

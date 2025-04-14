@@ -1,6 +1,5 @@
 package dev.code_offline.basalt.core;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.dyn4j.geometry.Vector2;
 
 import java.awt.*;

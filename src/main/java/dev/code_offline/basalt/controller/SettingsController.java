@@ -1,5 +1,6 @@
 package dev.code_offline.basalt.controller;
 
+import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
 import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.model.settings.Setting;
@@ -10,11 +11,15 @@ import dev.code_offline.basalt.view.MainFrame;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt.view.settings.SettingsListener;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.logging.Level;
 
 public class SettingsController implements SettingsListener {
     private final String FILE_NAME = "settings.json";
@@ -31,7 +36,6 @@ public class SettingsController implements SettingsListener {
         var serverCategory = new SettingsCategory("Сервер");
 
         var serverAddress = new Setting("Адрес сервера", "localhost:8080");
-        serverAddress.addSettingListener(System.out::println);
 
         serverCategory.add(serverAddress);
         generalTab.add(serverCategory);
@@ -50,15 +54,16 @@ public class SettingsController implements SettingsListener {
         debugCategory.add(debugMode);
         miscTab.add(debugCategory);
 
-        settingsTabs.add(miscTab);
         settingsTabs.add(generalTab);
+        settingsTabs.add(miscTab);
 
         settingsModel = new SettingsModel(settingsTabs);
 
         try {
+            Main.logger.log(Level.INFO, "Loading settings...");
             loadSettings();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            Main.logger.log(Level.SEVERE, "Error loading settings: " + e.getMessage());
         }
 
         settingsFrame.setModel(settingsModel);
@@ -66,7 +71,7 @@ public class SettingsController implements SettingsListener {
         settingsFrame.addSettingsListener(this);
     }
 
-    private void loadSettings() throws IOException {
+    private void loadSettings() throws Exception {
         var ignored = new File(FILE_NAME).createNewFile();
 
         var json = new Gson().fromJson(Files.readString(Path.of(FILE_NAME)), Setting[].class);
@@ -97,13 +102,15 @@ public class SettingsController implements SettingsListener {
         }
 
         if (changed) {
+            Main.logger.log(Level.INFO, "Save settings...");
+
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
-                writer.write(new Gson().toJson(settingsModel.getSettings()));
+                writer.write(new Gson().newBuilder().setFormattingStyle(FormattingStyle.PRETTY).create().toJson(settingsModel.getSettings()));
 
                 writer.close();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                Main.logger.log(Level.SEVERE, "Error save settings: " + e.getMessage());
             }
         }
     }
