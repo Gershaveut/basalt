@@ -107,6 +107,7 @@ public class SettingsFrame extends JFrame {
     public void setModel(SettingsModel model) {
         this.model = model;
 
+        settingsMenu.removeAll();
         settingsTab.removeAll();
 
         var tabBorder = new EmptyBorder(0, 15, 0, 0);
