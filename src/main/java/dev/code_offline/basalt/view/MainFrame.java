@@ -8,6 +8,8 @@ import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
 import dev.code_offline.basalt.controller.NoteController;
 import dev.code_offline.basalt.controller.SettingsController;
+import dev.code_offline.basalt.model.client.Client;
+import dev.code_offline.basalt.model.client.json.JSONClient;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.tool.FolderPanel;
@@ -23,7 +25,11 @@ import java.util.List;
 public class MainFrame extends JFrame {
     private final EventListenerList listeners = new EventListenerList();
 
+    private final Client client;
+
     public MainFrame() throws HeadlessException {
+        this.client = new JSONClient();
+
         this.setTitle("Basalt");
         this.setLayout(new BorderLayout());
         this.setSize(600, 600);
@@ -91,7 +97,7 @@ public class MainFrame extends JFrame {
         add(toolPanel, BorderLayout.WEST);
 
         new GraphController(graph, graphPanel);
-        new NoteController(graphPanel, folderPanel, rightTabDock);
+        new NoteController(graphPanel, folderPanel, rightTabDock, client, menuBar);
         new SettingsController(menuBar.getSettingsFrame(), this);
 
         this.setJMenuBar(menuBar);

@@ -2,7 +2,7 @@ package dev.code_offline.basalt.view.tool;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
-import dev.code_offline.basalt.model.Note;
+import dev.code_offline.basalt.model.note.Note;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -115,6 +115,10 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
         Node document = markdownParser.parse(markdownText);
         String html = htmlRenderer.render(document);
         previewPane.setText("<html><body>" + html + "</body></html>");
+    }
+
+    public String getText() {
+        return inputArea.getText();
     }
 
     @Override

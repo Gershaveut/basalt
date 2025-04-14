@@ -2,7 +2,7 @@ package dev.code_offline.basalt.view.tool;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
-import dev.code_offline.basalt.model.Note;
+import dev.code_offline.basalt.model.note.Note;
 
 import javax.swing.*;
 import java.awt.*;
