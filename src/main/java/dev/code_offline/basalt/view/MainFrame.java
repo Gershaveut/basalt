@@ -16,11 +16,15 @@ import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 
 public class MainFrame extends JFrame {
+    private final EventListenerList listeners = new EventListenerList();
+
     public MainFrame() throws HeadlessException {
         this.setTitle("Basalt");
         this.setLayout(new BorderLayout());
@@ -31,7 +35,7 @@ public class MainFrame extends JFrame {
         var menuBar = new MenuBar();
 
         var graph = new Graph();
-        var graphPanel = new GraphPanel(graph);
+        var graphPanel = new GraphPanel(graph, this);
         var folderPanel = new FolderPanel();
 
         List<Tool> tools = new ArrayList<>();
@@ -90,9 +94,23 @@ public class MainFrame extends JFrame {
 
         new GraphController(graph, graphPanel);
         new NoteController(graphPanel, folderPanel, rightTabDock);
-        new SettingsController(menuBar.getSettingsFrame());
+        new SettingsController(menuBar.getSettingsFrame(), this);
 
         this.setJMenuBar(menuBar);
         this.setVisible(true);
+    }
+
+    public void addDebugModeListener(DebugModeListener debugModeListener) {
+        listeners.add(DebugModeListener.class, debugModeListener);
+    }
+
+    public void removeDebugModeListener(DebugModeListener debugModeListener) {
+        listeners.remove(DebugModeListener.class, debugModeListener);
+    }
+
+    public void enableDebug() {
+        for (DebugModeListener listener : listeners.getListeners(DebugModeListener.class)) {
+            listener.debugEnabled();
+        }
     }
 }

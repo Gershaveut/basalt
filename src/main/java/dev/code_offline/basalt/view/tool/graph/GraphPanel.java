@@ -1,9 +1,10 @@
 package dev.code_offline.basalt.view.tool.graph;
 
 import com.javadocking.dockable.DockingMode;
-import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.graph.Graph;
+import dev.code_offline.basalt.view.DebugModeListener;
+import dev.code_offline.basalt.view.MainFrame;
 import dev.code_offline.basalt.view.tool.BasaltDockable;
 
 import javax.swing.*;
@@ -13,55 +14,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
-public class GraphPanel extends JPanel implements BasaltDockable {
+public class GraphPanel extends JPanel implements BasaltDockable, DebugModeListener {
     public final GraphCanvas graphCanvas;
 
-    public GraphPanel(Graph graph) {
+    public GraphPanel(Graph graph, MainFrame mainFrame) {
         super(new BorderLayout());
 
         graphCanvas = new GraphCanvas(graph);
         this.add(graphCanvas, BorderLayout.CENTER);
 
-        if (Main.DEBUG) {
-            var debugPanel = new JPanel(new GridLayout(0, 1));
-
-            var offsetLabel = new JLabel();
-            var scaleLocationLabel = new JLabel();
-            var mouseLocationLabel = new JLabel();
-
-            debugPanel.add(offsetLabel);
-            debugPanel.add(scaleLocationLabel);
-            debugPanel.add(mouseLocationLabel);
-
-            debugPanel.setBorder(new BevelBorder(BevelBorder.RAISED));
-            this.add(debugPanel, BorderLayout.SOUTH);
-
-            var mouseAdapter = new MouseAdapter() {
-                void update(MouseEvent e) {
-                    offsetLabel.setText("Graph offset: " + (int) graphCanvas.getOffset().x + " " +  (int) graphCanvas.getOffset().y);
-                    scaleLocationLabel.setText("Graph scale: " + graphCanvas.getScale());
-                    mouseLocationLabel.setText("Mouse location: " + graphCanvas.getMouseWorldPosition());
-                }
-
-                @Override
-                public void mouseMoved(MouseEvent e) {
-                    update(e);
-                }
-
-                @Override
-                public void mouseDragged(MouseEvent e) {
-                    update(e);
-                }
-
-                @Override
-                public void mouseWheelMoved(MouseWheelEvent e) {
-                    update(e);
-                }
-            };
-
-            graphCanvas.addMouseMotionListener(mouseAdapter);
-            graphCanvas.addMouseWheelListener(mouseAdapter);
-        }
+        mainFrame.addDebugModeListener(this);
     }
 
     @Override
@@ -87,5 +49,47 @@ public class GraphPanel extends JPanel implements BasaltDockable {
     @Override
     public ImageIcon getIconOriginal() {
         return Icons.GRAPH.getIcon();
+    }
+
+    @Override
+    public void debugEnabled() {
+        var debugPanel = new JPanel(new GridLayout(0, 1));
+
+        var offsetLabel = new JLabel();
+        var scaleLocationLabel = new JLabel();
+        var mouseLocationLabel = new JLabel();
+
+        debugPanel.add(offsetLabel);
+        debugPanel.add(scaleLocationLabel);
+        debugPanel.add(mouseLocationLabel);
+
+        debugPanel.setBorder(new BevelBorder(BevelBorder.RAISED));
+        this.add(debugPanel, BorderLayout.SOUTH);
+
+        var mouseAdapter = new MouseAdapter() {
+            void update(MouseEvent e) {
+                offsetLabel.setText("Graph offset: " + (int) graphCanvas.getOffset().x + " " +  (int) graphCanvas.getOffset().y);
+                scaleLocationLabel.setText("Graph scale: " + graphCanvas.getScale());
+                mouseLocationLabel.setText("Mouse location: " + graphCanvas.getMouseWorldPosition());
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                update(e);
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                update(e);
+            }
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                update(e);
+            }
+        };
+
+        graphCanvas.addMouseMotionListener(mouseAdapter);
+        graphCanvas.addMouseWheelListener(mouseAdapter);
     }
 }

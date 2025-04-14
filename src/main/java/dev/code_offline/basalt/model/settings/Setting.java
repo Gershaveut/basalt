@@ -47,6 +47,7 @@ public class Setting implements Cloneable {
 
     public void notifyListeners() {
         for (SettingListener listener : listeners.getListeners(SettingListener.class)) {
+            assert value != null;
             listener.valueChanged(value);
         }
     }

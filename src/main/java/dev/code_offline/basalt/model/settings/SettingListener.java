@@ -5,5 +5,5 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.EventListener;
 
 public interface SettingListener extends EventListener {
-    void valueChanged(@Nullable Object value);
+    void valueChanged(Object value);
 }

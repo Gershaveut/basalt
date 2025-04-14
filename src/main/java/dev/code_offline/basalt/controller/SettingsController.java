@@ -1,10 +1,12 @@
 package dev.code_offline.basalt.controller;
 
 import com.google.gson.Gson;
+import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.model.settings.Setting;
 import dev.code_offline.basalt.model.settings.SettingsCategory;
 import dev.code_offline.basalt.model.settings.SettingsModel;
 import dev.code_offline.basalt.model.settings.SettingsTab;
+import dev.code_offline.basalt.view.MainFrame;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt.view.settings.SettingsListener;
 
@@ -13,7 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SettingsController implements SettingsListener {
     private final String FILE_NAME = "settings.json";
@@ -21,22 +22,35 @@ public class SettingsController implements SettingsListener {
     private final SettingsFrame settingsFrame;
     private SettingsModel settingsModel;
 
-    public SettingsController(SettingsFrame settingsFrame) {
+    public SettingsController(SettingsFrame settingsFrame, MainFrame mainFrame) {
         this.settingsFrame = settingsFrame;
 
         var settingsTabs = new HashSet<SettingsTab>();
 
         var generalTab = new SettingsTab("Основные", "Основные настройки программы");
+        var serverCategory = new SettingsCategory("Сервер");
 
-        var serverCategory = new SettingsCategory("Сервер", "Настройки подключаемого сервера");
+        var serverAddress = new Setting("Адрес сервера", "localhost:8080");
+        serverAddress.addSettingListener(System.out::println);
 
-        var serverIP = new Setting("Адрес сервера", "Куда подключаться клиенту", "localhost:8080");
-        serverIP.addSettingListener(System.out::println);
-
-        serverCategory.add(serverIP);
-
+        serverCategory.add(serverAddress);
         generalTab.add(serverCategory);
 
+        var miscTab = new SettingsTab("Разное");
+
+        var debugCategory = new SettingsCategory("Отладка", "Используйте на свой страх и риск!");
+
+        var debugMode = new Setting("Режим отладки", "После отключения отладки требуется перезагрузка!", false);
+        debugMode.addSettingListener(value -> {
+            if ((Boolean) value) {
+                mainFrame.enableDebug();
+            }
+        });
+
+        debugCategory.add(debugMode);
+        miscTab.add(debugCategory);
+
+        settingsTabs.add(miscTab);
         settingsTabs.add(generalTab);
 
         settingsModel = new SettingsModel(settingsTabs);
@@ -61,10 +75,12 @@ public class SettingsController implements SettingsListener {
             var settings = Arrays.stream(json).toList();
 
             settings.forEach(setting -> {
-                var findSetting = settingsModel.getSettings().stream().filter(set -> set.hashCode() == setting.hashCode()).findFirst().orElseThrow();
+                var findSetting = settingsModel.getSettings().stream().filter(set -> set.hashCode() == setting.hashCode()).findFirst().orElse(null);
 
-                findSetting.setValue(setting.getValue());
-                findSetting.notifyListeners();
+                if (findSetting != null) {
+                    findSetting.setValue(setting.getValue());
+                    findSetting.notifyListeners();
+                }
             });
         }
     }
