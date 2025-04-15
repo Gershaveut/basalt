@@ -5,24 +5,24 @@ import java.util.List;
 
 public class Note {
     private long id = -1;
-    private final String name;
-    private final int person;
+    private String name;
+    private final long person;
 
     private String text;
     private final List<Note> noteLinks;
 
-    public Note(String name, int author, String text, List<Note> links) {
+    public Note(String name, long author, String text, List<Note> links) {
         this.name = name;
         this.person = author;
         this.text = text;
         this.noteLinks = links;
     }
 
-    public Note(String name, int author, String text) {
+    public Note(String name, long author, String text) {
         this(name, author, text, new ArrayList<>());
     }
 
-    public Note(String name, int author) {
+    public Note(String name, long author) {
         this(name, author, "");
     }
     
@@ -39,7 +39,7 @@ public class Note {
         return name;
     }
 
-    public int getPerson() {
+    public long getPerson() {
         return person;
     }
 
@@ -53,6 +53,10 @@ public class Note {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setText(String text) {

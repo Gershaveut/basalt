@@ -26,6 +26,8 @@ public abstract class Client {
 
     public abstract void editNote(long id, String newText);
 
+    public abstract void renameNote(long id, String newName);
+
     public void addDatabaseListener(ClientListener clientListener) {
         listeners.add(ClientListener.class, clientListener);
     }

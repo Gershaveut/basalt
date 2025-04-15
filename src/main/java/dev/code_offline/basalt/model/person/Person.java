@@ -3,8 +3,8 @@ package dev.code_offline.basalt.model.person;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class Person {
+    private long id;
     private final String name;
-    private final int id;
     private final Role role;
     @Nullable
     private final String description;
@@ -16,12 +16,12 @@ public class Person {
         this.description = description;
     }
 
-    public String getName() {
-        return name;
+    public long getId() {
+        return id;
     }
 
-    public int getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
     public Role getRole() {
@@ -30,5 +30,9 @@ public class Person {
 
     public @Nullable String getDescription() {
         return description;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

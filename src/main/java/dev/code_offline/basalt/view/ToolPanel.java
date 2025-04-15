@@ -15,12 +15,6 @@ public class ToolPanel extends JPanel {
     public ToolPanel(List<Tool> tools) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        GridBagConstraints c = new GridBagConstraints();
-
-        c.gridx = 1;
-        c.gridy = 0;
-        c.anchor = GridBagConstraints.NORTH;
-
         tools.forEach(tool -> {
             var toolButton = new JButton(tool.getIconOriginal());
 
@@ -39,10 +33,7 @@ public class ToolPanel extends JPanel {
             });
 
             toolButton.setPreferredSize(new Dimension(TOOL_BUTTON_SIZE, TOOL_BUTTON_SIZE));
-            this.add(toolButton, c);
-
-            c.gridy++;
-            c.weighty++;
+            this.add(toolButton);
         });
     }
 }

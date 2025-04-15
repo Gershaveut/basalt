@@ -1,18 +1,22 @@
-package dev.code_offline.basalt.view.tool;
+package dev.code_offline.basalt.view.tool.markdown;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.note.Note;
+import dev.code_offline.basalt.view.tool.BasaltDockable;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
+    private final EventListenerList listeners = new EventListenerList();
+
     private static final int ICON_SIZE = 20;
 
     private final JTextArea inputArea;
@@ -41,9 +45,12 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
 
         var buttonGroup = new ButtonGroup();
 
-        var editButton = toggleButton(Icons.EDIT.getIcon(ICON_SIZE));
-        var previewButton = toggleButton(Icons.PREVIEW.getIcon(ICON_SIZE));
-        var bothButton = toggleButton(Icons.STACK.getIcon(ICON_SIZE));
+        var editButton = getResizeButton(new JToggleButton(Icons.EDIT.getIcon(ICON_SIZE)));
+        var previewButton = getResizeButton(new JToggleButton(Icons.PREVIEW.getIcon(ICON_SIZE)));
+        var bothButton = getResizeButton(new JToggleButton(Icons.STACK.getIcon(ICON_SIZE)));
+        var saveButton = getResizeButton(new JButton(Icons.SAVE.getIcon(ICON_SIZE)));
+
+        saveButton.setAlignmentX(Container.RIGHT_ALIGNMENT);
 
         buttonGroup.add(editButton);
         buttonGroup.add(previewButton);
@@ -61,26 +68,32 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
         previewPane.setEditable(false);
         var previewScroll = new JScrollPane(previewPane);
 
-        editButton.addActionListener((e) -> {
+        editButton.addActionListener(e -> {
             cardLayout.show(cardPanel, "edit");
 
             editPanel.add(inputScroll);
         });
-        previewButton.addActionListener((e) -> {
+        previewButton.addActionListener(e -> {
             cardLayout.show(cardPanel, "preview");
 
             previewPanel.add(previewScroll);
         });
-        bothButton.addActionListener((e) -> {
+        bothButton.addActionListener(e -> {
             cardLayout.show(cardPanel, "both");
 
             bothPanel.add(inputScroll);
             bothPanel.add(previewScroll);
         });
+        saveButton.addActionListener(e -> {
+            for (MarkdownListener listener : listeners.getListeners(MarkdownListener.class)) {
+                listener.onSave(getText());
+            }
+        });
 
         optionPanel.add(editButton);
         optionPanel.add(previewButton);
         optionPanel.add(bothButton);
+        optionPanel.add(saveButton);
 
         cardPanel.add(editPanel, "edit");
         cardPanel.add(previewPanel, "preview");
@@ -101,8 +114,7 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
         updatePreview();
     }
 
-    private JToggleButton toggleButton(Icon icon) {
-        var button = new JToggleButton(icon);
+    private AbstractButton getResizeButton(AbstractButton button) {
         var buttonSize = (int) (ICON_SIZE * 1.5);
 
         button.setPreferredSize(new Dimension(buttonSize, buttonSize));
@@ -119,6 +131,14 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
 
     public String getText() {
         return inputArea.getText();
+    }
+
+    public void addMarkdownListener(MarkdownListener markdownListener) {
+        listeners.add(MarkdownListener.class, markdownListener);
+    }
+
+    public void removeMarkdownListener(MarkdownListener markdownListener) {
+        listeners.remove(MarkdownListener.class, markdownListener);
     }
 
     @Override

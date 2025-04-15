@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class JSONClient extends Client {
     private final String FILE_NAME = "database.json";
@@ -58,6 +59,10 @@ public class JSONClient extends Client {
         }
     }
 
+    private int getNextId(IntStream intStream) {
+        return intStream.max().orElse(0) + 1;
+    }
+
     @Override
     public List<Person> getPersons() {
         return databaseModel.getPersons();
@@ -70,21 +75,15 @@ public class JSONClient extends Client {
 
     @Override
     public void addPerson(Person person) {
+        person.setId(getNextId(databaseModel.getPersons().stream().mapToInt(p -> Math.toIntExact(p.getId()))));
+
         databaseModel.getPersons().add(person);
         save();
     }
 
     @Override
     public void addNote(Note note) {
-        if (note.getId() == -1) {
-            var maxId = databaseModel.getNotes().stream().mapToInt(n -> Math.toIntExact(n.getId())).max().orElse(-1);
-
-            if (maxId == -1) {
-                note.setId(1);
-            } else {
-                note.setId(maxId + 1);
-            }
-        }
+        note.setId(getNextId(databaseModel.getNotes().stream().mapToInt(n -> Math.toIntExact(n.getId()))));
 
         databaseModel.getNotes().add(note);
         save();
@@ -98,6 +97,12 @@ public class JSONClient extends Client {
     @Override
     public void editNote(long id, String newText) {
         databaseModel.getNotes().stream().filter(note -> note.getId() == id).findFirst().orElseThrow().setText(newText);
+        save();
+    }
+
+    @Override
+    public void renameNote(long id, String newName) {
+        databaseModel.getNotes().stream().filter(note -> note.getId() == id).findFirst().orElseThrow().setName(newName);
         save();
     }
 }

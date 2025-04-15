@@ -9,11 +9,11 @@ import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.note.NoteNode;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.menubar.MenuBarAdapter;
-import dev.code_offline.basalt.view.tool.FolderPanel;
-import dev.code_offline.basalt.view.tool.MarkdownEditorPanel;
+import dev.code_offline.basalt.view.tool.folder.FolderListener;
+import dev.code_offline.basalt.view.tool.folder.FolderPanel;
+import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorPanel;
 import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.MouseAdapter;
@@ -25,21 +25,18 @@ public class NoteController implements ClientListener {
 
     private final GraphPanel graphPanel;
     private final FolderPanel folderPanel;
-    private final MenuBar menuBar;
 
     private final TabDock tabDock;
-
-    private @Nullable Note selectedNote;
-    private @Nullable MarkdownEditorPanel selectedNoteEditorPanel;
 
     public NoteController(GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, Client client, MenuBar menuBar) {
         this.graphPanel = graphPanel;
         this.folderPanel = folderPanel;
         this.tabDock = tabDock;
         this.client = client;
-        this.menuBar = menuBar;
 
         folderPanel.getTree().addTreeSelectionListener(e -> selectNote((Note) ((DefaultMutableTreeNode) e.getPath().getLastPathComponent()).getUserObject()));
+        folderPanel.addFolderListener(client::renameNote);
+
         graphPanel.graphCanvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -62,9 +59,7 @@ public class NoteController implements ClientListener {
 
             @Override
             public void save() {
-                if (selectedNote != null && selectedNoteEditorPanel != null) {
-                    client.editNote(selectedNote.getId(), selectedNoteEditorPanel.getText());
-                }
+                //TODO: Сохранение по нажатию кнопки в меню
             }
         });
 
@@ -80,9 +75,10 @@ public class NoteController implements ClientListener {
     }
 
     private void selectNote(Note note) {
-        selectedNote = note;
-        selectedNoteEditorPanel = new MarkdownEditorPanel(selectedNote);
+        var markdownEditor = new MarkdownEditorPanel(note);
 
-        tabDock.addDockable(new Tool(selectedNoteEditorPanel), new Position());
+        markdownEditor.addMarkdownListener(text -> client.editNote(note.getId(), text));
+
+        tabDock.addDockable(new Tool(markdownEditor), new Position());
     }
 }
