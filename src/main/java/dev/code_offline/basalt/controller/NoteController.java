@@ -7,6 +7,7 @@ import dev.code_offline.basalt.model.client.Client;
 import dev.code_offline.basalt.model.client.ClientListener;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.note.NoteNode;
+import dev.code_offline.basalt.view.MainFrame;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.menubar.MenuBarAdapter;
 import dev.code_offline.basalt.view.tool.folder.FolderListener;
@@ -14,11 +15,17 @@ import dev.code_offline.basalt.view.tool.folder.FolderPanel;
 import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorPanel;
 import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class NoteController implements ClientListener, FolderListener {
     public Client client;
@@ -34,7 +41,38 @@ public class NoteController implements ClientListener, FolderListener {
         this.tabDock = tabDock;
         this.client = client;
 
-        folderPanel.getTree().addTreeSelectionListener(e -> selectNote((Note) ((DefaultMutableTreeNode) e.getPath().getLastPathComponent()).getUserObject()));
+        var tree = folderPanel.getTree();
+
+        tree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    selectSelectedNote();
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    int selRow = tree.getRowForLocation(e.getX(), e.getY());
+                    @Nullable TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+                    tree.setSelectionPath(selPath);
+
+                    if (selRow > -1) {
+                        tree.setSelectionRow(selRow);
+                    }
+                }
+            }
+        });
+        tree.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    selectSelectedNote();
+                }
+            }
+        });
+
         folderPanel.addFolderListener(this);
 
         graphPanel.graphCanvas.addMouseListener(new MouseAdapter() {
@@ -42,8 +80,7 @@ public class NoteController implements ClientListener, FolderListener {
             public void mouseClicked(MouseEvent e) {
                 var focusNode = graphPanel.graphCanvas.getFocusatedNode();
 
-                if (focusNode == null)
-                    return;
+                if (focusNode == null) return;
 
                 selectNote((Note) focusNode);
             }
@@ -72,6 +109,16 @@ public class NoteController implements ClientListener, FolderListener {
 
         folderPanel.setNotes(notes);
         graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notes.stream().map(NoteNode::new).toList())));
+    }
+
+    private void selectSelectedNote() {
+        @Nullable TreePath treeNode = folderPanel.getTree().getSelectionPath();
+
+        if (treeNode != null) {
+            var selectedNote = (Note) ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
+
+            selectNote(selectedNote);
+        }
     }
 
     private void selectNote(Note note) {
