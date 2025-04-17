@@ -64,6 +64,11 @@ public class JSONClient extends Client {
     }
 
     @Override
+    public Person getClientPerson() {
+        return clientPerson;
+    }
+
+    @Override
     public List<Person> getPersons() {
         return databaseModel.getPersons();
     }
@@ -90,11 +95,6 @@ public class JSONClient extends Client {
     }
 
     @Override
-    public Person getClientPerson() {
-        return clientPerson;
-    }
-
-    @Override
     public void editNote(long id, String newText) {
         databaseModel.getNotes().stream().filter(note -> note.getId() == id).findFirst().orElseThrow().setText(newText);
         save();
@@ -103,6 +103,12 @@ public class JSONClient extends Client {
     @Override
     public void renameNote(long id, String newName) {
         databaseModel.getNotes().stream().filter(note -> note.getId() == id).findFirst().orElseThrow().setName(newName);
+        save();
+    }
+
+    @Override
+    public void deleteNote(Note note) {
+        databaseModel.getNotes().remove(note);
         save();
     }
 }

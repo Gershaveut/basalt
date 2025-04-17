@@ -10,7 +10,7 @@ public class InputTextFrame extends JFrame {
     public InputTextFrame(String title, String labelText, String inputText) {
         this.setTitle(title);
         this.setLayout(new BorderLayout());
-        this.setSize(500, 250);
+        this.setSize(450, 150);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -40,9 +40,9 @@ public class InputTextFrame extends JFrame {
         buttonPanel.add(confirm);
         buttonPanel.add(cancel);
 
-        add(label, BorderLayout.CENTER);
-        add(input, BorderLayout.NORTH);
-        add(buttonPanel, BorderLayout.WEST);
+        add(label, BorderLayout.NORTH);
+        add(input, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
     public InputTextFrame(String title, String labelText) {

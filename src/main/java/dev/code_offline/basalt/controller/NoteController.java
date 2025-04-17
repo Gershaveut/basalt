@@ -20,7 +20,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public class NoteController implements ClientListener {
+public class NoteController implements ClientListener, FolderListener {
     public Client client;
 
     private final GraphPanel graphPanel;
@@ -35,7 +35,7 @@ public class NoteController implements ClientListener {
         this.client = client;
 
         folderPanel.getTree().addTreeSelectionListener(e -> selectNote((Note) ((DefaultMutableTreeNode) e.getPath().getLastPathComponent()).getUserObject()));
-        folderPanel.addFolderListener(client::renameNote);
+        folderPanel.addFolderListener(this);
 
         graphPanel.graphCanvas.addMouseListener(new MouseAdapter() {
             @Override
@@ -80,5 +80,15 @@ public class NoteController implements ClientListener {
         markdownEditor.addMarkdownListener(text -> client.editNote(note.getId(), text));
 
         tabDock.addDockable(new Tool(markdownEditor), new Position());
+    }
+
+    @Override
+    public void rename(long id, String newName) {
+        client.renameNote(id, newName);
+    }
+
+    @Override
+    public void delete(Note note) {
+        client.deleteNote(note);
     }
 }

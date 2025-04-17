@@ -28,6 +28,8 @@ public abstract class Client {
 
     public abstract void renameNote(long id, String newName);
 
+    public abstract void deleteNote(Note note);
+
     public void addDatabaseListener(ClientListener clientListener) {
         listeners.add(ClientListener.class, clientListener);
     }
