@@ -54,7 +54,7 @@ public class NoteController implements ClientListener, FolderListener {
         menuBar.addMenuBarListener(new MenuBarAdapter() {
             @Override
             public void newFile() {
-                client.addNote(new Note("Новая записка", client.getClientPerson().getId()));
+                newFileCreate();
             }
 
             @Override
@@ -80,6 +80,15 @@ public class NoteController implements ClientListener, FolderListener {
         markdownEditor.addMarkdownListener(text -> client.editNote(note.getId(), text));
 
         tabDock.addDockable(new Tool(markdownEditor), new Position());
+    }
+
+    private void newFileCreate() {
+        client.addNote(new Note("Новая записка", client.getClientPerson().getId()));
+    }
+
+    @Override
+    public void newFile() {
+        newFileCreate();
     }
 
     @Override

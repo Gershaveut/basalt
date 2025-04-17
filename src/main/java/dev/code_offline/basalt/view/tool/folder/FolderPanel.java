@@ -28,9 +28,16 @@ public class FolderPanel extends JPanel implements BasaltDockable {
     public FolderPanel() {
         super(new BorderLayout());
 
+        var newFile = new JMenuItem("Новый файл");
+
         var rename = new JMenuItem("Переименовать");
         var delete = new JMenuItem("Удалить");
 
+        newFile.addActionListener(e -> {
+            for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+                listener.newFile();
+            }
+        });
         rename.addActionListener(e -> {
             @Nullable TreePath treeNode = tree.getSelectionPath();
 
@@ -66,6 +73,8 @@ public class FolderPanel extends JPanel implements BasaltDockable {
             }
         });
 
+        popupMenu.add(newFile);
+        popupMenu.addSeparator();
         popupMenu.add(rename);
         popupMenu.add(delete);
 
