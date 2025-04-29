@@ -1,5 +1,7 @@
 package dev.code_offline.basalt.model.note;
 
+import dev.code_offline.basalt.model.Folder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,21 +11,23 @@ public class Note {
     private final long person;
 
     private String text;
+    private Folder parent;
     private final List<Note> noteLinks;
 
-    public Note(String name, long author, String text, List<Note> links) {
+    public Note(String name, long author, String text, Folder parent, List<Note> links) {
         this.name = name;
         this.person = author;
         this.text = text;
+        this.parent = parent;
         this.noteLinks = links;
     }
 
-    public Note(String name, long author, String text) {
-        this(name, author, text, new ArrayList<>());
+    public Note(String name, long author, String text, Folder parent) {
+        this(name, author, text, parent, new ArrayList<>());
     }
 
-    public Note(String name, long author) {
-        this(name, author, "");
+    public Note(String name, long author, Folder folder) {
+        this(name, author, "", folder);
     }
     
     @Override
@@ -47,6 +51,10 @@ public class Note {
         return text;
     }
 
+    public Folder getParent() {
+        return parent;
+    }
+
     public List<Note> getNoteLinks() {
         return noteLinks;
     }
@@ -61,5 +69,9 @@ public class Note {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public void setParent(Folder parent) {
+        this.parent = parent;
     }
 }

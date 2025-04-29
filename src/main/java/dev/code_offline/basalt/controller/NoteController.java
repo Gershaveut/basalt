@@ -2,6 +2,7 @@ package dev.code_offline.basalt.controller;
 
 import com.javadocking.dock.Position;
 import com.javadocking.dock.TabDock;
+import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.client.Client;
 import dev.code_offline.basalt.model.client.ClientListener;
@@ -91,7 +92,7 @@ public class NoteController implements ClientListener, FolderListener {
         menuBar.addMenuBarListener(new MenuBarAdapter() {
             @Override
             public void newFile() {
-                newFileCreate();
+                newFileCreate(client.getRoot());
             }
 
             @Override
@@ -107,7 +108,7 @@ public class NoteController implements ClientListener, FolderListener {
     public void sync() {
         var notes = client.getNotes();
 
-        folderPanel.setNotes(notes);
+        folderPanel.setModel(notes, client.getFolders(), client.getRoot());
         graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notes.stream().map(NoteNode::new).toList())));
     }
 
@@ -129,13 +130,31 @@ public class NoteController implements ClientListener, FolderListener {
         tabDock.addDockable(new Tool(markdownEditor), new Position());
     }
 
-    private void newFileCreate() {
-        client.addNote(new Note("Новая записка", client.getClientPerson().getId()));
+    private void newFileCreate(Folder folder) {
+        client.addNote(new Note("Новая записка", client.getClientPerson().getId(), folder));
     }
 
     @Override
-    public void newFile() {
-        newFileCreate();
+    public void newFile(Folder parent) {
+        newFileCreate(parent);
+    }
+
+    @Override
+    public void newFolder(Folder parent) {
+        var newFolder = new Folder("Новая папка", parent);
+
+        int c = 0;
+
+        while (true) {
+            if (client.getFolders().stream().noneMatch(folder -> folder.hashCode() == newFolder.hashCode())) {
+                break;
+            } else {
+                ++c;
+                newFolder.setName("Новая папка " + c);
+            }
+        }
+
+        client.addFolder(newFolder);
     }
 
     @Override

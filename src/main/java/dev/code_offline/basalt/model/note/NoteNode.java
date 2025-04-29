@@ -9,16 +9,8 @@ import java.util.List;
 public class NoteNode extends Note implements Node {
     private final Body body = new Body();
 
-    public NoteNode(String name, int author, String text, List<Note> links) {
-        super(name, author, text, links);
-    }
-
-    public NoteNode(String name, int author, String text) {
-        super(name, author, text);
-    }
-
     public NoteNode(Note note) {
-        super(note.getName(), note.getPerson(), note.getText(), note.getNoteLinks());
+        super(note.getName(), note.getPerson(), note.getText(), note.getParent(), note.getNoteLinks());
     }
 
     @Override

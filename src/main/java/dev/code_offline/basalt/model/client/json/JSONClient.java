@@ -3,6 +3,7 @@ package dev.code_offline.basalt.model.client.json;
 import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
 import dev.code_offline.basalt.Main;
+import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.client.Client;
 import dev.code_offline.basalt.model.person.Person;
@@ -79,6 +80,16 @@ public class JSONClient extends Client {
     }
 
     @Override
+    public List<Folder> getFolders() {
+        return databaseModel.getFolders();
+    }
+
+    @Override
+    public Folder getRoot() {
+        return databaseModel.getRoot();
+    }
+
+    @Override
     public void addPerson(Person person) {
         person.setId(getNextId(databaseModel.getPersons().stream().mapToInt(p -> Math.toIntExact(p.getId()))));
 
@@ -92,6 +103,22 @@ public class JSONClient extends Client {
 
         databaseModel.getNotes().add(note);
         save();
+    }
+
+    @Override
+    public void addFolder(Folder folder) {
+        databaseModel.getFolders().add(folder);
+        save();
+    }
+
+    @Override
+    public void renameFolder(String path, String newName) {
+
+    }
+
+    @Override
+    public void deleteFolder(String path) {
+
     }
 
     @Override
