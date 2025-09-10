@@ -30,13 +30,15 @@ import java.util.Objects;
 
 public class NoteController implements ClientListener, FolderListener {
     public Client client;
-
+    
+    private final MainFrame mainFrame;
     private final GraphPanel graphPanel;
     private final FolderPanel folderPanel;
 
     private final TabDock tabDock;
 
-    public NoteController(GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, Client client, MenuBar menuBar) {
+    public NoteController(MainFrame mainFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, Client client, MenuBar menuBar) {
+        this.mainFrame = mainFrame;
         this.graphPanel = graphPanel;
         this.folderPanel = folderPanel;
         this.tabDock = tabDock;
@@ -123,7 +125,7 @@ public class NoteController implements ClientListener, FolderListener {
     }
 
     private void selectNote(Note note) {
-        var markdownEditor = new MarkdownEditorPanel(note);
+        var markdownEditor = new MarkdownEditorPanel(note, mainFrame);
 
         markdownEditor.addMarkdownListener(text -> client.editNote(note.getId(), text));
 

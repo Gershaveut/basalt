@@ -27,6 +27,8 @@ public class GraphCanvas extends JComponent {
     public final double DAMPING = 0.5;
     public final double REST_DISTANCE = 150;
     public final double SPRING_FREQUENCY = 8;
+    
+    public boolean debug;
 
     private final World<Body> world = new World<>();
 
@@ -176,6 +178,10 @@ public class GraphCanvas extends JComponent {
 
                 g2d.drawLine(x + nodeOffset, y + nodeOffset, linkX + nodeOffset, linkY + nodeOffset);
             });
+            
+            if (debug) {
+                g2d.drawString("Id: " + node.getId(), (int) (x + NODE_SIZE * 1.5), y + 10);
+            }
         });
 
         g2d.dispose();

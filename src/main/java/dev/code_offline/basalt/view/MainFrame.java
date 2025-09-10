@@ -26,6 +26,8 @@ public class MainFrame extends JFrame {
     private final EventListenerList listeners = new EventListenerList();
 
     private final Client client;
+    
+    private boolean debug;
 
     public MainFrame() throws HeadlessException {
         this.client = new JSONClient();
@@ -97,7 +99,7 @@ public class MainFrame extends JFrame {
         add(toolPanel, BorderLayout.WEST);
 
         new GraphController(graph, graphPanel);
-        new NoteController(graphPanel, folderPanel, rightTabDock, client, menuBar);
+        new NoteController(this, graphPanel, folderPanel, rightTabDock, client, menuBar);
         new SettingsController(menuBar.getSettingsFrame(), this);
 
         this.setJMenuBar(menuBar);
@@ -106,6 +108,9 @@ public class MainFrame extends JFrame {
 
     public void addDebugModeListener(DebugModeListener debugModeListener) {
         listeners.add(DebugModeListener.class, debugModeListener);
+        
+        if (debug)
+            debugModeListener.debugEnabled();
     }
 
     public void removeDebugModeListener(DebugModeListener debugModeListener) {
@@ -113,8 +118,12 @@ public class MainFrame extends JFrame {
     }
 
     public void enableDebug() {
-        for (DebugModeListener listener : listeners.getListeners(DebugModeListener.class)) {
-            listener.debugEnabled();
+        if (!debug) {
+            for (DebugModeListener listener : listeners.getListeners(DebugModeListener.class)) {
+                listener.debugEnabled();
+            }
+            
+            debug = true;
         }
     }
 }

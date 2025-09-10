@@ -3,6 +3,8 @@ package dev.code_offline.basalt.view.tool.markdown;
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.note.Note;
+import dev.code_offline.basalt.view.DebugModeListener;
+import dev.code_offline.basalt.view.MainFrame;
 import dev.code_offline.basalt.view.tool.BasaltDockable;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -14,7 +16,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
+public class MarkdownEditorPanel extends JPanel implements BasaltDockable, DebugModeListener {
     private final EventListenerList listeners = new EventListenerList();
 
     private static final int ICON_SIZE = 20;
@@ -24,14 +26,16 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
     private final Parser markdownParser;
     private final HtmlRenderer htmlRenderer;
 
+    private final JPanel optionPanel;
+    
     private final Note note;
 
-    public MarkdownEditorPanel(Note note) {
+    public MarkdownEditorPanel(Note note, MainFrame mainFrame) {
         setLayout(new BorderLayout());
 
         this.note = note;
 
-        var optionPanel = new JPanel();
+        optionPanel = new JPanel();
 
         var cardLayout =  new CardLayout();
 
@@ -112,6 +116,8 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
         });
 
         updatePreview();
+        
+        mainFrame.addDebugModeListener(this);
     }
 
     private AbstractButton getResizeButton(AbstractButton button) {
@@ -164,5 +170,12 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable {
     @Override
     public ImageIcon getIconOriginal() {
         return Icons.EDIT_NOTE.getIcon();
+    }
+    
+    @Override
+    public void debugEnabled() {
+        var debugText = new JLabel("Id: " + note.getId());
+        
+        optionPanel.add(debugText);
     }
 }

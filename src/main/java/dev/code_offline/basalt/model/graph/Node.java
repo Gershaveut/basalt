@@ -9,6 +9,8 @@ public interface Node {
     String getName();
     @Nullable String getAuthor();
     List<Node> getLinks();
+    
+    long getId();
 
     Body getBody();
 }

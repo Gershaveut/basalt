@@ -91,5 +91,7 @@ public class GraphPanel extends JPanel implements BasaltDockable, DebugModeListe
 
         graphCanvas.addMouseMotionListener(mouseAdapter);
         graphCanvas.addMouseWheelListener(mouseAdapter);
+        
+        graphCanvas.debug = true;
     }
 }
