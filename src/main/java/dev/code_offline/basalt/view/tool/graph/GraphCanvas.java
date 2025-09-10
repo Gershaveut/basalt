@@ -31,6 +31,8 @@ public class GraphCanvas extends JComponent {
     private final World<Body> world = new World<>();
 
     private Graph graph;
+    private final boolean isOffline;
+    
     private final Vector2 offset = new Vector2();
 
     private double scale = 1.0;
@@ -40,8 +42,9 @@ public class GraphCanvas extends JComponent {
     private @Nullable Thread physicThread;
     private long last;
 
-    public GraphCanvas(Graph graph) {
+    public GraphCanvas(Graph graph, boolean isOffline) {
         this.graph = graph;
+        this.isOffline = isOffline;
 
         physicThreadRun = () -> {
             physicThreadLive = true;
@@ -161,8 +164,10 @@ public class GraphCanvas extends JComponent {
             g2d.fillOval(x, y, NODE_SIZE, NODE_SIZE);
 
             g2d.drawString(node.getName(), x, y);
-            g2d.drawString(node.getAuthor(), x, (int) (y + NODE_SIZE * 1.5));
-
+            
+            if (!isOffline)
+                g2d.drawString(node.getAuthor(), x, (int) (y + NODE_SIZE * 1.5));
+            
             var nodeOffset = NODE_SIZE / 2;
 
             node.getLinks().forEach(link -> {

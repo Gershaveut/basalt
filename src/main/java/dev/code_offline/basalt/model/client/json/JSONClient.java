@@ -44,7 +44,12 @@ public class JSONClient extends Client {
             throw new RuntimeException(e);
         }
     }
-
+    
+    @Override
+    public boolean isOffline() {
+        return true;
+    }
+    
     private void save() {
         Main.logger.info("Saving database...");
 

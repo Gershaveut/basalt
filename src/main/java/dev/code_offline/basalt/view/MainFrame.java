@@ -39,7 +39,7 @@ public class MainFrame extends JFrame {
         var menuBar = new MenuBar();
 
         var graph = new Graph();
-        var graphPanel = new GraphPanel(graph, this);
+        var graphPanel = new GraphPanel(graph, this, client.isOffline());
         var folderPanel = new FolderPanel();
 
         List<Tool> tools = new ArrayList<>();

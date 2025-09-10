@@ -131,7 +131,7 @@ public class NoteController implements ClientListener, FolderListener {
     }
 
     private void newFileCreate(Folder folder) {
-        client.addNote(new Note("Новая записка", client.getClientPerson().getId(), folder));
+        client.addNote(new Note("Новая записка", client.getClientPerson(), folder));
     }
 
     @Override

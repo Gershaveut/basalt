@@ -17,10 +17,10 @@ import java.awt.event.MouseWheelEvent;
 public class GraphPanel extends JPanel implements BasaltDockable, DebugModeListener {
     public final GraphCanvas graphCanvas;
 
-    public GraphPanel(Graph graph, MainFrame mainFrame) {
+    public GraphPanel(Graph graph, MainFrame mainFrame, boolean isOffline) {
         super(new BorderLayout());
 
-        graphCanvas = new GraphCanvas(graph);
+        graphCanvas = new GraphCanvas(graph, isOffline);
         this.add(graphCanvas, BorderLayout.CENTER);
 
         mainFrame.addDebugModeListener(this);

@@ -1,6 +1,7 @@
 package dev.code_offline.basalt.model.note;
 
 import dev.code_offline.basalt.model.Folder;
+import dev.code_offline.basalt.model.person.Person;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,13 +9,13 @@ import java.util.List;
 public class Note {
     private long id = -1;
     private String name;
-    private final long person;
+    private final Person person;
 
     private String text;
     private Folder parent;
     private final List<Note> noteLinks;
 
-    public Note(String name, long author, String text, Folder parent, List<Note> links) {
+    public Note(String name, Person author, String text, Folder parent, List<Note> links) {
         this.name = name;
         this.person = author;
         this.text = text;
@@ -22,11 +23,11 @@ public class Note {
         this.noteLinks = links;
     }
 
-    public Note(String name, long author, String text, Folder parent) {
+    public Note(String name, Person author, String text, Folder parent) {
         this(name, author, text, parent, new ArrayList<>());
     }
 
-    public Note(String name, long author, Folder folder) {
+    public Note(String name, Person author, Folder folder) {
         this(name, author, "", folder);
     }
     
@@ -43,7 +44,7 @@ public class Note {
         return name;
     }
 
-    public long getPerson() {
+    public Person getPerson() {
         return person;
     }
 

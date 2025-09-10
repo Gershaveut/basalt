@@ -20,7 +20,7 @@ public class NoteNode extends Note implements Node {
 
     @Override
     public String getAuthor() {
-        return "TODO: В разработке";
+        return super.getPerson().getName();
     }
 
     @Override

@@ -15,6 +15,8 @@ public abstract class Client {
         Main.logger.info("Initializing client...");
     }
 
+    public abstract boolean isOffline();
+    
     public abstract List<Person> getPersons();
     public abstract List<Note> getNotes();
     public abstract List<Folder> getFolders();
