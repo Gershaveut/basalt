@@ -93,7 +93,12 @@ public class JSONClient extends Client {
     public Folder getRoot() {
         return databaseModel.getRoot();
     }
-
+    
+    @Override
+    public Person getPerson(long id) {
+        return databaseModel.getPersons().stream().filter(p -> p.getId() == id).findFirst().orElseThrow();
+    }
+    
     @Override
     public void addPerson(Person person) {
         person.setId(getNextId(databaseModel.getPersons().stream().mapToInt(p -> Math.toIntExact(p.getId()))));

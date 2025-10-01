@@ -115,10 +115,14 @@ public class GraphCanvas extends JComponent {
             body.setAngularDamping(DAMPING);
 
             world.addBody(body);
-
-            node.getLinks().forEach(link -> {
-                var linkBody = link.getBody();
-
+        });
+        
+        graph.getNodes().forEach(node -> {
+            var body = node.getBody();
+            
+            node.getLinks().forEach(id -> {
+                var linkBody = graph.getNodes().stream().filter(node1 -> node1.getId() == id).findFirst().orElseThrow().getBody();
+                
                 DistanceJoint<Body> joint = new DistanceJoint<>(body, linkBody, body.getTransform().getTranslation(), linkBody.getTransform().getTranslation());
                 joint.setRestDistance(REST_DISTANCE);
                 joint.setSpringEnabled(true);
@@ -171,8 +175,10 @@ public class GraphCanvas extends JComponent {
                 g2d.drawString(node.getAuthor(), x, (int) (y + NODE_SIZE * 1.5));
             
             var nodeOffset = NODE_SIZE / 2;
-
-            node.getLinks().forEach(link -> {
+            
+            node.getLinks().forEach(id -> {
+                var link = graph.getNodes().stream().filter(node1 -> node1.getId() == id).findFirst().orElseThrow();
+                
                 var linkX = (int) link.getBody().getWorldCenter().x;
                 var linkY = (int) link.getBody().getWorldCenter().y;
 

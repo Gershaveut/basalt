@@ -1,5 +1,6 @@
 package dev.code_offline.basalt.model.note;
 
+import dev.code_offline.basalt.model.client.Client;
 import dev.code_offline.basalt.model.graph.Node;
 import org.dyn4j.dynamics.Body;
 
@@ -8,9 +9,14 @@ import java.util.List;
 
 public class NoteNode extends Note implements Node {
     private final Body body = new Body();
-
-    public NoteNode(Note note) {
-        super(note.getName(), note.getPerson(), note.getText(), note.getParent(), note.getNoteLinks());
+    private final Client client;
+    
+    public NoteNode(Note note, Client client) {
+        super(note.getName(), note.getPerson(), note.getText(), note.getParent(), note.getLinks());
+        
+        this.client = client;
+        
+        this.setId(note.getId());
     }
 
     @Override
@@ -20,12 +26,7 @@ public class NoteNode extends Note implements Node {
 
     @Override
     public String getAuthor() {
-        return super.getPerson().getName();
-    }
-
-    @Override
-    public List<Node> getLinks() {
-        return new ArrayList<>(super.getNoteLinks().stream().map(NoteNode::new).toList());
+        return client.getPerson(super.getPerson()).getName();
     }
 
     @Override

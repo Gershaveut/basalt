@@ -111,7 +111,7 @@ public class NoteController implements ClientListener, FolderListener {
         var notes = client.getNotes();
 
         folderPanel.setModel(notes, client.getFolders(), client.getRoot());
-        graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notes.stream().map(NoteNode::new).toList())));
+        graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notes.stream().map(n -> new NoteNode(n, client)).toList())));
     }
 
     private void selectSelectedNote() {
@@ -133,7 +133,7 @@ public class NoteController implements ClientListener, FolderListener {
     }
 
     private void newFileCreate(Folder folder) {
-        client.addNote(new Note("Новая записка", client.getClientPerson(), folder));
+        client.addNote(new Note("Новая записка", client.getClientPerson().getId(), folder));
     }
 
     @Override
