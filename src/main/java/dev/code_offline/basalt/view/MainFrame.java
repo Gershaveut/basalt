@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainFrame extends JFrame {
+    public final Client client;
+    
     private final EventListenerList listeners = new EventListenerList();
-
-    private final Client client;
     
     private boolean debug;
 

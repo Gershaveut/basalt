@@ -15,6 +15,7 @@ import org.dyn4j.world.World;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
+import java.util.logging.Level;
 
 public class GraphCanvas extends JComponent {
     private final double NANO_TO_BASE = 1.0e9;
@@ -121,14 +122,18 @@ public class GraphCanvas extends JComponent {
             var body = node.getBody();
             
             node.getLinks().forEach(id -> {
-                var linkBody = graph.getNodes().stream().filter(node1 -> node1.getId() == id).findFirst().orElseThrow().getBody();
-                
-                DistanceJoint<Body> joint = new DistanceJoint<>(body, linkBody, body.getTransform().getTranslation(), linkBody.getTransform().getTranslation());
-                joint.setRestDistance(REST_DISTANCE);
-                joint.setSpringEnabled(true);
-                joint.setSpringDamperEnabled(true);
-                joint.setSpringFrequency(SPRING_FREQUENCY);
-                world.addJoint(joint);
+                try {
+                    var linkBody = graph.getNodes().stream().filter(node1 -> node1.getId() == id).findFirst().orElseThrow().getBody();
+                    
+                    DistanceJoint<Body> joint = new DistanceJoint<>(body, linkBody, body.getTransform().getTranslation(), linkBody.getTransform().getTranslation());
+                    joint.setRestDistance(REST_DISTANCE);
+                    joint.setSpringEnabled(true);
+                    joint.setSpringDamperEnabled(true);
+                    joint.setSpringFrequency(SPRING_FREQUENCY);
+                    world.addJoint(joint);
+                } catch (Exception ignored) {
+                    Main.logger.log(Level.WARNING,  String.format("Note Id: %d Name: %s causes error", node.getId(), node.getName()));
+                }
             });
         });
     }
@@ -175,15 +180,19 @@ public class GraphCanvas extends JComponent {
                 g2d.drawString(node.getAuthor(), x, (int) (y + NODE_SIZE * 1.5));
             
             var nodeOffset = NODE_SIZE / 2;
+           
+            try {
+                node.getLinks().forEach(id -> {
+                    var link = graph.getNodes().stream().filter(node1 -> node1.getId() == id).findFirst().orElseThrow();
+                    
+                    var linkX = (int) link.getBody().getWorldCenter().x;
+                    var linkY = (int) link.getBody().getWorldCenter().y;
+                    
+                    g2d.drawLine(x + nodeOffset, y + nodeOffset, linkX + nodeOffset, linkY + nodeOffset);
+                });
+            } catch (Exception ignored) {
             
-            node.getLinks().forEach(id -> {
-                var link = graph.getNodes().stream().filter(node1 -> node1.getId() == id).findFirst().orElseThrow();
-                
-                var linkX = (int) link.getBody().getWorldCenter().x;
-                var linkY = (int) link.getBody().getWorldCenter().y;
-
-                g2d.drawLine(x + nodeOffset, y + nodeOffset, linkX + nodeOffset, linkY + nodeOffset);
-            });
+            }
             
             if (debug) {
                 g2d.drawString("Id: " + node.getId(), (int) (x + NODE_SIZE * 1.5), y + 10);

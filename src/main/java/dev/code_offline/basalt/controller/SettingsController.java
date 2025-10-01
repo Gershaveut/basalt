@@ -3,6 +3,8 @@ package dev.code_offline.basalt.controller;
 import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
 import dev.code_offline.basalt.Main;
+import dev.code_offline.basalt.model.client.json.JSONClient;
+import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.settings.Setting;
 import dev.code_offline.basalt.model.settings.SettingsCategory;
 import dev.code_offline.basalt.model.settings.SettingsModel;
@@ -50,8 +52,26 @@ public class SettingsController implements SettingsListener {
                 mainFrame.enableDebug();
             }
         });
+        
+        var debugGenerateDatabase = new Setting("Генерация дата базы", false);
+        debugGenerateDatabase.addSettingListener(value -> {
+            if ((Boolean) value) {
+                var debugClient = mainFrame.client;
+               
+                if (debugClient.getNotes().size() < 20) {
+                    for (int i = 1; i < 25; i++) {
+                        var note = new Note(String.valueOf(i), debugClient.getClientPerson().getId(), debugClient.getRoot());
+                        
+                        note.setText(String.format("[%d]", i + 1));
+                        
+                        debugClient.addNote(note);
+                    }
+                }
+            }
+        });
 
         debugCategory.add(debugMode);
+        debugCategory.add(debugGenerateDatabase);
         miscTab.add(debugCategory);
 
         settingsTabs.add(generalTab);
