@@ -6,6 +6,7 @@ import dev.code_offline.basalt.model.note.Note;
 import java.util.EventListener;
 
 public interface FolderListener extends EventListener {
+    void openFile(long id);
     void newFile(Folder parent);
     void newFolder(Folder folder);
     void rename(long id, String newName);

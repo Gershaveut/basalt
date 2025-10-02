@@ -21,6 +21,7 @@ public abstract class Client {
     public abstract List<Note> getNotes();
     public abstract List<Folder> getFolders();
     public abstract Folder getRoot();
+    public abstract Note getNote(long id);
     public abstract Person getPerson(long id);
     public abstract void addPerson(Person person);
     public abstract void addNote(Note note);

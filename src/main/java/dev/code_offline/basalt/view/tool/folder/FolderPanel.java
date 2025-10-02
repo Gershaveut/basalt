@@ -13,6 +13,8 @@ import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.tree.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -32,12 +34,25 @@ public class FolderPanel extends JPanel implements BasaltDockable {
         tree.setDropMode(DropMode.ON_OR_INSERT);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
 
+        var openFile = new JMenuItem("Открыть файл");
+
         var newFile = new JMenuItem("Новый файл");
         var newFolder = new JMenuItem("Новая папка");
 
         var rename = new JMenuItem("Переименовать");
         var delete = new JMenuItem("Удалить");
 
+        openFile.addActionListener(e -> {
+            @Nullable TreePath treeNode = tree.getSelectionPath();
+
+            if (treeNode != null) {
+                var selectedNote = (Note) ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
+
+                for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+                    listener.openFile(selectedNote.getId());
+                }
+            }
+        });
         newFile.addActionListener(e -> {
             @Nullable TreePath treeNode = tree.getSelectionPath();
 
@@ -109,8 +124,10 @@ public class FolderPanel extends JPanel implements BasaltDockable {
             }
         });
 
+        popupMenu.add(openFile);
+        popupMenu.addSeparator();
         popupMenu.add(newFile);
-        popupMenu.add(newFolder);
+        //popupMenu.add(newFolder);
         popupMenu.addSeparator();
         popupMenu.add(rename);
         popupMenu.add(delete);
@@ -120,6 +137,14 @@ public class FolderPanel extends JPanel implements BasaltDockable {
             public void mousePressed(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     popupMenu.show(tree, e.getX(), e.getY());
+                }
+            }
+        });
+        tree.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_CONTEXT_MENU) {
+                    popupMenu.show(tree, 0, 0); // TODO: Назначить кординату y
                 }
             }
         });

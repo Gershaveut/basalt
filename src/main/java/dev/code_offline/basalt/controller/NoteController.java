@@ -26,7 +26,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class NoteController implements ClientListener, FolderListener {
     public Client client;
@@ -50,7 +49,7 @@ public class NoteController implements ClientListener, FolderListener {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    selectSelectedNote();
+                    openSelectedNote();
                 }
             }
 
@@ -71,7 +70,7 @@ public class NoteController implements ClientListener, FolderListener {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    selectSelectedNote();
+                    openSelectedNote();
                 }
             }
         });
@@ -85,7 +84,7 @@ public class NoteController implements ClientListener, FolderListener {
 
                 if (focusNode == null) return;
 
-                selectNote((Note) focusNode);
+                openNote((focusNode.getId()));
             }
         });
 
@@ -99,7 +98,7 @@ public class NoteController implements ClientListener, FolderListener {
 
             @Override
             public void save() {
-                //TODO: Сохранение по нажатию кнопки в меню
+                // TODO: Сохранение по нажатию кнопки в меню
             }
         });
 
@@ -114,17 +113,19 @@ public class NoteController implements ClientListener, FolderListener {
         graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notes.stream().map(n -> new NoteNode(n, client)).toList())));
     }
 
-    private void selectSelectedNote() {
+    private void openSelectedNote() {
         @Nullable TreePath treeNode = folderPanel.getTree().getSelectionPath();
 
         if (treeNode != null) {
             var selectedNote = (Note) ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
 
-            selectNote(selectedNote);
+            openNote(selectedNote.getId());
         }
     }
 
-    private void selectNote(Note note) {
+    private void openNote(long id) {
+        var note = client.getNote(id);
+
         var markdownEditor = new MarkdownEditorPanel(note, mainFrame);
 
         markdownEditor.addMarkdownListener(text -> client.editNote(note.getId(), text));
@@ -134,6 +135,11 @@ public class NoteController implements ClientListener, FolderListener {
 
     private void newFileCreate(Folder folder) {
         client.addNote(new Note("Новая записка", client.getClientPerson().getId(), folder));
+    }
+
+    @Override
+    public void openFile(long id) {
+        openNote(id);
     }
 
     @Override

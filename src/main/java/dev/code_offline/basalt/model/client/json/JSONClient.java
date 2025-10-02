@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 public class JSONClient extends Client {
     private final String FILE_NAME = "database.json";
 
-    private JSONDatabaseModel databaseModel;
+    private JSONDatabaseModel databaseModel = new JSONDatabaseModel();
 
     private final Person clientPerson = new Person("Вы", 0, Role.ADMIN, null);
 
@@ -34,14 +34,9 @@ public class JSONClient extends Client {
 
             @Nullable JSONDatabaseModel database = new Gson().fromJson(Files.readString(Path.of(FILE_NAME)), JSONDatabaseModel.class);
 
-            if (database == null) {
-                database = new JSONDatabaseModel();
-            }
-
             this.databaseModel = database;
         } catch (Exception e) {
             Main.logger.severe("Error load json database: " + e.getMessage());
-            throw new RuntimeException(e);
         }
     }
     
@@ -93,7 +88,12 @@ public class JSONClient extends Client {
     public Folder getRoot() {
         return databaseModel.getRoot();
     }
-    
+
+    @Override
+    public Note getNote(long id) {
+        return databaseModel.getNotes().stream().filter(n -> n.getId() == id).findFirst().orElseThrow();
+    }
+
     @Override
     public Person getPerson(long id) {
         return databaseModel.getPersons().stream().filter(p -> p.getId() == id).findFirst().orElseThrow();
