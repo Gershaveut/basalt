@@ -195,7 +195,10 @@ public class GraphCanvas extends JComponent {
             }
             
             if (debug) {
-                g2d.drawString("Id: " + node.getId(), (int) (x + NODE_SIZE * 1.5), y + 10);
+                int debugX = (int) (x + NODE_SIZE * 1.5);
+
+                g2d.drawString("Id: " + node.getId(), debugX, y + 10);
+                g2d.drawString("Links: " + node.getLinks(), debugX, y + 20);
             }
         });
 
