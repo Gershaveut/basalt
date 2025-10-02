@@ -22,8 +22,6 @@ public class Note {
         this.text = text;
         this.parent = parent;
         this.links = links;
-        
-        loadLinks();
     }
 
     public Note(String name, long author, String text, Folder parent) {
@@ -32,22 +30,6 @@ public class Note {
 
     public Note(String name, long author, Folder folder) {
         this(name, author, "", folder);
-    }
-   
-    private void loadLinks() {
-        var links = new ArrayList<Long>();
-        
-        Pattern pattern = Pattern.compile("\\[([^]]*)");
-        Matcher matcher = pattern.matcher(text);
-        
-        while (matcher.find()) {
-            var number = Long.parseLong(matcher.group(1).trim());
-            
-            if (number != id)
-                links.add(number);
-        }
-        
-        this.links = links;
     }
     
     @Override
@@ -89,11 +71,13 @@ public class Note {
 
     public void setText(String text) {
         this.text = text;
-       
-        loadLinks();
     }
 
     public void setParent(Folder parent) {
         this.parent = parent;
+    }
+
+    public void setLinks(List<Long> links) {
+        this.links = links;
     }
 }

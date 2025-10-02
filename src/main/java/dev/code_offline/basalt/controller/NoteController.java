@@ -26,6 +26,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NoteController implements ClientListener, FolderListener {
     public Client client;
@@ -108,6 +110,40 @@ public class NoteController implements ClientListener, FolderListener {
     @Override
     public void sync() {
         var notes = client.getNotes();
+
+        notes.forEach(note -> {
+            var links = new ArrayList<Long>();
+
+            var patternId = Pattern.compile("\\[(\\d*?)]");
+            var patternName = Pattern.compile("\\[\\[(.*?)]]");
+
+            var matcherId = patternId.matcher(note.getText());
+            var matcherName = patternName.matcher(note.getText());
+
+            while (matcherId.find()) {
+                try {
+                    var number = Long.parseLong(matcherId.group(1).trim());
+
+                    if (number != note.getId() && !links.stream().anyMatch(l -> l == number))
+                        links.add(number);
+                } catch (Exception ignored) {
+                }
+            }
+
+            while (matcherName.find()) {
+                try {
+                    var name = matcherName.group(1).trim();
+
+                    var number = client.getNotes().stream().filter(n -> n.getName().matches(name)).findFirst().orElseThrow().getId();
+
+                    if (number != note.getId() && !links.stream().anyMatch(l -> l == number))
+                        links.add(number);
+                } catch (Exception ignored){
+                }
+            }
+
+            note.setLinks(links);
+        });
 
         folderPanel.setModel(notes, client.getFolders(), client.getRoot());
         graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notes.stream().map(n -> new NoteNode(n, client)).toList())));
