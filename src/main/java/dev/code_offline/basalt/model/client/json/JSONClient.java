@@ -34,7 +34,8 @@ public class JSONClient extends Client {
 
             @Nullable JSONDatabaseModel database = new Gson().fromJson(Files.readString(Path.of(FILE_NAME)), JSONDatabaseModel.class);
 
-            this.databaseModel = database;
+            if (database != null)
+                this.databaseModel = database;
         } catch (Exception e) {
             Main.logger.severe("Error load json database: " + e.getMessage());
         }
