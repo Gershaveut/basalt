@@ -108,7 +108,7 @@ public class GraphCanvas extends JComponent {
             var body = node.getBody();
             var random = new Random();
 
-            body.translate(random.nextInt(250), random.nextInt(250));
+            body.translate(random.nextInt(500), random.nextInt(500));
             body.addFixture(Geometry.createCircle((double) NODE_SIZE / 2));
             body.setMass(NODE_MASS);
 
@@ -181,18 +181,18 @@ public class GraphCanvas extends JComponent {
             
             var nodeOffset = NODE_SIZE / 2;
            
-            try {
-                node.getLinks().forEach(id -> {
+            node.getLinks().forEach(id -> {
+                try {
                     var link = graph.getNodes().stream().filter(node1 -> node1.getId() == id).findFirst().orElseThrow();
                     
                     var linkX = (int) link.getBody().getWorldCenter().x;
                     var linkY = (int) link.getBody().getWorldCenter().y;
                     
                     g2d.drawLine(x + nodeOffset, y + nodeOffset, linkX + nodeOffset, linkY + nodeOffset);
-                });
-            } catch (Exception ignored) {
+                } catch (Exception ignored) {
+                }
+            });
             
-            }
             
             if (debug) {
                 int debugX = (int) (x + NODE_SIZE * 1.5);

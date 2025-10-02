@@ -53,7 +53,7 @@ public class SettingsController implements SettingsListener {
             }
         });
         
-        var debugGenerateDatabase = new Setting("Генерация дата базы", false);
+        var debugGenerateDatabase = new Setting("Генерация базы данных", false);
         debugGenerateDatabase.addSettingListener(value -> {
             if ((Boolean) value) {
                 var debugClient = mainFrame.client;
@@ -69,13 +69,13 @@ public class SettingsController implements SettingsListener {
                 }
             }
         });
-
-        debugCategory.add(debugMode);
+        
         debugCategory.add(debugGenerateDatabase);
+        debugCategory.add(debugMode);
         miscTab.add(debugCategory);
 
-        settingsTabs.add(generalTab);
         settingsTabs.add(miscTab);
+        settingsTabs.add(generalTab);
 
         settingsModel = new SettingsModel(settingsTabs);
 
