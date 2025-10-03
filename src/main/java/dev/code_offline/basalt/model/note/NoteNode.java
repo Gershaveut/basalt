@@ -1,10 +1,9 @@
 package dev.code_offline.basalt.model.note;
 
-import dev.code_offline.basalt.model.client.Client;
+import dev.code_offline.basalt.core.client.Client;
 import dev.code_offline.basalt.model.graph.Node;
 import org.dyn4j.dynamics.Body;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class NoteNode implements Node {

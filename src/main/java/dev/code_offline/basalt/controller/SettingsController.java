@@ -3,7 +3,6 @@ package dev.code_offline.basalt.controller;
 import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
 import dev.code_offline.basalt.Main;
-import dev.code_offline.basalt.model.client.json.JSONClient;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.settings.Setting;
 import dev.code_offline.basalt.model.settings.SettingsCategory;

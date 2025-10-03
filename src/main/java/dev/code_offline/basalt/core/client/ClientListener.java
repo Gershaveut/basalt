@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.model.client;
+package dev.code_offline.basalt.core.client;
 
 import java.util.EventListener;
 

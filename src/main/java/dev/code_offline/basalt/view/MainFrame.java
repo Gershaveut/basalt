@@ -8,12 +8,12 @@ import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
 import dev.code_offline.basalt.controller.NoteController;
 import dev.code_offline.basalt.controller.SettingsController;
-import dev.code_offline.basalt.model.client.Client;
-import dev.code_offline.basalt.model.client.json.JSONClient;
+import dev.code_offline.basalt.core.client.Client;
+import dev.code_offline.basalt.core.client.JSONClient;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.menubar.MenuBar;
-import dev.code_offline.basalt.view.tool.folder.FolderPanel;
 import dev.code_offline.basalt.view.tool.Tool;
+import dev.code_offline.basalt.view.tool.folder.FolderPanel;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
 
 import javax.swing.*;

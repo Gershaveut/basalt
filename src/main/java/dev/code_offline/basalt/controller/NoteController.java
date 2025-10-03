@@ -1,27 +1,28 @@
 package dev.code_offline.basalt.controller;
 
-import com.javadocking.dock.*;
+import com.javadocking.dock.CompositeDock;
+import com.javadocking.dock.Position;
+import com.javadocking.dock.TabDock;
+import dev.code_offline.basalt.core.client.Client;
+import dev.code_offline.basalt.core.client.ClientListener;
 import dev.code_offline.basalt.model.Folder;
+import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.model.note.Note;
-import dev.code_offline.basalt.model.client.Client;
-import dev.code_offline.basalt.model.client.ClientListener;
-import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.note.NoteNode;
 import dev.code_offline.basalt.view.MainFrame;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.menubar.MenuBarAdapter;
+import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.folder.FolderListener;
 import dev.code_offline.basalt.view.tool.folder.FolderPanel;
-import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorPanel;
-import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
+import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorPanel;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;

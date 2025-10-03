@@ -1,6 +1,5 @@
-package dev.code_offline.basalt.model.client.json;
+package dev.code_offline.basalt.model;
 
-import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
 

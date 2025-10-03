@@ -1,11 +1,11 @@
-package dev.code_offline.basalt.model.client.json;
+package dev.code_offline.basalt.core.client;
 
 import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
 import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.model.Folder;
+import dev.code_offline.basalt.model.JSONDatabaseModel;
 import dev.code_offline.basalt.model.note.Note;
-import dev.code_offline.basalt.model.client.Client;
 import dev.code_offline.basalt.model.person.Person;
 import dev.code_offline.basalt.model.person.Role;
 import org.checkerframework.checker.nullness.qual.Nullable;

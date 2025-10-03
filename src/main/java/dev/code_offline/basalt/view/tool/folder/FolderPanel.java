@@ -11,7 +11,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;

@@ -4,8 +4,6 @@ import dev.code_offline.basalt.model.Folder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Note {
     private long id = -1;
