@@ -34,9 +34,10 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 	public FolderPanel() {
 		super(new BorderLayout());
 		
-		tree.setDragEnabled(true);
-		tree.setDropMode(DropMode.ON_OR_INSERT);
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
+		// tree.setDragEnabled(true);
+		// tree.setDropMode(DropMode.ON_OR_INSERT);
+		// tree.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
+		tree.setCellRenderer(new FolderTreeCellRenderer());
 		
 		var newFile = new JMenuItem("Новый файл");
 		var newFolder = new JMenuItem("Новая папка");
@@ -137,8 +138,8 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 	
 		tree.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mousePressed(MouseEvent e) {
-				if (e.isPopupTrigger()) {
+			public void mouseReleased(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON3) {
 					showPopupMenu(setFileOptionsVisibly, e.getX(), e.getY());
 				}
 			}
