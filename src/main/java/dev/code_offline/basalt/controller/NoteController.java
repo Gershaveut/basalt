@@ -137,7 +137,7 @@ public class NoteController implements ClientListener, FolderListener {
                 try {
                     var name = matcherName.group(1).trim();
 
-                    var number = client.getNotes().stream().filter(n -> n.getName().matches(name)).findFirst().orElseThrow().getId();
+                    var number = notes.stream().filter(n -> n.getName().matches(name)).findFirst().orElseThrow().getId();
 
                     if (number != note.getId() && links.stream().noneMatch(l -> l == number))
                         links.add(number);

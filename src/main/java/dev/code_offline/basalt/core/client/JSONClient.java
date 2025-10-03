@@ -10,6 +10,7 @@ import dev.code_offline.basalt.model.person.Person;
 import dev.code_offline.basalt.model.person.Role;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import javax.naming.SizeLimitExceededException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -31,8 +32,13 @@ public class JSONClient extends Client {
 
         try {
             var ignored = new File(FILE_NAME).createNewFile();
-
-            @Nullable JSONDatabaseModel database = new Gson().fromJson(Files.readString(Path.of(FILE_NAME)), JSONDatabaseModel.class);
+            var path = Path.of(FILE_NAME);
+            
+            if (Files.size(path) > Integer.MAX_VALUE >> 1) {
+                throw new SizeLimitExceededException("Json database too big");
+            }
+            
+            @Nullable JSONDatabaseModel database = new Gson().fromJson(Files.readString(path), JSONDatabaseModel.class);
 
             if (database != null)
                 this.databaseModel = database;
