@@ -90,57 +90,89 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		});
 		rename.addActionListener(e -> {
 			assert selectedNode != null;
-			var selectedNote = (Note) selectedNode;
-			
-			var input = new InputTextFrame("Переименовать", "Переименовать - " + selectedNote.getName(), selectedNote.getName());
+            String name;
+
+            if (selectedNode instanceof Note note) {
+                name = note.getName();
+            } else {
+                name = ((Folder) selectedNode).getName();
+            }
+
+			var input = new InputTextFrame("Переименовать", "Переименовать - " + name, name);
 			input.addInputListener(new InputListener() {
-				@Override
-				public void confirm(Object value) {
-					for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-						listener.rename(selectedNote.getId(), value.toString());
-					}
-				}
-				
-				@Override
-				public void cancel() {
-				
-				}
-			});
+                @Override
+                public void confirm(Object value) {
+                    for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+                        if (selectedNode instanceof Note note) {
+                            listener.rename(note.getId(), value.toString());
+                        } else {
+                            var folder = (Folder) selectedNode;
+
+                            listener.rename(folder.getPath(), value.toString());
+                        }
+                    }
+                }
+
+                @Override
+                public void cancel() {
+
+                }
+            });
 			input.setVisible(true);
 		});
 		delete.addActionListener(e -> {
 			assert selectedNode != null;
-			var selectedNote = (Note) selectedNode;
-			
-			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-				listener.delete(selectedNote);
-			}
+
+            for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+                if (selectedNode instanceof Note note) {
+                    listener.delete(note.getId());
+                } else {
+                    listener.delete(((Folder) selectedNode).getPath());
+                }
+            }
 		});
 		
 		var separator1 = new JSeparator();
 		var separator2 = new JSeparator();
 		
 		popupMenu.add(newFile);
-		//popupMenu.add(newFolder);
+		popupMenu.add(newFolder);
 		popupMenu.add(separator1);
 		popupMenu.add(openFile);
 		popupMenu.add(separator2);
 		popupMenu.add(rename);
 		popupMenu.add(delete);
 		
-		Consumer<Boolean> setFileOptionsVisibly = (visibly) -> {
-			openFile.setVisible(visibly);
-			rename.setVisible(visibly);
-			delete.setVisible(visibly);
-			separator1.setVisible(visibly);
-			separator2.setVisible(visibly);
+		Consumer<PopupMenuContext> setPopupMenuContext = (context) -> {
+            openFile.setVisible(false);
+            rename.setVisible(false);
+            delete.setVisible(false);
+            separator1.setVisible(false);
+            separator2.setVisible(false);
+
+            switch (context) {
+                case PopupMenuContext.Note -> {
+                    openFile.setVisible(true);
+                    rename.setVisible(true);
+                    delete.setVisible(true);
+                    separator1.setVisible(true);
+                    separator2.setVisible(true);
+                }
+                case PopupMenuContext.Folder -> {
+                    rename.setVisible(true);
+                    delete.setVisible(true);
+                    separator2.setVisible(true);
+                }
+                default -> {
+                }
+            }
 		};
 	
 		tree.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				if (e.getButton() == MouseEvent.BUTTON3) {
-					showPopupMenu(setFileOptionsVisibly, e.getX(), e.getY());
+					showPopupMenu(setPopupMenuContext, e.getX(), e.getY());
 				}
 			}
 		});
@@ -148,7 +180,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_CONTEXT_MENU) {
-					showPopupMenu(setFileOptionsVisibly, 0, 0); // TODO: Назначить координату y
+					showPopupMenu(setPopupMenuContext, 0, 0); // TODO: Назначить координату y
 				}
 			}
 		});
@@ -156,15 +188,22 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		add(tree, BorderLayout.CENTER);
 	}
 	
-	private void showPopupMenu(Consumer<Boolean> setFileOptionsVisibly, int x, int y) {
+	private void showPopupMenu(Consumer<PopupMenuContext> setPopupMenuContext, int x, int y) {
 		@Nullable TreePath treeNode = getTree().getSelectionPath();
-		
+        var context = PopupMenuContext.Empty;
+
 		if (treeNode != null) {
 			selectedNode = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
 			selectedParentNode = ((DefaultMutableTreeNode) treeNode.getParentPath().getLastPathComponent()).getUserObject();
+
+            if (selectedNode instanceof Note) {
+                context = PopupMenuContext.Note;
+            } else if (selectedNode instanceof Folder) {
+                context = PopupMenuContext.Folder;
+            }
 		}
-		
-		setFileOptionsVisibly.accept(treeNode != null);
+
+        setPopupMenuContext.accept(context);
 		
 		popupMenu.show(tree, x, y);
 	}
@@ -185,7 +224,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			var parentNode = folderNodes.stream().filter(treeNode -> {
 				assert folder.getParent() != null;
 				return treeNode.getUserObject().hashCode() == folder.getParent().hashCode();
-			}).findFirst().orElseThrow();
+			}).findFirst().orElse(rootNode);
 			
 			var folderNode = new DefaultMutableTreeNode(folder);
 			
@@ -194,7 +233,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		});
 		
 		notes.forEach(note -> {
-			var parentNode = folderNodes.stream().filter(treeNode -> treeNode.getUserObject().hashCode() == note.getParent().hashCode()).findFirst().orElseThrow();
+			var parentNode = folderNodes.stream().filter(treeNode -> treeNode.getUserObject().hashCode() == note.getParent().hashCode()).findFirst().orElse(rootNode);
 			
 			parentNode.add(new DefaultMutableTreeNode(note));
 		});

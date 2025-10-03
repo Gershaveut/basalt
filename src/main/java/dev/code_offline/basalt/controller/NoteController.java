@@ -3,6 +3,7 @@ package dev.code_offline.basalt.controller;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.TabDock;
 import dev.code_offline.basalt.model.Folder;
+import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.client.Client;
 import dev.code_offline.basalt.model.client.ClientListener;
@@ -26,7 +27,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NoteController implements ClientListener, FolderListener {
@@ -82,7 +82,7 @@ public class NoteController implements ClientListener, FolderListener {
         graphPanel.graphCanvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                var focusNode = graphPanel.graphCanvas.getFocusatedNode();
+                @Nullable Node focusNode = graphPanel.graphCanvas.getFocusatedNode();
 
                 if (focusNode == null) return;
 
@@ -124,7 +124,7 @@ public class NoteController implements ClientListener, FolderListener {
                 try {
                     var number = Long.parseLong(matcherId.group(1).trim());
 
-                    if (number != note.getId() && !links.stream().anyMatch(l -> l == number))
+                    if (number != note.getId() && links.stream().noneMatch(l -> l == number))
                         links.add(number);
                 } catch (Exception ignored) {
                 }
@@ -136,7 +136,7 @@ public class NoteController implements ClientListener, FolderListener {
 
                     var number = client.getNotes().stream().filter(n -> n.getName().matches(name)).findFirst().orElseThrow().getId();
 
-                    if (number != note.getId() && !links.stream().anyMatch(l -> l == number))
+                    if (number != note.getId() && links.stream().noneMatch(l -> l == number))
                         links.add(number);
                 } catch (Exception ignored){
                 }
@@ -153,9 +153,10 @@ public class NoteController implements ClientListener, FolderListener {
         @Nullable TreePath treeNode = folderPanel.getTree().getSelectionPath();
 
         if (treeNode != null) {
-            var selectedNote = (Note) ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
+            var selected = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
 
-            openNote(selectedNote.getId());
+            if (selected instanceof Note note)
+                openNote(note.getId());
         }
     }
 
@@ -207,7 +208,17 @@ public class NoteController implements ClientListener, FolderListener {
     }
 
     @Override
-    public void delete(Note note) {
-        client.deleteNote(note);
+    public void rename(String path, String newName) {
+        client.renameFolder(path, newName);
+    }
+
+    @Override
+    public void delete(long id) {
+        client.deleteNote(id);
+    }
+
+    @Override
+    public void delete(String path) {
+        client.deleteFolder(path);
     }
 }

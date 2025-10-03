@@ -10,5 +10,7 @@ public interface FolderListener extends EventListener {
     void newFile(Folder parent);
     void newFolder(Folder folder);
     void rename(long id, String newName);
-    void delete(Note note);
+    void rename(String path, String newName);
+    void delete(long id);
+    void delete(String path);
 }

@@ -31,7 +31,7 @@ public abstract class Client {
     public abstract Person getClientPerson();
     public abstract void editNote(long id, String newText);
     public abstract void renameNote(long id, String newName);
-    public abstract void deleteNote(Note note);
+    public abstract void deleteNote(long id);
 
     public void addDatabaseListener(ClientListener clientListener) {
         listeners.add(ClientListener.class, clientListener);

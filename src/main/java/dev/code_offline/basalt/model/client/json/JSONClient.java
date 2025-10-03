@@ -124,12 +124,14 @@ public class JSONClient extends Client {
 
     @Override
     public void renameFolder(String path, String newName) {
-
+        databaseModel.getFolders().stream().filter(f -> f.getPath().equals(path)).findFirst().orElseThrow().setName(newName);
+        save();
     }
 
     @Override
     public void deleteFolder(String path) {
-
+        databaseModel.getFolders().removeIf(f -> f.getPath().equals(path));
+        save();
     }
 
     @Override
@@ -145,8 +147,8 @@ public class JSONClient extends Client {
     }
 
     @Override
-    public void deleteNote(Note note) {
-        databaseModel.getNotes().remove(note);
+    public void deleteNote(long id) {
+        databaseModel.getNotes().removeIf(n -> n.getId() == id);
         save();
     }
 }
