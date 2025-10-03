@@ -1,7 +1,6 @@
 package dev.code_offline.basalt.controller;
 
-import com.javadocking.dock.Position;
-import com.javadocking.dock.TabDock;
+import com.javadocking.dock.*;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.model.note.Note;
@@ -22,6 +21,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -30,20 +30,22 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class NoteController implements ClientListener, FolderListener {
-    public Client client;
+	public Client client;
     
     private final MainFrame mainFrame;
     private final GraphPanel graphPanel;
     private final FolderPanel folderPanel;
 
     private final TabDock tabDock;
+    private final CompositeDock dock;
 
-    public NoteController(MainFrame mainFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, Client client, MenuBar menuBar) {
+    public NoteController(MainFrame mainFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Client client, MenuBar menuBar) {
         this.mainFrame = mainFrame;
         this.graphPanel = graphPanel;
         this.folderPanel = folderPanel;
         this.tabDock = tabDock;
-        this.client = client;
+		this.dock = dock;
+		this.client = client;
 
         var tree = folderPanel.getTree();
 
@@ -167,7 +169,12 @@ public class NoteController implements ClientListener, FolderListener {
 
         markdownEditor.addMarkdownListener(text -> client.editNote(note.getId(), text));
 
+        var addToDock = tabDock.isEmpty();
+        
         tabDock.addDockable(new Tool(markdownEditor), new Position());
+        
+        if (addToDock)
+            dock.addChildDock(tabDock, new Position(Position.CENTER));
     }
 
     private void newFileCreate(Folder folder) {

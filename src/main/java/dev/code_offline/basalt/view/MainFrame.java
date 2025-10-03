@@ -99,7 +99,7 @@ public class MainFrame extends JFrame {
         add(toolPanel, BorderLayout.WEST);
 
         new GraphController(graph, graphPanel);
-        new NoteController(this, graphPanel, folderPanel, rightTabDock, client, menuBar);
+        new NoteController(this, graphPanel, folderPanel, rightTabDock, rightSplitDock, client, menuBar);
         new SettingsController(menuBar.getSettingsFrame(), this);
 
         this.setJMenuBar(menuBar);
