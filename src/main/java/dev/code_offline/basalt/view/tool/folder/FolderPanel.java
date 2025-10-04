@@ -4,6 +4,7 @@ import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
+import dev.code_offline.basalt.model.note.NoteNode;
 import dev.code_offline.basalt.view.input.InputListener;
 import dev.code_offline.basalt.view.input.InputTextFrame;
 import dev.code_offline.basalt.view.tool.BasaltDockable;
@@ -50,7 +51,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		
 		openFile.addActionListener(e -> {
 			assert selectedNode != null;
-			var selectedNote = (Note) selectedNode;
+			var selectedNote = (NoteNode) selectedNode;
 			
 			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
 				listener.openFile(selectedNote.getId());
@@ -217,7 +218,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		listeners.remove(FolderListener.class, folderListener);
 	}
 	
-	public void setModel(List<Note> notes, List<Folder> folders, Folder root) {
+	public void setModel(List<NoteNode> notes, List<Folder> folders, Folder root) {
 		var rootNode = new DefaultMutableTreeNode(root);
 		var folderNodes = new ArrayList<>(List.of(rootNode));
 		

@@ -28,6 +28,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class NoteController implements ClientListener, FolderListener {
@@ -147,9 +148,11 @@ public class NoteController implements ClientListener, FolderListener {
 
             note.setLinks(links);
         });
+        
+        var notesNode = notes.stream().map(n -> new NoteNode(n, client)).toList();
 
-        folderPanel.setModel(notes, client.getFolders(), client.getRoot());
-        graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notes.stream().map(n -> new NoteNode(n, client)).toList())));
+        folderPanel.setModel(notesNode, client.getFolders(), client.getRoot());
+        graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
     }
 
     private void openSelectedNote() {

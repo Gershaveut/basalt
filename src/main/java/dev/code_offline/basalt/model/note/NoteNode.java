@@ -1,6 +1,7 @@
 package dev.code_offline.basalt.model.note;
 
 import dev.code_offline.basalt.core.client.Client;
+import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.graph.Node;
 import org.dyn4j.dynamics.Body;
 
@@ -13,6 +14,7 @@ public class NoteNode implements Node {
     private final long id;
     private final String name;
     private final long person;
+    private final Folder parent;
     private final List<Long> links;
 
     public NoteNode(Note note, Client client) {
@@ -21,9 +23,19 @@ public class NoteNode implements Node {
         this.id = note.getId();
         this.name = note.getName();
         this.person = note.getPerson();
+        this.parent = note.getParent();
         this.links = note.getLinks();
+	}
+    
+    @Override
+    public String toString() {
+        return name;
     }
-
+    
+    public Folder getParent() {
+        return parent;
+    }
+    
     @Override
     public String getName() {
         return name;
