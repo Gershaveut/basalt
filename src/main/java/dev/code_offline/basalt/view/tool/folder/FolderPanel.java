@@ -186,7 +186,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			}
 		});
 		
-		add(tree, BorderLayout.CENTER);
+		add(new JScrollPane(tree), BorderLayout.CENTER);
 	}
 	
 	private void showPopupMenu(Consumer<PopupMenuContext> setPopupMenuContext, int x, int y) {
@@ -217,6 +217,31 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		listeners.remove(FolderListener.class, folderListener);
 	}
 	
+	public String getExpansionState() {
+		var string = new StringBuilder();
+		
+		for (int i = 0; i < tree.getRowCount(); i++) {
+			TreePath treePath = tree.getPathForRow(i);
+			
+			if (tree.isExpanded(i)) {
+				string.append(treePath.toString());
+				string.append(",");
+			}
+		}
+		
+		return string.toString();
+	}
+	
+	public void setExpansionState(String state) {
+		for (int i = 0; i < tree.getRowCount(); i++) {
+			TreePath treePath = tree.getPathForRow(i);
+			
+			if (state.contains(treePath.toString())) {
+				tree.expandRow(i);
+			}
+		}
+	}
+	
 	public void setModel(List<NoteNode> notes, List<Folder> folders, Folder root) {
 		var rootNode = new DefaultMutableTreeNode(root);
 		var folderNodes = new ArrayList<>(List.of(rootNode));
@@ -239,7 +264,11 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			parentNode.add(new DefaultMutableTreeNode(note));
 		});
 		
+		var state = getExpansionState();
+		
 		tree.setModel(new JTree(rootNode).getModel());
+		
+		setExpansionState(state);
 	}
 	
 	public JTree getTree() {
