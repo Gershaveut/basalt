@@ -3,7 +3,6 @@ package dev.code_offline.basalt.view.tool.folder;
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.Folder;
-import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.note.NoteNode;
 import dev.code_offline.basalt.view.input.InputListener;
 import dev.code_offline.basalt.view.input.InputTextFrame;
@@ -94,7 +93,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			assert selectedNode != null;
             String name;
 
-            if (selectedNode instanceof Note note) {
+            if (selectedNode instanceof NoteNode note) {
                 name = note.getName();
             } else {
                 name = ((Folder) selectedNode).getName();
@@ -105,7 +104,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
                 @Override
                 public void confirm(Object value) {
                     for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-                        if (selectedNode instanceof Note note) {
+                        if (selectedNode instanceof NoteNode note) {
                             listener.rename(note.getId(), value.toString());
                         } else {
                             var folder = (Folder) selectedNode;
@@ -126,7 +125,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			assert selectedNode != null;
 
             for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-                if (selectedNode instanceof Note note) {
+                if (selectedNode instanceof NoteNode note) {
                     listener.delete(note.getId());
                 } else {
                     listener.delete(((Folder) selectedNode).getPath());
@@ -198,7 +197,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			selectedNode = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
 			selectedParentNode = ((DefaultMutableTreeNode) treeNode.getParentPath().getLastPathComponent()).getUserObject();
 
-            if (selectedNode instanceof Note) {
+            if (selectedNode instanceof NoteNode) {
                 context = PopupMenuContext.Note;
             } else if (selectedNode instanceof Folder) {
                 context = PopupMenuContext.Folder;

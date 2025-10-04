@@ -161,7 +161,7 @@ public class NoteController implements ClientListener, FolderListener {
         if (treeNode != null) {
             var selected = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
 
-            if (selected instanceof Note note)
+            if (selected instanceof NoteNode note)
                 openNote(note.getId());
         }
     }
