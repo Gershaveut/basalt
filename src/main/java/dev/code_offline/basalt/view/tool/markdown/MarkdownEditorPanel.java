@@ -6,6 +6,7 @@ import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.view.DebugModeListener;
 import dev.code_offline.basalt.view.MainFrame;
 import dev.code_offline.basalt.view.tool.BasaltDockable;
+import dev.code_offline.basalt.view.tool.Tool;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -89,9 +90,7 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable, Debug
             bothPanel.add(previewScroll);
         });
         saveButton.addActionListener(e -> {
-            for (MarkdownListener listener : listeners.getListeners(MarkdownListener.class)) {
-                listener.onSave(getText());
-            }
+           save();
         });
 
         optionPanel.add(editButton);
@@ -112,6 +111,7 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable, Debug
             @Override
             public void keyReleased(KeyEvent e) {
                 updatePreview();
+                setSaveIndicator(true);
             }
         });
 
@@ -127,12 +127,24 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable, Debug
 
         return button;
     }
+    
+    private void setSaveIndicator(boolean visibly) {
+        // TODO: В планах
+    }
 
     private void updatePreview() {
         String markdownText = inputArea.getText();
         Node document = markdownParser.parse(markdownText);
         String html = htmlRenderer.render(document);
         previewPane.setText("<html><body>" + html + "</body></html>");
+    }
+    
+    public void save() {
+        for (MarkdownListener listener : listeners.getListeners(MarkdownListener.class)) {
+            listener.onSave(getText());
+        }
+        
+        setSaveIndicator(false);
     }
 
     public String getText() {

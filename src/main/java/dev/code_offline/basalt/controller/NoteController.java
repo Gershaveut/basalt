@@ -4,6 +4,7 @@ import com.javadocking.dock.CompositeDock;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.TabDock;
 import dev.code_offline.basalt.Main;
+import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.core.client.Client;
 import dev.code_offline.basalt.core.client.ClientListener;
 import dev.code_offline.basalt.model.Folder;
@@ -107,7 +108,10 @@ public class NoteController implements ClientListener, FolderListener {
 
             @Override
             public void save() {
-                // TODO: Сохранение по нажатию кнопки в меню
+                Util.foreachNonList(tabDock.getDockableCount(), tabDock::getDockable, (dockable) -> {
+                    if (((Tool) dockable).getBasaltDockable() instanceof MarkdownEditorPanel markdownEditorPanel)
+                        markdownEditorPanel.save();
+                });
             }
         });
 
@@ -228,12 +232,10 @@ public class NoteController implements ClientListener, FolderListener {
 
     @Override
     public void delete(long id) {
-        for (int i = 0; i < tabDock.getDockableCount(); i++) {
-            var dockable = tabDock.getDockable(i);
-         
+        Util.foreachNonList(tabDock.getDockableCount(), tabDock::getDockable, (dockable) -> {
             if (Objects.equals(dockable.getID(), "markdown_editor " + id))
                 tabDock.removeDockable(dockable);
-        }
+        });
         
         client.deleteNote(id);
     }

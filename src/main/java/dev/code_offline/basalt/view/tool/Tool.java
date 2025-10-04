@@ -19,6 +19,10 @@ public final class Tool extends StateActionDockable implements BasaltDockable {
         this.basaltDockable = basaltDockable;
     }
 
+    public BasaltDockable getBasaltDockable() {
+        return basaltDockable;
+    }
+    
     @Override
     public String getID(){
         return basaltDockable.getID();
