@@ -4,6 +4,7 @@ import com.javadocking.DockingManager;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
+import com.javadocking.event.DockableEvent;
 import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
 import dev.code_offline.basalt.controller.NoteController;
@@ -12,6 +13,7 @@ import dev.code_offline.basalt.core.client.Client;
 import dev.code_offline.basalt.core.client.JSONClient;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.menubar.MenuBar;
+import dev.code_offline.basalt.view.tool.LogPanel;
 import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.folder.FolderPanel;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
@@ -54,10 +56,12 @@ public class MainFrame extends JFrame {
         // создание инструментов
         var graphDock = new Tool(graphPanel);
         var folderDock = new Tool(folderPanel);
-
+        var logDock = new Tool(new LogPanel());
+        
         // добавление в список инструментов
         tools.add(folderDock);
         tools.add(graphDock);
+        tools.add(logDock);
 
         var toolPanel = new ToolPanel(tools);
 
@@ -68,6 +72,7 @@ public class MainFrame extends JFrame {
         // добавление инструментов в табы
         rightTabDock.addDockable(graphDock, new Position());
         leftTabDock.addDockable(folderDock, new Position());
+        rightTabDock.addDockable(logDock, new Position());
 
         // создание доков
         var rightSplitDock = new SplitDock();

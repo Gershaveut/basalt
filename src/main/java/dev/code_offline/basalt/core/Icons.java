@@ -14,7 +14,8 @@ public enum Icons {
     PREVIEW("preview"),
     STACK("stack"),
     BASALT("basalt"),
-    SAVE("save");
+    SAVE("save"),
+    TERMINAL("terminal");
 
     private static final int ICON_SIZE = 30;
     private static final Color COLOR = Color.BLACK;
