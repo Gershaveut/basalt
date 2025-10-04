@@ -149,7 +149,7 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable, Debug
 
     @Override
     public String getID() {
-        return "markdown_editor";
+        return "markdown_editor " + note.getId();
     }
 
     @Override
