@@ -38,7 +38,7 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable, Debug
 
         optionPanel = new JPanel();
 
-        var cardLayout =  new CardLayout();
+        var cardLayout = new CardLayout();
 
         var cardPanel = new JPanel(cardLayout);
         var editPanel = new JPanel(new BorderLayout());

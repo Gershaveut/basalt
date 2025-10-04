@@ -108,7 +108,7 @@ public class NoteController implements ClientListener, FolderListener {
 
             @Override
             public void save() {
-                Util.foreachNonList(tabDock.getDockableCount(), tabDock::getDockable, (dockable) -> {
+                Util.foreachNonList(tabDock::getDockableCount, tabDock::getDockable, (dockable) -> {
                     if (((Tool) dockable).getBasaltDockable() instanceof MarkdownEditorPanel markdownEditorPanel)
                         markdownEditorPanel.save();
                 });
@@ -232,8 +232,8 @@ public class NoteController implements ClientListener, FolderListener {
 
     @Override
     public void delete(long id) {
-        Util.foreachNonList(tabDock.getDockableCount(), tabDock::getDockable, (dockable) -> {
-            if (Objects.equals(dockable.getID(), "markdown_editor " + id))
+        Util.foreachNonList(tabDock::getDockableCount, tabDock::getDockable, (dockable) -> {
+            if (dockable.getID().contains(String.valueOf(id)))
                 tabDock.removeDockable(dockable);
         });
         
