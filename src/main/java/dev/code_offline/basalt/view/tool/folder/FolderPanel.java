@@ -74,15 +74,16 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			}
 		});
 		newFolder.addActionListener(e -> {
-			assert selectedNode != null;
-			var selected = selectedNode;
-			Folder folder;
+			@Nullable Object selected = selectedNode;
+			Folder folder = (Folder) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject();
 			
-			if (selected instanceof Folder f) {
-				folder = f;
-			} else {
-				assert selectedParentNode != null;
-				folder = (Folder) selectedParentNode;
+			if (selected != null) {
+				if (selected instanceof Folder f) {
+					folder = f;
+				} else {
+					assert selectedParentNode != null;
+					folder = (Folder) selectedParentNode;
+				}
 			}
 			
 			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
