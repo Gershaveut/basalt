@@ -44,7 +44,7 @@ public class MainFrame extends JFrame {
 
         var graph = new Graph();
         var graphPanel = new GraphPanel(graph, this, client.isOffline());
-        var folderPanel = new FolderPanel();
+        var folderPanel = new FolderPanel(client);
 
         List<Tool> tools = new ArrayList<>();
 

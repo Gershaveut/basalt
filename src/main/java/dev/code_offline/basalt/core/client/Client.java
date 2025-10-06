@@ -27,10 +27,12 @@ public abstract class Client {
     public abstract void addNote(Note note);
     public abstract void addFolder(Folder folder);
     public abstract void renameFolder(String path, String newName);
+    public abstract void moveFolder(String path, Folder folder);
     public abstract void deleteFolder(String path);
     public abstract Person getClientPerson();
     public abstract void editNote(long id, String newText);
     public abstract void renameNote(long id, String newName);
+    public abstract void moveNote(long id, Folder folder);
     public abstract void deleteNote(long id);
 
     public void addDatabaseListener(ClientListener clientListener) {

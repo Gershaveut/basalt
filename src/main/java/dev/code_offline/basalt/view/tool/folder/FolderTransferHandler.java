@@ -1,55 +1,80 @@
 package dev.code_offline.basalt.view.tool.folder;
 
+import dev.code_offline.basalt.core.client.Client;
+import dev.code_offline.basalt.model.Folder;
+import dev.code_offline.basalt.model.note.NoteNode;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+import java.util.Objects;
 
 public class FolderTransferHandler extends TransferHandler {
-    private DataFlavor flavor = new DataFlavor(DefaultMutableTreeNode.class, "Tree Node");
-
+    private final DataFlavor flavor = new DataFlavor(TransferableFile.class, "Tree Node");
+    
+    private final Client client;
+    
+    public FolderTransferHandler(Client client) {
+        this.client = client;
+    }
+    
     @Override
     protected Transferable createTransferable(JComponent c) {
         JTree tree = (JTree) c;
-        TreePath path = tree.getSelectionPath();
-        if (path == null) return null;
+        
+        TreePath path = Objects.requireNonNull(tree.getSelectionPath());
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-        return new TransferableNode(node);
+        
+        return new TransferableFile(node);
     }
 
     @Override
     public int getSourceActions(JComponent c) {
-        return COPY_OR_MOVE;
+        return MOVE;
     }
 
     @Override
     public boolean canImport(TransferSupport support) {
-        return support.isDataFlavorSupported(flavor);
-    }
+        return support.isDataFlavorSupported(flavor) && ((DefaultMutableTreeNode)((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject() instanceof Folder;
+	}
 
     @Override
     public boolean importData(TransferSupport support) {
         if (!canImport(support)) return false;
+        
         try {
-            Transferable t = support.getTransferable();
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) t.getTransferData(flavor);
-            JTree.DropLocation dl = (JTree.DropLocation) support.getDropLocation();
-            TreePath dest = dl.getPath();
-            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) dest.getLastPathComponent();
-            parent.add(new DefaultMutableTreeNode(node.getUserObject()));
-            ((JTree) support.getComponent()).updateUI();
+            var file = support.getTransferable().getTransferData(flavor);
+            var targetFolder = (Folder) ((DefaultMutableTreeNode)((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject();
+          
+            if (file instanceof NoteNode note) {
+                client.moveNote(note.getId(), targetFolder);
+            } else {
+                client.moveFolder(((Folder) file).getPath(), targetFolder);
+            }
+            
             return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
+        } catch (UnsupportedFlavorException | IOException ignored) {
+			return false;
+		}
+	}
 
-    private class TransferableNode implements Transferable {
-        private DefaultMutableTreeNode node;
+    private class TransferableFile implements Transferable {
+        private @Nullable Folder folder = null;
+        private @Nullable NoteNode note = null;
 
-        public TransferableNode(DefaultMutableTreeNode node) {
-            this.node = node;
+        public TransferableFile(DefaultMutableTreeNode node) {
+            var nodeContent = node.getUserObject();
+            
+            if (nodeContent instanceof NoteNode noteNode) {
+                this.note = noteNode;
+            } else {
+                this.folder = (Folder) nodeContent;
+            }
         }
 
         @Override
@@ -64,7 +89,12 @@ public class FolderTransferHandler extends TransferHandler {
 
         @Override
         public Object getTransferData(DataFlavor f) {
-            return node;
+            if (folder != null) {
+                return folder;
+            } else {
+				assert note != null;
+				return note;
+            }
         }
     }
 }

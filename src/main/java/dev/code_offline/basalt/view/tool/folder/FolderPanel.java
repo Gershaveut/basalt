@@ -2,6 +2,7 @@ package dev.code_offline.basalt.view.tool.folder;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
+import dev.code_offline.basalt.core.client.Client;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.NoteNode;
 import dev.code_offline.basalt.view.input.InputListener;
@@ -13,6 +14,7 @@ import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -32,12 +34,14 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 	private @Nullable Object selectedNode;
 	private @Nullable Object selectedParentNode;
 	
-	public FolderPanel() {
+	public FolderPanel(Client client) {
 		super(new BorderLayout());
 		
-		// tree.setDragEnabled(true);
-		// tree.setDropMode(DropMode.ON_OR_INSERT);
-		// tree.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
+		tree.setDragEnabled(true);
+		tree.setDropMode(DropMode.ON_OR_INSERT);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
+		
+		tree.setTransferHandler(new FolderTransferHandler(client));
 		tree.setCellRenderer(new FolderTreeCellRenderer());
 		
 		var newFile = new JMenuItem("Новый файл");

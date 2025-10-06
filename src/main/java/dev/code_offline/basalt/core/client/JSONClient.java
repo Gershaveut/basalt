@@ -133,7 +133,13 @@ public class JSONClient extends Client {
         databaseModel.getFolders().stream().filter(f -> f.getPath().equals(path)).findFirst().orElseThrow().setName(newName);
         save();
     }
-
+    
+    @Override
+    public void moveFolder(String path, Folder folder) {
+        databaseModel.getFolders().stream().filter(f -> f.getPath().equals(path)).findFirst().orElseThrow().setParent(folder);
+        save();
+    }
+    
     @Override
     public void deleteFolder(String path) {
         databaseModel.getFolders().removeIf(f -> f.getPath().equals(path));
@@ -151,7 +157,13 @@ public class JSONClient extends Client {
         databaseModel.getNotes().stream().filter(note -> note.getId() == id).findFirst().orElseThrow().setName(newName);
         save();
     }
-
+    
+    @Override
+    public void moveNote(long id, Folder folder) {
+        databaseModel.getNotes().stream().filter(note -> note.getId() == id).findFirst().orElseThrow().setParent(folder);
+        save();
+    }
+    
     @Override
     public void deleteNote(long id) {
         databaseModel.getNotes().removeIf(n -> n.getId() == id);
