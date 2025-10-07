@@ -48,13 +48,13 @@ public class FolderTransferHandler extends TransferHandler {
         if (!canImport(support)) return false;
         
         try {
-            var file = support.getTransferable().getTransferData(flavor);
+            var file = ((TransferableFile)support.getTransferable().getTransferData(flavor)).getFile();
             var targetFolder = (Folder) ((DefaultMutableTreeNode)((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject();
           
             if (file instanceof NoteNode note) {
-                client.moveNote(note.getId(), targetFolder);
+               client.moveNote(note.getId(), targetFolder);
             } else {
-                client.moveFolder(((Folder) file).getPath(), targetFolder);
+               client.moveFolder(((Folder) file).getPath(), targetFolder);
             }
             
             return true;
@@ -89,11 +89,15 @@ public class FolderTransferHandler extends TransferHandler {
 
         @Override
         public Object getTransferData(DataFlavor f) {
+           return this;
+        }
+        
+        public Object getFile() {
             if (folder != null) {
                 return folder;
             } else {
-				assert note != null;
-				return note;
+                assert note != null;
+                return note;
             }
         }
     }

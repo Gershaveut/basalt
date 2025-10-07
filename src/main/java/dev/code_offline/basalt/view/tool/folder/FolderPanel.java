@@ -40,7 +40,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.ON_OR_INSERT);
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		
 		tree.setTransferHandler(new FolderTransferHandler(client));
 		tree.setCellRenderer(new FolderTreeCellRenderer());
