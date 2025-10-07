@@ -130,22 +130,68 @@ public class JSONClient extends Client {
 
     @Override
     public void renameFolder(String path, String newName) {
-        databaseModel.getFolders().stream().filter(f -> f.getPath().equals(path)).findFirst().orElseThrow().setName(newName);
+        var targetFolder = databaseModel.getFolders().stream().filter(f -> f.getPath().equals(path)).findFirst().orElseThrow();
+        targetFolder.setName(newName);
+        
+        databaseModel.getNotes().stream().filter(n -> n.getParent().getPath().equals(path)).forEach(note -> {
+            note.setParent(targetFolder);
+        });
+        
+        databaseModel.getFolders().stream().filter(f -> {
+            assert f.getParent() != null;
+            return f.getParent().getPath().equals(path);
+        }).forEach(folder1 -> {
+            moveFolderWork(folder1.getPath(), targetFolder);
+        });
+        
         save();
     }
     
     @Override
     public void moveFolder(String path, Folder folder) {
-        databaseModel.getFolders().stream().filter(f -> f.getPath().equals(path)).findFirst().orElseThrow().setParent(folder);
+        moveFolderWork(path, folder);
+        
         save();
+    }
+    
+    private void moveFolderWork(String path, Folder folder) {
+        var targetFolder = databaseModel.getFolders().stream().filter(f -> f.getPath().equals(path)).findFirst().orElseThrow();
+        targetFolder.setParent(folder);
+        
+        databaseModel.getNotes().stream().filter(n -> n.getParent().getPath().equals(path)).forEach(note -> {
+            note.setParent(targetFolder);
+        });
+        
+        databaseModel.getFolders().stream().filter(f -> {
+			assert f.getParent() != null;
+			return f.getParent().getPath().equals(path);
+		}).forEach(folder1 -> {
+            moveFolderWork(folder1.getPath(), targetFolder);
+        });
     }
     
     @Override
     public void deleteFolder(String path) {
-        databaseModel.getFolders().removeIf(f -> f.getPath().equals(path));
+        deleteFolderWork(databaseModel.getFolders().stream().filter(f -> f.getPath().equals(path)).findFirst().orElseThrow());
+        
         save();
     }
-
+    
+    private void deleteFolderWork(Folder folder) {
+        databaseModel.getFolders().remove(folder);
+        
+        var findNotes = databaseModel.getNotes().stream().filter(n -> n.getParent().getPath().equals(folder.getPath())).toList();
+        
+        findNotes.forEach(note -> databaseModel.getNotes().remove(note));
+        
+        var findFolders = databaseModel.getFolders().stream().filter(f -> {
+            assert f.getParent() != null;
+            return f.getParent().getPath().equals(folder.getPath());
+        }).toList();
+        
+        findFolders.forEach(this::deleteFolderWork);
+    }
+    
     @Override
     public void editNote(long id, String newText) {
         databaseModel.getNotes().stream().filter(note -> note.getId() == id).findFirst().orElseThrow().setText(newText);

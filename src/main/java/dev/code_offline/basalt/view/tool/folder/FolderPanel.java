@@ -22,6 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 
@@ -207,6 +208,9 @@ public class FolderPanel extends JPanel implements BasaltDockable {
             } else if (selectedNode instanceof Folder) {
                 context = PopupMenuContext.Folder;
             }
+		} else {
+			selectedNode = null;
+			selectedParentNode = null;
 		}
 
         setPopupMenuContext.accept(context);
@@ -251,17 +255,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		var rootNode = new DefaultMutableTreeNode(root);
 		var folderNodes = new ArrayList<>(List.of(rootNode));
 		
-		folders.forEach(folder -> {
-			var parentNode = folderNodes.stream().filter(treeNode -> {
-				assert folder.getParent() != null;
-				return treeNode.getUserObject().hashCode() == folder.getParent().hashCode();
-			}).findFirst().orElse(rootNode);
-			
-			var folderNode = new DefaultMutableTreeNode(folder);
-			
-			parentNode.add(folderNode);
-			folderNodes.add(folderNode);
-		});
+		folders.forEach(folder -> createFolder(folder, folderNodes));
 		
 		notes.forEach(note -> {
 			var parentNode = folderNodes.stream().filter(treeNode -> treeNode.getUserObject().hashCode() == note.getParent().hashCode()).findFirst().orElse(rootNode);
@@ -274,6 +268,30 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		tree.setModel(new JTree(rootNode).getModel());
 		
 		setExpansionState(state);
+	}
+	
+	private @Nullable DefaultMutableTreeNode createFolder(Folder folder, ArrayList<DefaultMutableTreeNode> folderNodes) {
+		DefaultMutableTreeNode parentNode;
+	
+		if (folderNodes.stream().anyMatch(treeNode -> treeNode.getUserObject().hashCode() == folder.hashCode()))
+			return null;
+		
+		try {
+			parentNode = folderNodes.stream().filter(treeNode -> {
+				assert folder.getParent() != null;
+				return treeNode.getUserObject().hashCode() == folder.getParent().hashCode();
+			}).findFirst().orElseThrow();
+		} catch (Exception ignored) {
+			assert folder.getParent() != null;
+			parentNode = Objects.requireNonNull(createFolder(folder.getParent(), folderNodes));
+		}
+		
+		var folderNode = new DefaultMutableTreeNode(folder);
+		
+		parentNode.add(folderNode);
+		folderNodes.add(folderNode);
+		
+		return folderNode;
 	}
 	
 	public JTree getTree() {
