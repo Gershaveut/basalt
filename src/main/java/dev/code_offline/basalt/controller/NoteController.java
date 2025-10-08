@@ -3,7 +3,6 @@ package dev.code_offline.basalt.controller;
 import com.javadocking.dock.CompositeDock;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.TabDock;
-import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.core.client.Client;
 import dev.code_offline.basalt.core.client.ClientListener;
@@ -11,6 +10,7 @@ import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.model.note.Note;
+import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt.model.note.NoteNode;
 import dev.code_offline.basalt.view.MainFrame;
 import dev.code_offline.basalt.view.menubar.MenuBar;
@@ -30,9 +30,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 public class NoteController implements ClientListener, FolderListener {
@@ -156,9 +153,10 @@ public class NoteController implements ClientListener, FolderListener {
             note.setLinks(links);
         });
         
+        var notesInfo = notes.stream().map(n -> new NoteInfo(n, client)).toList();
         var notesNode = notes.stream().map(n -> new NoteNode(n, client)).toList();
 
-        folderPanel.setModel(notesNode, client.getFolders(), client.getRoot());
+        folderPanel.setModel(notesInfo, client.getFolders(), client.getRoot());
         graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
     }
 
@@ -168,7 +166,7 @@ public class NoteController implements ClientListener, FolderListener {
         if (treeNode != null) {
             var selected = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
 
-            if (selected instanceof NoteNode note)
+            if (selected instanceof NoteInfo note)
                 openNote(note.getId());
         }
     }
@@ -219,7 +217,17 @@ public class NoteController implements ClientListener, FolderListener {
 
         client.addFolder(newFolder);
     }
-
+    
+    @Override
+    public void moveFile(Long id, Folder folder) {
+       client.moveNote(id, folder);
+    }
+    
+    @Override
+    public void moveFolder(String path, Folder folder) {
+        client.moveFolder(path, folder);
+    }
+    
     @Override
     public void rename(long id, String newName) {
         client.renameNote(id, newName);

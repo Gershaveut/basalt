@@ -25,7 +25,11 @@ public class Folder {
         while (currnetFolder != null) {
             path.insert(0, currnetFolder.getName() + "/");
             currnetFolder = currnetFolder.getParent();
-        }
+            
+            if (currnetFolder != null && hashCode() == currnetFolder.hashCode()) {
+                path = new StringBuilder();
+                break;
+            }}
 
         return path.toString();
     }
@@ -44,10 +48,5 @@ public class Folder {
 
     public void setParent(@Nullable Folder parent) {
         this.parent = parent;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getPath());
     }
 }

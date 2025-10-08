@@ -2,10 +2,11 @@ package dev.code_offline.basalt.view.tool.folder;
 
 import dev.code_offline.basalt.core.client.Client;
 import dev.code_offline.basalt.model.Folder;
-import dev.code_offline.basalt.model.note.NoteNode;
+import dev.code_offline.basalt.model.note.NoteInfo;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.datatransfer.DataFlavor;
@@ -16,12 +17,11 @@ import java.util.Objects;
 
 public class FolderTransferHandler extends TransferHandler {
     private final DataFlavor flavor = new DataFlavor(TransferableFile.class, "Tree Node");
-    
-    private final Client client;
-    
-    public FolderTransferHandler(Client client) {
-        this.client = client;
-    }
+	private final EventListenerList listeners;
+	
+	public FolderTransferHandler(EventListenerList listeners) {
+		this.listeners = listeners;
+	}
     
     @Override
     protected Transferable createTransferable(JComponent c) {
@@ -51,10 +51,14 @@ public class FolderTransferHandler extends TransferHandler {
             var file = ((TransferableFile)support.getTransferable().getTransferData(flavor)).getFile();
             var targetFolder = (Folder) ((DefaultMutableTreeNode)((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject();
           
-            if (file instanceof NoteNode note) {
-               client.moveNote(note.getId(), targetFolder);
+            if (file instanceof NoteInfo note) {
+               for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+                    listener.moveFile(note.getId(), targetFolder);
+               }
             } else {
-               client.moveFolder(((Folder) file).getPath(), targetFolder);
+               for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+                   listener.moveFolder(((Folder) file).getPath(), targetFolder);
+               }
             }
             
             return true;
@@ -65,12 +69,12 @@ public class FolderTransferHandler extends TransferHandler {
 
     private class TransferableFile implements Transferable {
         private @Nullable Folder folder = null;
-        private @Nullable NoteNode note = null;
+        private @Nullable NoteInfo note = null;
 
         public TransferableFile(DefaultMutableTreeNode node) {
             var nodeContent = node.getUserObject();
             
-            if (nodeContent instanceof NoteNode noteNode) {
+            if (nodeContent instanceof NoteInfo noteNode) {
                 this.note = noteNode;
             } else {
                 this.folder = (Folder) nodeContent;

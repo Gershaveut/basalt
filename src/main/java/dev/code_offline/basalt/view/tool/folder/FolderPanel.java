@@ -2,9 +2,8 @@ package dev.code_offline.basalt.view.tool.folder;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
-import dev.code_offline.basalt.core.client.Client;
 import dev.code_offline.basalt.model.Folder;
-import dev.code_offline.basalt.model.note.NoteNode;
+import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt.view.input.InputListener;
 import dev.code_offline.basalt.view.input.InputTextFrame;
 import dev.code_offline.basalt.view.tool.BasaltDockable;
@@ -35,14 +34,14 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 	private @Nullable Object selectedNode;
 	private @Nullable Object selectedParentNode;
 	
-	public FolderPanel(Client client) {
+	public FolderPanel() {
 		super(new BorderLayout());
 		
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.ON_OR_INSERT);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		
-		tree.setTransferHandler(new FolderTransferHandler(client));
+		tree.setTransferHandler(new FolderTransferHandler(listeners));
 		tree.setCellRenderer(new FolderTreeCellRenderer());
 		
 		var newFile = new JMenuItem("Новый файл");
@@ -55,7 +54,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		
 		openFile.addActionListener(e -> {
 			assert selectedNode != null;
-			var selectedNote = (NoteNode) selectedNode;
+			var selectedNote = (NoteInfo) selectedNode;
 			
 			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
 				listener.openFile(selectedNote.getId());
@@ -99,7 +98,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			assert selectedNode != null;
             String name;
 
-            if (selectedNode instanceof NoteNode note) {
+            if (selectedNode instanceof NoteInfo note) {
                 name = note.getName();
             } else {
                 name = ((Folder) selectedNode).getName();
@@ -110,7 +109,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
                 @Override
                 public void confirm(Object value) {
                     for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-                        if (selectedNode instanceof NoteNode note) {
+                        if (selectedNode instanceof NoteInfo note) {
                             listener.rename(note.getId(), value.toString());
                         } else {
                             var folder = (Folder) selectedNode;
@@ -131,7 +130,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			assert selectedNode != null;
 
             for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-                if (selectedNode instanceof NoteNode note) {
+                if (selectedNode instanceof NoteInfo note) {
                     listener.delete(note.getId());
                 } else {
                     listener.delete(((Folder) selectedNode).getPath());
@@ -203,7 +202,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			selectedNode = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
 			selectedParentNode = ((DefaultMutableTreeNode) treeNode.getParentPath().getLastPathComponent()).getUserObject();
 
-            if (selectedNode instanceof NoteNode) {
+            if (selectedNode instanceof NoteInfo) {
                 context = PopupMenuContext.Note;
             } else if (selectedNode instanceof Folder) {
                 context = PopupMenuContext.Folder;
@@ -251,11 +250,11 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		}
 	}
 	
-	public void setModel(List<NoteNode> notes, List<Folder> folders, Folder root) {
+	public void setModel(List<NoteInfo> notes, List<Folder> folders, Folder root) {
 		var rootNode = new DefaultMutableTreeNode(root);
 		var folderNodes = new ArrayList<>(List.of(rootNode));
 		
-		folders.forEach(folder -> createFolder(folder, folderNodes));
+		folders.forEach(folder -> createFolder(folder, folderNodes, rootNode));
 		
 		notes.forEach(note -> {
 			var parentNode = folderNodes.stream().filter(treeNode -> treeNode.getUserObject().hashCode() == note.getParent().hashCode()).findFirst().orElse(rootNode);
@@ -270,20 +269,19 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		setExpansionState(state);
 	}
 	
-	private @Nullable DefaultMutableTreeNode createFolder(Folder folder, ArrayList<DefaultMutableTreeNode> folderNodes) {
-		DefaultMutableTreeNode parentNode;
+	private @Nullable DefaultMutableTreeNode createFolder(Folder folder, ArrayList<DefaultMutableTreeNode> folderNodes, DefaultMutableTreeNode root) {
+		DefaultMutableTreeNode parentNode = root;
+		@Nullable Folder parent = folder.getParent();
 	
-		if (folderNodes.stream().anyMatch(treeNode -> treeNode.getUserObject().hashCode() == folder.hashCode()))
+		if (folderNodes.stream().anyMatch(treeNode -> ((Folder) treeNode.getUserObject()).getPath().equals(folder.getPath())))
 			return null;
 		
-		try {
-			parentNode = folderNodes.stream().filter(treeNode -> {
-				assert folder.getParent() != null;
-				return treeNode.getUserObject().hashCode() == folder.getParent().hashCode();
-			}).findFirst().orElseThrow();
-		} catch (Exception ignored) {
-			assert folder.getParent() != null;
-			parentNode = Objects.requireNonNull(createFolder(folder.getParent(), folderNodes));
+		if (parent != null) {
+			try {
+				parentNode = folderNodes.stream().filter(treeNode -> ((Folder) treeNode.getUserObject()).getPath().equals(parent.getPath())).findFirst().orElseThrow();
+			} catch (Exception ignored) {
+				parentNode = Objects.requireNonNull(createFolder(parent, folderNodes, root));
+			}
 		}
 		
 		var folderNode = new DefaultMutableTreeNode(folder);

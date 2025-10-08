@@ -4,9 +4,9 @@ import com.javadocking.DockingManager;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
-import com.javadocking.event.DockableEvent;
 import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
+import dev.code_offline.basalt.controller.LogController;
 import dev.code_offline.basalt.controller.NoteController;
 import dev.code_offline.basalt.controller.SettingsController;
 import dev.code_offline.basalt.core.client.Client;
@@ -44,7 +44,8 @@ public class MainFrame extends JFrame {
 
         var graph = new Graph();
         var graphPanel = new GraphPanel(graph, this, client.isOffline());
-        var folderPanel = new FolderPanel(client);
+        var folderPanel = new FolderPanel();
+        var logPanel = new LogPanel();
 
         List<Tool> tools = new ArrayList<>();
 
@@ -56,7 +57,7 @@ public class MainFrame extends JFrame {
         // создание инструментов
         var graphDock = new Tool(graphPanel);
         var folderDock = new Tool(folderPanel);
-        var logDock = new Tool(new LogPanel());
+        var logDock = new Tool(logPanel);
         
         // добавление в список инструментов
         tools.add(folderDock);
@@ -102,7 +103,9 @@ public class MainFrame extends JFrame {
         // добавление компонентов
         add(splitPane, BorderLayout.CENTER);
         add(toolPanel, BorderLayout.WEST);
-
+        
+        new LogController(logPanel);
+        
         new GraphController(graph, graphPanel);
         new NoteController(this, graphPanel, folderPanel, rightTabDock, rightSplitDock, client, menuBar);
         new SettingsController(menuBar.getSettingsFrame(), this);

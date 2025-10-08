@@ -7,38 +7,28 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 public class LogPanel extends JPanel implements BasaltDockable {
+	private final JTextArea logArena;
+	private final JScrollPane logScroll;
+	
 	public LogPanel() {
 		super(new BorderLayout());
 		
-		var logArea = new JTextArea();
-		var logScroll = new JScrollPane(logArea);
+		logArena = new JTextArea();
+		logScroll = new JScrollPane(logArena);
 	
-		logArea.setEditable(false);
-		
-		Main.logger.addHandler(new Handler() {
-			@Override
-			public void publish(LogRecord record) {
-				logArea.append(record.getLevel() + ": " + record.getMessage() + "\n");
-				JScrollBar vertical = logScroll.getVerticalScrollBar();
-				vertical.setValue(vertical.getMaximum());
-			}
-			
-			@Override
-			public void flush() {
-			
-			}
-			
-			@Override
-			public void close() throws SecurityException {
-			
-			}
-		});
+		logArena.setEditable(false);
 		
 		add(logScroll, BorderLayout.CENTER);
+	}
+	
+	public JTextArea getLogArena() {
+		return logArena;
+	}
+	
+	public JScrollPane getLogScroll() {
+		return logScroll;
 	}
 	
 	@Override

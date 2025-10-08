@@ -149,6 +149,9 @@ public class JSONClient extends Client {
     
     @Override
     public void moveFolder(String path, Folder folder) {
+        if (path.equals(folder.getPath()))
+            return;
+        
         moveFolderWork(path, folder);
         
         save();
