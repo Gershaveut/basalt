@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import org.springframework.lang.Nullable;
 
 @Entity
 public class Person {
@@ -11,11 +12,15 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private java.lang.String name;
+    private String name;
     private Role string;
-    private java.lang.String description;
-
-    public java.lang.String getName() {
+    private @Nullable String description;
+    
+    public long getId() {
+        return id;
+    }
+    
+    public String getName() {
         return name;
     }
 
@@ -23,7 +28,7 @@ public class Person {
         return string;
     }
 
-    public String getDescription() {
+    public @Nullable String getDescription() {
         return description;
     }
 
@@ -35,7 +40,7 @@ public class Person {
         this.string = string;
     }
 
-    public void setDescription(java.lang.String description) {
+    public void setDescription(@Nullable String description) {
         this.description = description;
     }
 }
