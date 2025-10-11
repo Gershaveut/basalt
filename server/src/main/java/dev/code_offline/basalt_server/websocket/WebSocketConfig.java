@@ -1,4 +1,4 @@
-package dev.code_offline.basalt_server;
+package dev.code_offline.basalt_server.websocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
