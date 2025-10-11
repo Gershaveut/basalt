@@ -31,8 +31,8 @@ public class MainFrame extends JFrame {
     
     private boolean debug;
 
-    public MainFrame() throws HeadlessException {
-        this.client = new JSONClient();
+    public MainFrame(Client client) throws HeadlessException {
+        this.client = client;
 
         this.setTitle("Basalt");
         this.setLayout(new BorderLayout());
