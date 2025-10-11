@@ -1,5 +1,7 @@
 package dev.code_offline.basalt.view;
 
+import dev.code_offline.basalt_server.BasaltApplication;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
@@ -18,6 +20,9 @@ public class StartFrame extends JFrame {
 		var openDatabaseButton = new JButton("Открыть");
 		var connectDatabaseButton = new JButton("Подключиться");
 		
+		createDatabaseButton.addActionListener(e -> chooseDatabaseFile(true));
+		openDatabaseButton.addActionListener(e -> chooseDatabaseFile(false));
+		
 		buttonPanel.add(createDatabaseButton);
 		buttonPanel.add(openDatabaseButton);
 		buttonPanel.add(connectDatabaseButton);
@@ -34,5 +39,25 @@ public class StartFrame extends JFrame {
 		add(recentPanel, BorderLayout.CENTER);
 		
 		this.setVisible(true);
+	}
+	
+	private void chooseDatabaseFile(boolean create) {
+		var fileChooser = new JFileChooser();
+		
+		int result;
+		
+		if (create) {
+			result = fileChooser.showSaveDialog(this);
+		} else {
+			result = fileChooser.showOpenDialog(this);
+		}
+		
+		if (result == JFileChooser.APPROVE_OPTION) {
+			startServer(fileChooser.getSelectedFile().getPath());
+		}
+	}
+	
+	private void startServer(String path) {
+		BasaltApplication.main(List.of("--spring.datasource.url=jdbc:h2:file:" + path).toArray(new String[1]));
 	}
 }
