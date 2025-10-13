@@ -59,7 +59,7 @@ public class SettingsController implements SettingsListener {
                
                 if (debugClient.getNotes().size() < 20) {
                     for (int i = 1; i < 25; i++) {
-                        var note = new Note(String.valueOf(i), debugClient.getClientPerson().getId(), debugClient.getRoot());
+                        var note = new Note(String.valueOf(i), debugClient.getClientPerson().getId(), debugClient.getRoot().getPath());
                         
                         note.setText(String.format("[%d]", i + 1));
                         

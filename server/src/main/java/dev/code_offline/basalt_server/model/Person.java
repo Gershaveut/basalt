@@ -13,7 +13,7 @@ public class Person {
     private long id;
 
     private String name;
-    private Role string;
+    private Role role;
     private @Nullable String description;
     
     public long getId() {
@@ -23,23 +23,24 @@ public class Person {
     public String getName() {
         return name;
     }
-
-    public Role getRole() {
-        return string;
-    }
-
-    public @Nullable String getDescription() {
-        return description;
-    }
-
+    
     public void setName(String name) {
         this.name = name;
     }
-
-    public void setRole(Role string) {
-        this.string = string;
+    
+    public Role getRole() {
+        return role;
     }
-
+    
+    public void setRole(Role role) {
+        this.role = role;
+    }
+    
+    @Nullable
+    public String getDescription() {
+        return description;
+    }
+    
     public void setDescription(@Nullable String description) {
         this.description = description;
     }

@@ -20,7 +20,7 @@ public class JSONDatabaseModel {
     }
 
     public JSONDatabaseModel() {
-        this(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new Folder("/", null));
+        this(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new Folder("/"));
     }
 
     public List<Person> getPersons() {

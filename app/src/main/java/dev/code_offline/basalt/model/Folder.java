@@ -2,51 +2,50 @@ package dev.code_offline.basalt.model;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.Objects;
-
 public class Folder {
-    private String name;
-    private @Nullable Folder parent;
+    private String path;
 
-    public Folder(String name, @Nullable Folder parent) {
-        this.name = name;
-        this.parent = parent;
+    public Folder(String path) {
+        this.path = path;
+    }
+    
+    public Folder(String path, Folder parent) {
+        this(path);
+        
+        setParent(parent);
     }
 
     @Override
     public String toString() {
-        return name;
+        return getName();
     }
 
     public String getPath() {
-        StringBuilder path = new StringBuilder();
-        @Nullable Folder currnetFolder = this;
-
-        while (currnetFolder != null) {
-            path.insert(0, currnetFolder.getName() + "/");
-            currnetFolder = currnetFolder.getParent();
-            
-            if (currnetFolder != null && hashCode() == currnetFolder.hashCode()) {
-                path = new StringBuilder();
-                break;
-            }}
-
-        return path.toString();
+        return path;
     }
-
+    
+    public void setPath(String path) {
+        this.path = path;
+    }
+    
     public String getName() {
-        return name;
+        return path.substring(path.lastIndexOf('/') + 1);
     }
-
+    
     public void setName(String name) {
-        this.name = name;
+        path = path.substring(0, path.lastIndexOf('/') + 1) + name;
     }
-
+    
     public @Nullable Folder getParent() {
-        return parent;
+        var parentPath = path.substring(0, path.lastIndexOf('/'));
+        
+        if (parentPath.isEmpty())
+            return null;
+        
+        return new Folder(parentPath);
     }
-
-    public void setParent(@Nullable Folder parent) {
-        this.parent = parent;
+    
+    public void setParent(Folder parent) {
+        path = parent.getPath() + "/" + getName();
     }
 }

@@ -4,8 +4,8 @@ import com.javadocking.dock.CompositeDock;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.TabDock;
 import dev.code_offline.basalt.core.Util;
-import dev.code_offline.basalt.core.client.Client;
-import dev.code_offline.basalt.core.client.ClientListener;
+import dev.code_offline.basalt.controller.client.Client;
+import dev.code_offline.basalt.controller.client.ClientListener;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
@@ -187,7 +187,7 @@ public class NoteController implements ClientListener, FolderListener {
     }
 
     private void newFileCreate(Folder folder) {
-        client.addNote(new Note("Новая записка", client.getClientPerson().getId(), folder));
+        client.addNote(new Note("Новая записка", client.getClientPerson().getId(), folder.getPath()));
     }
 
     @Override

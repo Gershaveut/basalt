@@ -1,5 +1,6 @@
 package dev.code_offline.basalt_server.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
 @Entity
@@ -7,11 +8,11 @@ public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-   
+    
     private String name;
     private long person;
     private String text;
-    private String parent;
+    private String path;
     
     public long getId() {
         return id;
@@ -41,11 +42,11 @@ public class Note {
         this.text = text;
     }
     
-    public String getParent() {
-        return parent;
+    public String getPath() {
+        return path;
     }
     
-    public void setParent(String parent) {
-        this.parent = parent;
+    public void setPath(String path) {
+        this.path = path;
     }
 }

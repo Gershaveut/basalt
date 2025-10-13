@@ -24,11 +24,11 @@ dependencies {
     implementation 'org.commonmark:commonmark:0.24.0'
     implementation 'org.checkerframework:checker-qual:3.49.2'
     implementation 'com.google.code.gson:gson:2.12.1'
-    //implementation 'org.slf4j:slf4j-api:2.0.17'
-    //implementation 'org.slf4j:slf4j-simple:2.0.17'
+
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas:3.4.4'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux:3.4.4'
 
     implementation project(":server")
-
 }
 
 application {

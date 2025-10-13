@@ -1,10 +1,7 @@
 package dev.code_offline.basalt.model.note;
 
-import dev.code_offline.basalt.core.client.Client;
+import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt.model.Folder;
-import dev.code_offline.basalt.model.graph.Node;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.dyn4j.dynamics.Body;
 
 import java.util.List;
 
@@ -14,7 +11,7 @@ public class NoteInfo {
     private final long id;
     private final String name;
     private final long person;
-    private final Folder parent;
+    private final String path;
     private final List<Long> links;
 
     public NoteInfo(Note note, Client client) {
@@ -23,7 +20,7 @@ public class NoteInfo {
         this.id = note.getId();
         this.name = note.getName();
         this.person = note.getPerson();
-        this.parent = note.getParent();
+        this.path = note.getPath();
         this.links = note.getLinks();
 	}
     
@@ -32,8 +29,8 @@ public class NoteInfo {
         return name;
     }
     
-    public Folder getParent() {
-        return parent;
+    public String getPath() {
+        return path;
     }
     
     public String getName() {

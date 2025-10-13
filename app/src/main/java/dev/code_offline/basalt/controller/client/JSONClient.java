@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.core.client;
+package dev.code_offline.basalt.controller.client;
 
 import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
@@ -133,8 +133,8 @@ public class JSONClient extends Client {
         var targetFolder = databaseModel.getFolders().stream().filter(f -> f.getPath().equals(path)).findFirst().orElseThrow();
         targetFolder.setName(newName);
         
-        databaseModel.getNotes().stream().filter(n -> n.getParent().getPath().equals(path)).forEach(note -> {
-            note.setParent(targetFolder);
+        databaseModel.getNotes().stream().filter(n -> n.getPath().equals(path)).forEach(note -> {
+            note.setPath(targetFolder.getPath());
         });
         
         databaseModel.getFolders().stream().filter(f -> {
@@ -161,8 +161,8 @@ public class JSONClient extends Client {
         var targetFolder = databaseModel.getFolders().stream().filter(f -> f.getPath().equals(path)).findFirst().orElseThrow();
         targetFolder.setParent(folder);
         
-        databaseModel.getNotes().stream().filter(n -> n.getParent().getPath().equals(path)).forEach(note -> {
-            note.setParent(targetFolder);
+        databaseModel.getNotes().stream().filter(n -> n.getPath().equals(path)).forEach(note -> {
+            note.setPath(targetFolder.getPath());
         });
         
         databaseModel.getFolders().stream().filter(f -> {
@@ -183,7 +183,7 @@ public class JSONClient extends Client {
     private void deleteFolderWork(Folder folder) {
         databaseModel.getFolders().remove(folder);
         
-        var findNotes = databaseModel.getNotes().stream().filter(n -> n.getParent().getPath().equals(folder.getPath())).toList();
+        var findNotes = databaseModel.getNotes().stream().filter(n -> n.getPath().equals(folder.getPath())).toList();
         
         findNotes.forEach(note -> databaseModel.getNotes().remove(note));
         
@@ -209,7 +209,7 @@ public class JSONClient extends Client {
     
     @Override
     public void moveNote(long id, Folder folder) {
-        databaseModel.getNotes().stream().filter(note -> note.getId() == id).findFirst().orElseThrow().setParent(folder);
+        databaseModel.getNotes().stream().filter(note -> note.getId() == id).findFirst().orElseThrow().setPath(folder.getPath());
         save();
     }
     

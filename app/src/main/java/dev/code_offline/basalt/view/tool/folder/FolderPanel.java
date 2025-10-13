@@ -257,7 +257,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		folders.forEach(folder -> createFolder(folder, folderNodes, rootNode));
 		
 		notes.forEach(note -> {
-			var parentNode = folderNodes.stream().filter(treeNode -> treeNode.getUserObject().hashCode() == note.getParent().hashCode()).findFirst().orElse(rootNode);
+			var parentNode = folderNodes.stream().filter(treeNode -> treeNode.getUserObject().hashCode() == note.getPath().hashCode()).findFirst().orElse(rootNode);
 			
 			parentNode.add(new DefaultMutableTreeNode(note));
 		});

@@ -1,33 +1,33 @@
 package dev.code_offline.basalt.model.note;
 
-import dev.code_offline.basalt.model.Folder;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Note {
     private long id = -1;
     private String name;
-    private final long person;
+    private long person;
 
     private String text;
-    private Folder parent;
+    private String path;
     private List<Long> links;
 
-    public Note(String name, long author, String text, Folder parent, List<Long> links) {
+    public Note() {}
+    
+    public Note(String name, long author, String text, String path, List<Long> links) {
         this.name = name;
         this.person = author;
         this.text = text;
-        this.parent = parent;
+        this.path = path;
         this.links = links;
     }
 
-    public Note(String name, long author, String text, Folder parent) {
-        this(name, author, text, parent, new ArrayList<>());
+    public Note(String name, long author, String text, String path) {
+        this(name, author, text, path, new ArrayList<>());
     }
 
-    public Note(String name, long author, Folder folder) {
-        this(name, author, "", folder);
+    public Note(String name, long author, String path) {
+        this(name, author, "", path);
     }
     
     @Override
@@ -51,8 +51,8 @@ public class Note {
         return text;
     }
 
-    public Folder getParent() {
-        return parent;
+    public String getPath() {
+        return path;
     }
 
     public List<Long> getLinks() {
@@ -71,8 +71,8 @@ public class Note {
         this.text = text;
     }
 
-    public void setParent(Folder parent) {
-        this.parent = parent;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public void setLinks(List<Long> links) {
