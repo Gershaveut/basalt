@@ -4,6 +4,7 @@ import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt_server.BasaltApplication;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.util.List;
 
@@ -44,6 +45,8 @@ public class StartFrame extends JFrame {
 	
 	private void chooseDatabaseFile(boolean create) {
 		var fileChooser = new JFileChooser();
+		
+		fileChooser.setFileFilter(new FileNameExtensionFilter("База данных (.db)", "db"));
 		
 		int result;
 		
