@@ -30,7 +30,7 @@ public class MainFrame extends JFrame {
     
     private boolean debug;
 
-    public MainFrame(Client client) throws HeadlessException {
+    public MainFrame(Client client, StartFrame startFrame) throws HeadlessException {
         this.client = client;
 
         this.setTitle("Basalt");
@@ -106,7 +106,7 @@ public class MainFrame extends JFrame {
         new LogController(logPanel);
         
         new GraphController(graph, graphPanel);
-        new NoteController(this, graphPanel, folderPanel, rightTabDock, rightSplitDock, client, menuBar);
+        new NoteController(this, graphPanel, folderPanel, rightTabDock, rightSplitDock, client, menuBar, startFrame);
         new SettingsController(menuBar.getSettingsFrame(), this);
 
         this.setJMenuBar(menuBar);

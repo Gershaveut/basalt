@@ -13,8 +13,9 @@ import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt.model.note.NoteNode;
 import dev.code_offline.basalt.view.MainFrame;
+import dev.code_offline.basalt.view.StartFrame;
 import dev.code_offline.basalt.view.menubar.MenuBar;
-import dev.code_offline.basalt.view.menubar.MenuBarAdapter;
+import dev.code_offline.basalt.view.menubar.MenuBarListener;
 import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.folder.FolderListener;
 import dev.code_offline.basalt.view.tool.folder.FolderPanel;
@@ -42,7 +43,7 @@ public class NoteController implements ClientListener, FolderListener {
     private final TabDock tabDock;
     private final CompositeDock dock;
 
-    public NoteController(MainFrame mainFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Client client, MenuBar menuBar) {
+    public NoteController(MainFrame mainFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Client client, MenuBar menuBar, StartFrame startFrame) {
         this.mainFrame = mainFrame;
         this.graphPanel = graphPanel;
         this.folderPanel = folderPanel;
@@ -97,12 +98,21 @@ public class NoteController implements ClientListener, FolderListener {
 
         sync();
 
-        menuBar.addMenuBarListener(new MenuBarAdapter() {
+        menuBar.addMenuBarListener(new MenuBarListener() {
             @Override
             public void newFile() {
                 newFileCreate(client.getRoot());
             }
-
+            
+            @Override
+            public void closeProject() {
+                mainFrame.dispose();
+				
+				assert startFrame.context != null;
+				startFrame.context.close();
+                startFrame.setVisible(true);
+            }
+            
             @Override
             public void save() {
                 Util.foreachNonList(tabDock::getDockableCount, tabDock::getDockable, (dockable) -> {

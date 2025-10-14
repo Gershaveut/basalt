@@ -2,13 +2,18 @@ package dev.code_offline.basalt.view;
 
 import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt_server.BasaltApplication;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.util.List;
 
+
 public class StartFrame extends JFrame {
+	public @Nullable ConfigurableApplicationContext context;
+	
 	public StartFrame() {
 		this.setTitle("Базальт");
 		this.setLayout(new BorderLayout());
@@ -66,13 +71,13 @@ public class StartFrame extends JFrame {
 			path = path.substring(0, path.indexOf('.'));
 		}
 		
-		BasaltApplication.main(List.of("--spring.datasource.url=jdbc:h2:file:" + path).toArray(new String[1]));
+		context = BasaltApplication.startServer(List.of("--spring.datasource.url=jdbc:h2:file:" + path).toArray(new String[1]));
 		
 		openDatabase(new Client());
 	}
 	
 	private void openDatabase(Client client) {
-		new MainFrame(client).setVisible(true);
+		new MainFrame(client, this).setVisible(true);
 		
 		setVisible(false);
 	}
