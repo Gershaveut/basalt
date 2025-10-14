@@ -18,7 +18,7 @@ public class Main {
 	private static void testDatabase() {
 		var database = new Database();
 		
-		var notes = database.getNotes();
+		var notes = database.getNotes().block();
 		
 		System.out.println(notes);
 		System.out.println(database.getPersons());

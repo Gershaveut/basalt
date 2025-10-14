@@ -3,6 +3,8 @@ package dev.code_offline.basalt.model;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class Folder {
+    private static final String SEPARATOR = "@";
+    
     private String path;
 
     public Folder(String path) {
@@ -29,15 +31,15 @@ public class Folder {
     }
     
     public String getName() {
-        return path.substring(path.lastIndexOf('/') + 1);
+        return path.substring(path.lastIndexOf(SEPARATOR) + 1);
     }
     
     public void setName(String name) {
-        path = path.substring(0, path.lastIndexOf('/') + 1) + name;
+        path = path.substring(0, path.lastIndexOf(SEPARATOR) + 1) + name;
     }
     
     public @Nullable Folder getParent() {
-        var parentPath = path.substring(0, path.lastIndexOf('/'));
+        var parentPath = path.substring(0, path.lastIndexOf(SEPARATOR));
         
         if (parentPath.isEmpty())
             return null;
@@ -46,6 +48,6 @@ public class Folder {
     }
     
     public void setParent(Folder parent) {
-        path = parent.getPath() + "/" + getName();
+        path = parent.getPath() + SEPARATOR + getName();
     }
 }
