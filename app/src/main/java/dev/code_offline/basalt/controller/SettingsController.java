@@ -34,12 +34,6 @@ public class SettingsController implements SettingsListener {
         var settingsTabs = new HashSet<SettingsTab>();
 
         var generalTab = new SettingsTab("Основные", "Основные настройки программы");
-        var serverCategory = new SettingsCategory("Сервер");
-
-        var serverAddress = new Setting("Адрес сервера", "localhost:8080");
-
-        serverCategory.add(serverAddress);
-        generalTab.add(serverCategory);
 
         var miscTab = new SettingsTab("Разное");
 
@@ -56,16 +50,18 @@ public class SettingsController implements SettingsListener {
         debugGenerateDatabase.addSettingListener(value -> {
             if ((Boolean) value) {
                 var debugClient = mainFrame.client;
-               
-                if (debugClient.getNotes().size() < 20) {
-                    for (int i = 1; i < 25; i++) {
-                        var note = new Note(String.valueOf(i), debugClient.getClientPerson().getId(), debugClient.getRoot().getPath());
-                        
-                        note.setText(String.format("[%d]", i + 1));
-                        
-                        debugClient.addNote(note);
+              
+                debugClient.getNotes().subscribe(notes -> {
+                    if (notes.size() < 20) {
+                        for (int i = 1; i < 25; i++) {
+                            var note = new Note(String.valueOf(i), debugClient.getClientPerson().getId(), debugClient.getRoot().getPath());
+                            
+                            note.setText(String.format("[%d]", i + 1));
+                            
+                            debugClient.addNote(note);
+                        }
                     }
-                }
+                });
             }
         });
         

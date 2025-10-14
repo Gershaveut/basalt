@@ -117,47 +117,49 @@ public class NoteController implements ClientListener, FolderListener {
 
     @Override
     public void sync() {
-        var notes = client.getNotes();
-
-        notes.forEach(note -> {
-            var links = new ArrayList<Long>();
-
-            var patternId = Pattern.compile("\\[(\\d*?)]");
-            var patternName = Pattern.compile("\\[\\[(.*?)]]");
-
-            var matcherId = patternId.matcher(note.getText());
-            var matcherName = patternName.matcher(note.getText());
-
-            while (matcherId.find()) {
-                try {
-                    var number = Long.parseLong(matcherId.group(1).trim());
-
-                    if (number != note.getId() && links.stream().noneMatch(l -> l == number))
-                        links.add(number);
-                } catch (Exception ignored) {
+        client.getNotes().subscribe(notes -> {
+            notes.forEach(note -> {
+                var links = new ArrayList<Long>();
+                
+                var patternId = Pattern.compile("\\[(\\d*?)]");
+                var patternName = Pattern.compile("\\[\\[(.*?)]]");
+                
+                var matcherId = patternId.matcher(note.getText());
+                var matcherName = patternName.matcher(note.getText());
+                
+                while (matcherId.find()) {
+                    try {
+                        var number = Long.parseLong(matcherId.group(1).trim());
+                        
+                        if (number != note.getId() && links.stream().noneMatch(l -> l == number))
+                            links.add(number);
+                    } catch (Exception ignored) {
+                    }
                 }
-            }
-
-            while (matcherName.find()) {
-                try {
-                    var name = matcherName.group(1).trim();
-
-                    var number = notes.stream().filter(n -> n.getName().matches(name)).findFirst().orElseThrow().getId();
-
-                    if (number != note.getId() && links.stream().noneMatch(l -> l == number))
-                        links.add(number);
-                } catch (Exception ignored){
+                
+                while (matcherName.find()) {
+                    try {
+                        var name = matcherName.group(1).trim();
+                        
+                        var number = notes.stream().filter(n -> n.getName().matches(name)).findFirst().orElseThrow().getId();
+                        
+                        if (number != note.getId() && links.stream().noneMatch(l -> l == number))
+                            links.add(number);
+                    } catch (Exception ignored){
+                    }
                 }
-            }
-
-            note.setLinks(links);
+                
+                note.setLinks(links);
+            });
+            
+            var notesInfo = notes.stream().map(n -> new NoteInfo(n, client)).toList();
+            var notesNode = notes.stream().map(n -> new NoteNode(n, client)).toList();
+           
+            client.getFolders().subscribe(folders -> {
+                folderPanel.setModel(notesInfo, folders, client.getRoot());
+            });
+            graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
         });
-        
-        var notesInfo = notes.stream().map(n -> new NoteInfo(n, client)).toList();
-        var notesNode = notes.stream().map(n -> new NoteNode(n, client)).toList();
-
-        folderPanel.setModel(notesInfo, client.getFolders(), client.getRoot());
-        graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
     }
 
     private void openSelectedNote() {
@@ -172,18 +174,18 @@ public class NoteController implements ClientListener, FolderListener {
     }
 
     private void openNote(long id) {
-        var note = client.getNote(id);
+        client.getNote(id).subscribe(note -> {
+            var markdownEditor = new MarkdownEditorPanel(note, mainFrame);
 
-        var markdownEditor = new MarkdownEditorPanel(note, mainFrame);
+            markdownEditor.addMarkdownListener(text -> client.editNote(note.getId(), text));
 
-        markdownEditor.addMarkdownListener(text -> client.editNote(note.getId(), text));
-
-        var addToDock = tabDock.isEmpty();
+            var addToDock = tabDock.isEmpty();
         
-        tabDock.addDockable(new Tool(markdownEditor), new Position());
+            tabDock.addDockable(new Tool(markdownEditor), new Position());
         
-        if (addToDock)
-            dock.addChildDock(tabDock, new Position(Position.CENTER));
+            if (addToDock)
+                dock.addChildDock(tabDock, new Position(Position.CENTER));
+        });
     }
 
     private void newFileCreate(Folder folder) {
@@ -203,17 +205,6 @@ public class NoteController implements ClientListener, FolderListener {
     @Override
     public void newFolder(Folder parent) {
         var newFolder = new Folder("Новая папка", parent);
-
-        int c = 0;
-
-        while (true) {
-            if (client.getFolders().stream().noneMatch(folder -> folder.hashCode() == newFolder.hashCode())) {
-                break;
-            } else {
-                ++c;
-                newFolder.setName("Новая папка " + c);
-            }
-        }
 
         client.addFolder(newFolder);
     }

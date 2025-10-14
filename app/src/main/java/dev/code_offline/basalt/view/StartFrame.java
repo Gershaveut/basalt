@@ -1,5 +1,6 @@
 package dev.code_offline.basalt.view;
 
+import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt_server.BasaltApplication;
 
 import javax.swing.*;
@@ -58,6 +59,18 @@ public class StartFrame extends JFrame {
 	}
 	
 	private void startServer(String path) {
+		if (path.contains(".")) {
+			path = path.substring(0, path.indexOf('.'));
+		}
+		
 		BasaltApplication.main(List.of("--spring.datasource.url=jdbc:h2:file:" + path).toArray(new String[1]));
+		
+		openDatabase(new Client());
+	}
+	
+	private void openDatabase(Client client) {
+		new MainFrame(client).setVisible(true);
+		
+		setVisible(false);
 	}
 }

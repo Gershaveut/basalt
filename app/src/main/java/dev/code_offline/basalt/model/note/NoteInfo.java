@@ -6,22 +6,23 @@ import dev.code_offline.basalt.model.Folder;
 import java.util.List;
 
 public class NoteInfo {
-    private final Client client;
-
-    private final long id;
+	private final long id;
     private final String name;
     private final long person;
     private final String path;
     private final List<Long> links;
+    
+    private String author = "Loading...";
 
     public NoteInfo(Note note, Client client) {
-        this.client = client;
-
-        this.id = note.getId();
+		
+		this.id = note.getId();
         this.name = note.getName();
         this.person = note.getPerson();
         this.path = note.getPath();
         this.links = note.getLinks();
+        
+        client.getPerson(person).subscribe(p -> author = p.getName());
 	}
     
     @Override
@@ -38,7 +39,7 @@ public class NoteInfo {
     }
 
     public String getAuthor() {
-        return client.getPerson(person).getName();
+        return author;
     }
 
     public List<Long> getLinks() {

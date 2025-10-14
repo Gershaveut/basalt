@@ -3,7 +3,7 @@ package dev.code_offline.basalt.model;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class Folder {
-    private static final String SEPARATOR = "@";
+    public static final String SEPARATOR = "@";
     
     private String path;
 
