@@ -70,6 +70,8 @@ public class StartFrame extends JFrame {
 		if (path.contains(".")) {
 			path = path.substring(0, path.indexOf('.'));
 		}
+	
+		setVisible(false);
 		
 		context = BasaltApplication.startServer(List.of("--spring.datasource.url=jdbc:h2:file:" + path).toArray(new String[1]));
 		
@@ -77,8 +79,8 @@ public class StartFrame extends JFrame {
 	}
 	
 	private void openDatabase(Client client) {
-		new MainFrame(client, this).setVisible(true);
-		
 		setVisible(false);
+		
+		new MainFrame(client, this).setVisible(true);
 	}
 }
