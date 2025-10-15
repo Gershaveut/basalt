@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 public class Database {
 	private static final String NOTES = "/notes";
@@ -47,24 +48,25 @@ public class Database {
 		this("localhost:" + DEFAULT_PORT);
 	}
 	
-	private <T> Mono<List<T>> getEntities(String uri) {
+	private <T> Mono<List<T>> getEntities(Class<T> type, String uri) {
 		return webClient.get()
 				.uri(uri)
 				.accept(MediaTypes.HAL_JSON)
 				.retrieve()
 				.bodyToMono(new ParameterizedTypeReference<PagedModel<EntityModel<T>>>() {})
 				.map(paged -> paged.getContent().stream()
-						.map(EntityModel::getContent)
-						.toList());
+						.map(m -> new ObjectMapper().convertValue(m.getContent(), type))
+						.toList()
+				);
 	}
 	
-	private <T> Mono<T> getEntity(String uri, long id) {
+	private <T> Mono<T> getEntity(Class<T> type, String uri, long id) {
 		return webClient.get()
 				.uri(uri + "/" + id)
 				.accept(MediaTypes.HAL_JSON)
 				.retrieve()
 				.bodyToMono(new ParameterizedTypeReference<EntityModel<T>>() {})
-				.map(EntityModel::getContent);
+				.map(m -> new ObjectMapper().convertValue(m.getContent(), type));
 	}
 	
 	private <T> void addEntity(String uri, T entity) {
@@ -96,23 +98,23 @@ public class Database {
 	}
 	
 	public Mono<List<Note>> getNotes() {
-		return getEntities(NOTES);
+		return getEntities(Note.class, NOTES);
 	}
 	
 	public Mono<List<Person>> getPersons() {
-		return getEntities(PERSONS);
+		return getEntities(Person.class, PERSONS);
 	}
 	
 	public Mono<List<Folder>> getFolders() {
-		return getEntities(FOLDERS);
+		return getEntities(Folder.class, FOLDERS);
 	}
 	
 	public Mono<Note> getNote(long id) {
-		return getEntity(NOTES, id);
+		return getEntity(Note.class, NOTES, id);
 	}
 	
 	public Mono<Person> getPerson(long id) {
-		return getEntity(PERSONS, id);
+		return getEntity(Person.class, PERSONS, id);
 	}
 	
 	public void addNote(Note note) {
