@@ -1,6 +1,8 @@
 package dev.code_offline.basalt.controller.client;
 
 import dev.code_offline.basalt.Main;
+import dev.code_offline.basalt.controller.Database.Database;
+import dev.code_offline.basalt.controller.Database.DatabaseListener;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
@@ -8,9 +10,11 @@ import dev.code_offline.basalt.model.person.Role;
 import reactor.core.publisher.Mono;
 
 import javax.swing.event.EventListenerList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class Client {
+public class Client implements DatabaseListener {
     private final EventListenerList listeners = new EventListenerList();
     
     private final Database database;
@@ -22,15 +26,15 @@ public class Client {
     
     public Client(Database database) {
         Main.logger.info("Initializing client...");
-        
+       
+		database.addDatabaseListener(this);
+		
         this.database = database;
     }
     
-    public Client() {
-        this(new Database());
-        
-        this.offline = true;
-    }
+	public void close() {
+		database.close();
+	}
 
     public boolean isOffline() {
         return offline;
@@ -122,17 +126,25 @@ public class Client {
 	    database.deleteNote(id);
 	}
 	
-	public void addDatabaseListener(ClientListener clientListener) {
+	@Override
+	public void sync() {
+		notifyListeners(ClientListener::sync);
+	}
+	
+	@Override
+	public void onLostConnection() {
+		notifyListeners(ClientListener::onLostConnection);
+	}
+	
+	public void addClientListener(ClientListener clientListener) {
         listeners.add(ClientListener.class, clientListener);
     }
 
-    public void removeDatabaseListener(ClientListener clientListener) {
+    public void removeClientListener(ClientListener clientListener) {
         listeners.remove(ClientListener.class, clientListener);
     }
 
-    protected void notifyListeners() {
-        for (ClientListener listener : listeners.getListeners(ClientListener.class)) {
-            listener.sync();
-        }
-    }
+	private void notifyListeners(Consumer<ClientListener> action) {
+		Arrays.stream(listeners.getListeners(ClientListener.class)).toList().forEach(action);
+	}
 }

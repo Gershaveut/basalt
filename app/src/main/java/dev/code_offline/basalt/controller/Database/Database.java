@@ -1,6 +1,7 @@
-package dev.code_offline.basalt.controller.client;
+package dev.code_offline.basalt.controller.Database;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.code_offline.basalt.controller.client.ClientListener;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
@@ -9,25 +10,40 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.mediatype.hal.Jackson2HalModule;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import reactor.core.publisher.Mono;
 
+import javax.swing.event.EventListenerList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
-public class Database {
+public class Database implements WebSocketHandler {
 	private static final String NOTES = "/notes";
 	private static final String PERSONS = "/persons";
 	private static final String FOLDERS = "/folders";
 	
 	private static final int DEFAULT_PORT = 7600;
 	
+	private final EventListenerList listeners = new EventListenerList();
 	private final WebClient webClient;
+	private final CompletableFuture<WebSocketSession> session;
 	
-	public Database(String ip) {
+	public Database(String ip) throws Exception {
+		if (!ip.contains(":"))
+			ip = ip + DEFAULT_PORT;
+		
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new Jackson2HalModule());
 		
@@ -42,10 +58,20 @@ public class Database {
 						})
 						.build())
 				.build();
+
+		if (webClient.head().exchangeToMono(clientResponse -> Mono.just(clientResponse.statusCode())).block() != HttpStatus.NO_CONTENT) {
+			throw new RuntimeException("Server error");
+		}
+		
+		session = new StandardWebSocketClient().execute(this, "ws://" + ip + "/echo");
 	}
 	
-	public Database() {
+	public Database() throws Exception {
 		this("localhost:" + DEFAULT_PORT);
+	}
+	
+	public void close() {
+		session.cancel(false);
 	}
 	
 	private <T> Mono<List<T>> getEntities(Class<T> type, String uri) {
@@ -152,4 +178,44 @@ public class Database {
 	public void editFolder(String id, Folder folder) {
 		patchEntity(FOLDERS, id, folder);
 	}
+	
+	public void addDatabaseListener(DatabaseListener clientListener) {
+		listeners.add(DatabaseListener.class, clientListener);
+	}
+	
+	public void removeDatabaseListener(DatabaseListener clientListener) {
+		listeners.remove(DatabaseListener.class, clientListener);
+	}
+	
+	private void notifyListeners(Consumer<DatabaseListener> action) {
+		Arrays.stream(listeners.getListeners(DatabaseListener.class)).toList().forEach(action);
+	}
+	
+	@Override
+	public void afterConnectionEstablished(WebSocketSession session) {
+	
+	}
+	
+	@Override
+	public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) {
+		notifyListeners(DatabaseListener::sync);
+	}
+	
+	@Override
+	public void handleTransportError(WebSocketSession session, Throwable exception) {
+	
+	}
+	
+	@Override
+	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
+		if (closeStatus.getCode() == CloseStatus.NO_CLOSE_FRAME.getCode()) {
+			notifyListeners(DatabaseListener::onLostConnection);
+		}
+	}
+	
+	@Override
+	public boolean supportsPartialMessages() {
+		return false;
+	}
 }
+

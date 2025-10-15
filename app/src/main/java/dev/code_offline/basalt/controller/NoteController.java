@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 public class NoteController implements ClientListener, FolderListener {
 	public Client client;
     
+    private final StartFrame startFrame;
     private final MainFrame mainFrame;
     private final GraphPanel graphPanel;
     private final FolderPanel folderPanel;
@@ -44,6 +45,7 @@ public class NoteController implements ClientListener, FolderListener {
     private final CompositeDock dock;
 
     public NoteController(MainFrame mainFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Client client, MenuBar menuBar, StartFrame startFrame) {
+        this.startFrame = startFrame;
         this.mainFrame = mainFrame;
         this.graphPanel = graphPanel;
         this.folderPanel = folderPanel;
@@ -106,11 +108,7 @@ public class NoteController implements ClientListener, FolderListener {
             
             @Override
             public void closeProject() {
-                mainFrame.dispose();
-				
-				assert startFrame.context != null;
-				startFrame.context.close();
-                startFrame.setVisible(true);
+                close();
             }
             
             @Override
@@ -122,9 +120,20 @@ public class NoteController implements ClientListener, FolderListener {
             }
         });
 
-        client.addDatabaseListener(this);
+        client.addClientListener(this);
     }
-
+    
+    private void close() {
+        mainFrame.dispose();
+        
+        client.close();
+        
+        if (startFrame.context != null)
+            startFrame.context.close();
+        
+        startFrame.setVisible(true);
+    }
+    
     @Override
     public void sync() {
         client.getNotes().subscribe(notes -> {
@@ -171,7 +180,13 @@ public class NoteController implements ClientListener, FolderListener {
             graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
         });
     }
-
+    
+    @Override
+    public void onLostConnection() {
+        JOptionPane.showMessageDialog(mainFrame, "Соединение потеряно", "Ошибка соединения", JOptionPane.ERROR_MESSAGE);
+        close();
+    }
+    
     private void openSelectedNote() {
         @Nullable TreePath treeNode = folderPanel.getTree().getSelectionPath();
 

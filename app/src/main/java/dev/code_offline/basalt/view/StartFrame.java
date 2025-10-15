@@ -1,5 +1,6 @@
 package dev.code_offline.basalt.view;
 
+import dev.code_offline.basalt.controller.Database.Database;
 import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt_server.BasaltApplication;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -29,6 +30,15 @@ public class StartFrame extends JFrame {
 		
 		createDatabaseButton.addActionListener(e -> chooseDatabaseFile(true));
 		openDatabaseButton.addActionListener(e -> chooseDatabaseFile(false));
+		connectDatabaseButton.addActionListener(e -> {
+			var ip = JOptionPane.showInputDialog(this, "Введите адрес сервера:", "Подключение", JOptionPane.PLAIN_MESSAGE);
+			
+			try {
+				openDatabase(new Client(new Database(ip)));
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(this, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
+			}
+		});
 		
 		buttonPanel.add(createDatabaseButton);
 		buttonPanel.add(openDatabaseButton);
@@ -73,9 +83,19 @@ public class StartFrame extends JFrame {
 	
 		setVisible(false);
 		
-		context = BasaltApplication.startServer(List.of("--spring.datasource.url=jdbc:h2:file:" + path).toArray(new String[1]));
-		
-		openDatabase(new Client());
+		try {
+			context = BasaltApplication.startServer(List.of("--spring.datasource.url=jdbc:h2:file:" + path).toArray(new String[1]));
+			
+			try {
+				openDatabase(new Client(new Database()));
+			} catch (Exception ignored) {
+				JOptionPane.showMessageDialog(this, "Неизвестная ошибка", "Ошибка", JOptionPane.ERROR_MESSAGE);
+				setVisible(true);
+			}
+		} catch (Exception ignored) {
+			JOptionPane.showMessageDialog(this, "Ошибка при запуске сервера", "Ошибка", JOptionPane.ERROR_MESSAGE);
+			setVisible(true);
+		}
 	}
 	
 	private void openDatabase(Client client) {
