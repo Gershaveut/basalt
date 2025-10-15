@@ -4,8 +4,6 @@ import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
-import dev.code_offline.basalt.view.input.InputListener;
-import dev.code_offline.basalt.view.input.InputTextFrame;
 import dev.code_offline.basalt.view.tool.BasaltDockable;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -103,28 +101,18 @@ public class FolderPanel extends JPanel implements BasaltDockable {
             } else {
                 name = ((Folder) selectedNode).getName();
             }
+			
+			var input = JOptionPane.showInputDialog(this, "Переименовать", "Переименовать - " + name);
 
-			var input = new InputTextFrame("Переименовать", "Переименовать - " + name, name);
-			input.addInputListener(new InputListener() {
-                @Override
-                public void confirm(Object value) {
-                    for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-                        if (selectedNode instanceof NoteInfo note) {
-                            listener.rename(note.getId(), value.toString());
-                        } else {
-                            var folder = (Folder) selectedNode;
+			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+				if (selectedNode instanceof NoteInfo note) {
+					listener.rename(note.getId(), input);
+				} else {
+					var folder = (Folder) selectedNode;
 
-                            listener.rename(folder.getPath(), value.toString());
-                        }
-                    }
-                }
-
-                @Override
-                public void cancel() {
-
-                }
-            });
-			input.setVisible(true);
+					listener.rename(folder.getPath(), input);
+				}
+			}
 		});
 		delete.addActionListener(e -> {
 			assert selectedNode != null;

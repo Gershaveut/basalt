@@ -32,11 +32,13 @@ public class StartFrame extends JFrame {
 		openDatabaseButton.addActionListener(e -> chooseDatabaseFile(false));
 		connectDatabaseButton.addActionListener(e -> {
 			var ip = JOptionPane.showInputDialog(this, "Введите адрес сервера:", "Подключение", JOptionPane.PLAIN_MESSAGE);
-			
-			try {
-				openDatabase(new Client(new Database(ip)));
-			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(this, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
+		
+			if (!ip.isEmpty()) {
+				try {
+					openDatabase(new Client(new Database(ip)));
+				} catch (Exception ex) {
+					JOptionPane.showMessageDialog(this, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 		
