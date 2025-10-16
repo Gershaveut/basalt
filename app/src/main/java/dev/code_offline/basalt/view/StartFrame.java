@@ -103,7 +103,7 @@ public class StartFrame extends JFrame {
 		var json = new Gson().fromJson(Files.readString(Path.of(FILE_NAME)), RecentDatabase[].class);
 		
 		if (json != null) {
-			recentDatabaseList = Arrays.stream(json).toList();
+			recentDatabaseList = new ArrayList<>(Arrays.stream(json).toList());
 			updateRecents();
 		}
 	}
@@ -122,7 +122,7 @@ public class StartFrame extends JFrame {
 	}
 	
 	private void addRecentDatabase(RecentDatabase recentDatabase) {
-		if (!recentDatabaseList.contains(recentDatabase)) {
+		if (recentDatabaseList.stream().noneMatch(d -> d.getAddress().equals(recentDatabase.getAddress()))) {
 			recentDatabaseList.add(recentDatabase);
 			updateRecents();
 			
@@ -166,7 +166,8 @@ public class StartFrame extends JFrame {
 				openDatabase(new Client(new Database()));
 				
 				addRecentDatabase(new RecentDatabase(path, true));
-			} catch (Exception ignored) {
+			} catch (Exception exception) {
+				Main.logger.severe(exception.toString());
 				JOptionPane.showMessageDialog(this, "Неизвестная ошибка", "Ошибка", JOptionPane.ERROR_MESSAGE);
 				setVisible(true);
 			}
@@ -181,7 +182,7 @@ public class StartFrame extends JFrame {
 			openDatabase(new Client(new Database(ip)));
 			
 			addRecentDatabase(new RecentDatabase(ip, false));
-		} catch (Exception ex) {
+		} catch (Exception ignored) {
 			JOptionPane.showMessageDialog(this, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
 		}
 	}
