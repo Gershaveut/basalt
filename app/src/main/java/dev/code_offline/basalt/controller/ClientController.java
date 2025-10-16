@@ -33,7 +33,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-public class NoteController implements ClientListener, FolderListener {
+public class ClientController implements ClientListener, FolderListener {
 	public Client client;
     
     private final StartFrame startFrame;
@@ -44,7 +44,7 @@ public class NoteController implements ClientListener, FolderListener {
     private final TabDock tabDock;
     private final CompositeDock dock;
 
-    public NoteController(MainFrame mainFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Client client, MenuBar menuBar, StartFrame startFrame) {
+    public ClientController(MainFrame mainFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Client client, MenuBar menuBar, StartFrame startFrame) {
         this.startFrame = startFrame;
         this.mainFrame = mainFrame;
         this.graphPanel = graphPanel;

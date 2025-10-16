@@ -1,7 +1,6 @@
 package dev.code_offline.basalt.controller.Database;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.code_offline.basalt.controller.client.ClientListener;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
@@ -11,7 +10,6 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.mediatype.hal.Jackson2HalModule;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -42,7 +40,7 @@ public class Database implements WebSocketHandler {
 	
 	public Database(String ip) throws Exception {
 		if (!ip.contains(":"))
-			ip = ip + DEFAULT_PORT;
+			ip = ip + ":" + DEFAULT_PORT;
 		
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new Jackson2HalModule());
@@ -60,7 +58,7 @@ public class Database implements WebSocketHandler {
 				.build();
 
 		if (webClient.head().exchangeToMono(clientResponse -> Mono.just(clientResponse.statusCode())).block() != HttpStatus.NO_CONTENT) {
-			throw new RuntimeException("Server error");
+			throw new Exception("Server error");
 		}
 		
 		session = new StandardWebSocketClient().execute(this, "ws://" + ip + "/echo");
@@ -71,7 +69,10 @@ public class Database implements WebSocketHandler {
 	}
 	
 	public void close() {
-		session.cancel(false);
+		try {
+			session.get().close();
+		} catch (Exception ignored) {
+		}
 	}
 	
 	private <T> Mono<List<T>> getEntities(Class<T> type, String uri) {

@@ -16,7 +16,7 @@ public class StartFrame extends JFrame {
 	public @Nullable ConfigurableApplicationContext context;
 	
 	public StartFrame() {
-		this.setTitle("Базальт");
+		this.setTitle("Basalt");
 		this.setLayout(new BorderLayout());
 		this.setSize(500, 500);
 		this.setLocationRelativeTo(null);

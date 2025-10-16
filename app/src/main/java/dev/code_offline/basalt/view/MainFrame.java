@@ -7,7 +7,7 @@ import com.javadocking.dock.TabDock;
 import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.GraphController;
 import dev.code_offline.basalt.controller.LogController;
-import dev.code_offline.basalt.controller.NoteController;
+import dev.code_offline.basalt.controller.ClientController;
 import dev.code_offline.basalt.controller.SettingsController;
 import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt.model.graph.Graph;
@@ -106,7 +106,7 @@ public class MainFrame extends JFrame {
         new LogController(logPanel);
         
         new GraphController(graph, graphPanel);
-        new NoteController(this, graphPanel, folderPanel, rightTabDock, rightSplitDock, client, menuBar, startFrame);
+        new ClientController(this, graphPanel, folderPanel, rightTabDock, rightSplitDock, client, menuBar, startFrame);
         new SettingsController(menuBar.getSettingsFrame(), this);
 
         this.setJMenuBar(menuBar);
