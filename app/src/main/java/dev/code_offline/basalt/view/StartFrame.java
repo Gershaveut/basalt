@@ -2,6 +2,7 @@ package dev.code_offline.basalt.view;
 
 import dev.code_offline.basalt.controller.Database.Database;
 import dev.code_offline.basalt.controller.client.Client;
+import dev.code_offline.basalt.model.RecentDatabase;
 import dev.code_offline.basalt_server.BasaltApplication;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -9,10 +10,16 @@ import org.springframework.context.ConfigurableApplicationContext;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class StartFrame extends JFrame {
+	private final JList<RecentDatabase> recentList;
+	private final List<RecentDatabase> recentDatabaseList = new ArrayList<>();
+	
 	public @Nullable ConfigurableApplicationContext context;
 	
 	public StartFrame() {
@@ -21,7 +28,7 @@ public class StartFrame extends JFrame {
 		this.setSize(500, 500);
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	
+		
 		var buttonPanel = new JPanel(new FlowLayout());
 		
 		var createDatabaseButton = new JButton("Создать");
@@ -32,13 +39,9 @@ public class StartFrame extends JFrame {
 		openDatabaseButton.addActionListener(e -> chooseDatabaseFile(false));
 		connectDatabaseButton.addActionListener(e -> {
 			var ip = JOptionPane.showInputDialog(this, "Введите адрес сервера:", "Подключение", JOptionPane.PLAIN_MESSAGE);
-		
+			
 			if (!ip.isEmpty()) {
-				try {
-					openDatabase(new Client(new Database(ip)));
-				} catch (Exception ex) {
-					JOptionPane.showMessageDialog(this, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
-				}
+				connectServer(ip);
 			}
 		});
 		
@@ -49,15 +52,44 @@ public class StartFrame extends JFrame {
 		var recentPanel = new JPanel(new BorderLayout());
 		
 		var recentLabel = new JLabel("Недавние базы данных:");
-		var recentList = new JList<String>();
+		recentList = new JList<>();
+		
+		recentList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					var recentDatabase = recentList.getSelectedValue();
+					
+					if (recentDatabase.isOffline()) {
+						startServer(recentDatabase.getAddress());
+					} else {
+						connectServer(recentDatabase.getAddress());
+					}
+				}
+			}
+		});
 		
 		recentPanel.add(recentLabel, BorderLayout.NORTH);
 		recentPanel.add(new JScrollPane(recentList), BorderLayout.CENTER);
 		
 		add(buttonPanel, BorderLayout.NORTH);
+		
 		add(recentPanel, BorderLayout.CENTER);
 		
 		this.setVisible(true);
+	}
+	
+	private void updateRecentList() {
+		var model = new DefaultListModel<RecentDatabase>();
+		recentDatabaseList.forEach(model::addElement);
+		recentList.setModel(model);
+	}
+	
+	private void addRecentDatabase(RecentDatabase recentDatabase) {
+		if (!recentDatabaseList.contains(recentDatabase)) {
+			recentDatabaseList.add(recentDatabase);
+			updateRecentList();
+		}
 	}
 	
 	private void chooseDatabaseFile(boolean create) {
@@ -82,7 +114,7 @@ public class StartFrame extends JFrame {
 		if (path.contains(".")) {
 			path = path.substring(0, path.indexOf('.'));
 		}
-	
+		
 		setVisible(false);
 		
 		try {
@@ -90,6 +122,8 @@ public class StartFrame extends JFrame {
 			
 			try {
 				openDatabase(new Client(new Database()));
+				
+				addRecentDatabase(new RecentDatabase(path, true));
 			} catch (Exception ignored) {
 				JOptionPane.showMessageDialog(this, "Неизвестная ошибка", "Ошибка", JOptionPane.ERROR_MESSAGE);
 				setVisible(true);
@@ -97,6 +131,18 @@ public class StartFrame extends JFrame {
 		} catch (Exception ignored) {
 			JOptionPane.showMessageDialog(this, "Ошибка при запуске сервера", "Ошибка", JOptionPane.ERROR_MESSAGE);
 			setVisible(true);
+		}
+	}
+	
+	
+	
+	private void connectServer(String ip) {
+		try {
+			openDatabase(new Client(new Database(ip)));
+			
+			addRecentDatabase(new RecentDatabase(ip, false));
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(this, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
