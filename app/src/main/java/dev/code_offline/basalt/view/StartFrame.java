@@ -1,5 +1,8 @@
 package dev.code_offline.basalt.view;
 
+import com.google.gson.FormattingStyle;
+import com.google.gson.Gson;
+import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.controller.Database.Database;
 import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt.model.RecentDatabase;
@@ -12,13 +15,22 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class StartFrame extends JFrame {
+	private static final String FILE_NAME = "recents.json";
+	
 	private final JList<RecentDatabase> recentList;
-	private final List<RecentDatabase> recentDatabaseList = new ArrayList<>();
+	
+	private List<RecentDatabase> recentDatabaseList = new ArrayList<>();
 	
 	public @Nullable ConfigurableApplicationContext context;
 	
@@ -76,10 +88,34 @@ public class StartFrame extends JFrame {
 		
 		add(recentPanel, BorderLayout.CENTER);
 		
+		try {
+			loadRecents();
+		} catch (Exception ignored) {
+			Main.logger.severe("Error load recents");
+		}
+		
 		this.setVisible(true);
 	}
 	
-	private void updateRecentList() {
+	private void loadRecents() throws Exception {
+		var ignored = new File(FILE_NAME).createNewFile();
+		
+		var json = new Gson().fromJson(Files.readString(Path.of(FILE_NAME)), RecentDatabase[].class);
+		
+		if (json != null) {
+			recentDatabaseList = Arrays.stream(json).toList();
+			updateRecents();
+		}
+	}
+	
+	private void saveRecents() throws Exception {
+		BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
+		writer.write(new Gson().newBuilder().setFormattingStyle(FormattingStyle.PRETTY).create().toJson(recentDatabaseList));
+		
+		writer.close();
+	}
+	
+	private void updateRecents() {
 		var model = new DefaultListModel<RecentDatabase>();
 		recentDatabaseList.forEach(model::addElement);
 		recentList.setModel(model);
@@ -88,7 +124,13 @@ public class StartFrame extends JFrame {
 	private void addRecentDatabase(RecentDatabase recentDatabase) {
 		if (!recentDatabaseList.contains(recentDatabase)) {
 			recentDatabaseList.add(recentDatabase);
-			updateRecentList();
+			updateRecents();
+			
+			try {
+				saveRecents();
+			} catch (Exception ignored) {
+				Main.logger.severe("Error save recents");
+			}
 		}
 	}
 	
@@ -133,8 +175,6 @@ public class StartFrame extends JFrame {
 			setVisible(true);
 		}
 	}
-	
-	
 	
 	private void connectServer(String ip) {
 		try {
