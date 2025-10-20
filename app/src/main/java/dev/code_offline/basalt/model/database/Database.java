@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.controller.Database;
+package dev.code_offline.basalt.model.database;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.code_offline.basalt.model.Folder;

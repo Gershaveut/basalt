@@ -3,7 +3,7 @@ package dev.code_offline.basalt.view;
 import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
 import dev.code_offline.basalt.Main;
-import dev.code_offline.basalt.controller.Database.Database;
+import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt.model.RecentDatabase;
 import dev.code_offline.basalt_server.BasaltApplication;
