@@ -1,0 +1,41 @@
+package dev.code_offline.basalt_server.controller;
+
+import dev.code_offline.basalt_server.model.Note;
+import dev.code_offline.basalt_server.repository.NoteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/notes")
+public class NoteController extends AbstractCurdController<Note, Long> {
+	@Autowired
+	NoteRepository noteRepository;
+	
+	@Override
+	public ResponseEntity<Note> addEntity(@RequestBody Note entity) {
+		return super.addEntity(new Note(entity.getName(), entity.getPerson(), entity.getText(), entity.getPath()));
+	}
+	
+	@PatchMapping("/{id}/rename")
+	public ResponseEntity<Note> rename(@PathVariable Long id, @RequestBody String newName) {
+			var noteData = noteRepository.findById(id);
+			
+			if (noteData.isPresent()) {
+				var note = noteData.get();
+				
+				note.setName(newName);
+				
+				return new ResponseEntity<>(noteRepository.save(note), HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+	}
+	
+	@Override
+	protected CrudRepository<Note, Long> getRepository() {
+		return noteRepository;
+	}
+}

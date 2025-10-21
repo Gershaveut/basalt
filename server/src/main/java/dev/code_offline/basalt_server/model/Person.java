@@ -15,8 +15,17 @@ public class Person {
     private String name;
     private Role role;
     private @Nullable String description;
-    
-    public long getId() {
+	
+	public Person() {
+	}
+	
+	public Person(String name, Role role, @Nullable String description) {
+        this.name = name;
+        this.role = role;
+        this.description = description;
+    }
+	
+	public long getId() {
         return id;
     }
     

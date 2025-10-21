@@ -1,6 +1,5 @@
 package dev.code_offline.basalt_server.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,8 +12,18 @@ public class Note {
     private long person;
     private String text;
     private String path;
-    
-    public long getId() {
+	
+	public Note() {
+	}
+	
+	public Note(String name, long person, String text, String path) {
+        this.name = name;
+        this.person = person;
+        this.text = text;
+        this.path = path;
+    }
+	
+	public long getId() {
         return id;
     }
     
