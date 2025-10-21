@@ -169,9 +169,12 @@ public class StartFrame extends JFrame {
 			} catch (Exception exception) {
 				Main.logger.severe(exception.toString());
 				JOptionPane.showMessageDialog(this, "Неизвестная ошибка", "Ошибка", JOptionPane.ERROR_MESSAGE);
-				setVisible(true);
+				throw exception;
 			}
 		} catch (Exception ignored) {
+			if (context != null)
+				context.close();
+			
 			JOptionPane.showMessageDialog(this, "Ошибка при запуске сервера", "Ошибка", JOptionPane.ERROR_MESSAGE);
 			setVisible(true);
 		}
