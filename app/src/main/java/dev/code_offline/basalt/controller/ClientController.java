@@ -115,6 +115,11 @@ public class ClientController implements ClientListener, FolderListener {
                         markdownEditorPanel.save();
                 });
             }
+            
+            @Override
+            public void exit() {
+                close(true);
+            }
         });
 
         client.addClientListener(this);

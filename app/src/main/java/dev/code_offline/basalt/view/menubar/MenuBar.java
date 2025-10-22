@@ -54,7 +54,7 @@ public class MenuBar extends JMenuBar {
     }
 
     private void exit() {
-        System.exit(0);
+        notifyListeners(MenuBarListener::exit);
     }
 
     private void about() {

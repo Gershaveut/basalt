@@ -6,4 +6,5 @@ public interface MenuBarListener extends EventListener {
     void newFile();
     void closeProject();
     void save();
+    void exit();
 }

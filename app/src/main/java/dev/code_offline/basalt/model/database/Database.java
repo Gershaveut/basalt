@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 import javax.swing.event.EventListenerList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -36,16 +37,20 @@ public class Database implements WebSocketHandler {
 			ip = ip + ":" + DEFAULT_PORT;
 		
 		this.webClient = WebClient.create("http://" + ip);
-
-		@Nullable Byte version = webClient.get()
-				.retrieve()
-				.bodyToMono(Byte.class)
-				.block();
 	
-		if (version == null) {
+		try {
+			var version = Objects.requireNonNull(webClient.get()
+					.retrieve()
+					.bodyToMono(Byte.class)
+					.block());
+			
+			if (version != Main.NETWORK_VERSION) {
+				throw new NetworkVersionException();
+			}
+		} catch (NetworkVersionException exception) {
+			throw exception;
+		} catch (Exception ignored) {
 			throw new ServerConnectException();
-		} else if (version != Main.NETWORK_VERSION) {
-			throw new NetworkVersionException();
 		}
 		
 		session = new StandardWebSocketClient().execute(this, "ws://" + ip + "/echo");
