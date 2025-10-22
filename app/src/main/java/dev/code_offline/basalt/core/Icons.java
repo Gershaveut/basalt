@@ -1,10 +1,13 @@
 package dev.code_offline.basalt.core;
 
+import dev.code_offline.basalt.Main;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
+import java.util.Objects;
 
 public enum Icons {
     FOLDER("folder"),
@@ -39,7 +42,7 @@ public enum Icons {
     }
 
     public static ImageIcon getRawIcon(String path) {
-        return new ImageIcon(iconPrefix(path));
+        return new ImageIcon(Objects.requireNonNull(Main.class.getClassLoader().getResource(iconPrefix(path))));
     }
 
     public static ImageIcon getIcon(String path) {

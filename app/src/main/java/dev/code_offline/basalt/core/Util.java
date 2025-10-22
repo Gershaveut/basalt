@@ -14,7 +14,7 @@ public class Util {
     }
 
     public static String assetsPrefix(String path) {
-        return "resources/assets/" + path;
+        return "assets/" + path;
     }
     
     public static <T> void foreachNonList(Supplier<Integer> count, Function<Integer, T> getter, Consumer<T> action) {
