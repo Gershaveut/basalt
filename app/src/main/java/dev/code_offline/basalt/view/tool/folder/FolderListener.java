@@ -8,8 +8,8 @@ public interface FolderListener extends EventListener {
     void openFile(long id);
     void newFile(Folder parent);
     void newFolder(Folder folder);
-    void moveFile(Long id, Folder folder);
-    void moveFolder(String path, Folder folder);
+    void moveFile(long id, String path);
+    void moveFolder(String is, String path);
     void rename(long id, String newName);
     void rename(String path, String newName);
     void delete(long id);

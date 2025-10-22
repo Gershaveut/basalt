@@ -235,13 +235,13 @@ public class ClientController implements ClientListener, FolderListener {
     }
     
     @Override
-    public void moveFile(Long id, Folder folder) {
-       client.moveNote(id, folder);
+    public void moveFile(long id, String path) {
+       client.moveNote(id, path);
     }
     
     @Override
-    public void moveFolder(String path, Folder folder) {
-        client.moveFolder(path, folder);
+    public void moveFolder(String id, String path) {
+        client.moveFolder(id, path);
     }
     
     @Override

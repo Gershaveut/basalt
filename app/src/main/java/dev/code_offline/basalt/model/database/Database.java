@@ -85,17 +85,6 @@ public class Database implements WebSocketHandler {
 		deleteEntity(uri, String.valueOf(id));
 	}
 	
-	private <T> void patchEntity(String uri, String id, T entity) {
-		webClient.patch()
-				.uri(uri + "/" + id)
-				.bodyValue(entity)
-				.retrieve();
-	}
-	
-	private <T> void patchEntity(String uri, long id, T entity) {
-		patchEntity(uri, String.valueOf(id), entity);
-	}
-	
 	public Mono<List<Note>> getNotes() {
 		return getEntities(Note.class, NOTES);
 	}
@@ -140,16 +129,39 @@ public class Database implements WebSocketHandler {
 		deleteEntity(FOLDERS, path);
 	}
 	
-	public void editNote(long id, Note note) {
-		patchEntity(NOTES, id, note);
+	public void renameNote(long id, String newName) {
+		webClient.patch()
+				.uri(NOTES + "/" + id + "/rename")
+				.bodyValue(newName)
+				.retrieve();
 	}
 	
-	public void editPerson(long id, Person person) {
-		patchEntity(PERSONS, id, person);
+	public void editNote(long id, String newText) {
+		webClient.patch()
+				.uri(NOTES + "/" + id + "/edit")
+				.bodyValue(newText)
+				.retrieve();
 	}
 	
-	public void editFolder(String id, Folder folder) {
-		patchEntity(FOLDERS, id, folder);
+	public void moveNote(long id, String path) {
+		webClient.patch()
+				.uri(NOTES + "/" + id + "/move")
+				.bodyValue(path)
+				.retrieve();
+	}
+	
+	public void moveFolder(String id, String path) {
+		webClient.patch()
+				.uri(FOLDERS + "/" + id + "/move")
+				.bodyValue(path)
+				.retrieve();
+	}
+	
+	public void renameFolder(String id, String newName) {
+		webClient.patch()
+				.uri(FOLDERS + "/" + id + "/rename")
+				.bodyValue(newName)
+				.retrieve();
 	}
 	
 	public void addDatabaseListener(DatabaseListener clientListener) {

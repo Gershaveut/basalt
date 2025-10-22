@@ -76,18 +76,12 @@ public class Client implements DatabaseListener {
 	    database.addFolder(folder);
 	}
 	
-	public void renameFolder(String path, String newName) {
-        var newFolder = new Folder(path);
-        newFolder.setName(newName);
-        
-        database.editFolder(path, newFolder);
+	public void renameFolder(String id, String newName) {
+		database.renameFolder(id, newName);
 	}
 	
-	public void moveFolder(String path, Folder folder) {
-		var newFolder = new Folder(path);
-		newFolder.setParent(folder);
-		
-		database.editFolder(path, newFolder);
+	public void moveFolder(String id, String path) {
+		database.moveFolder(id, path);
 	}
 	
 	public void deleteFolder(String path) {
@@ -99,27 +93,15 @@ public class Client implements DatabaseListener {
 	}
 	
 	public void editNote(long id, String newText) {
-        database.getNote(id).subscribe(n -> {
-            n.setText(newText);
-            
-            database.editNote(id, n);
-        });
+		database.editNote(id, newText);
 	}
 	
 	public void renameNote(long id, String newName) {
-        database.getNote(id).subscribe(n -> {
-            n.setName(newName);
-            
-            database.editNote(id, n);
-        });
+		database.renameNote(id, newName);
 	}
 	
-	public void moveNote(long id, Folder folder) {
-		database.getNote(id).subscribe(n -> {
-			n.setPath(folder.getPath());
-			
-			database.editNote(id, n);
-		});
+	public void moveNote(long id, String path) {
+		database.moveNote(id, path);
 	}
 	
 	public void deleteNote(long id) {

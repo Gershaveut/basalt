@@ -52,11 +52,11 @@ public class FolderTransferHandler extends TransferHandler {
           
             if (file instanceof NoteInfo note) {
                for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-                    listener.moveFile(note.getId(), targetFolder);
+                    listener.moveFile(note.getId(), targetFolder.getPath());
                }
             } else {
                for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-                   listener.moveFolder(((Folder) file).getPath(), targetFolder);
+                   listener.moveFolder(((Folder) file).getPath(), targetFolder.getPath());
                }
             }
             
