@@ -176,7 +176,7 @@ public class GraphCanvas extends JComponent {
 
             g2d.drawString(node.getName(), x, y);
             
-            /* временно отключено
+            /* TODO: временно отключено
             if (!isOffline)
                 g2d.drawString(node.getAuthor(), x, (int) (y + NODE_SIZE * 1.5));
             */

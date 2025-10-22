@@ -1,5 +1,7 @@
 package dev.code_offline.basalt.model.note;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +57,7 @@ public class Note {
         return path;
     }
 
+    @JsonIgnore
     public List<Long> getLinks() {
         return links;
     }
@@ -75,6 +78,7 @@ public class Note {
         this.path = path;
     }
 
+    @JsonIgnore
     public void setLinks(List<Long> links) {
         this.links = links;
     }

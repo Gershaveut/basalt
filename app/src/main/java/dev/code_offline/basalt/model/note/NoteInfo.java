@@ -22,7 +22,7 @@ public class NoteInfo {
         this.path = note.getPath();
         this.links = note.getLinks();
         
-        client.getPerson(person).subscribe(p -> author = p.getName());
+        // client.getPerson(person).subscribe(p -> author = p.getName()); TODO: временно отключено
 	}
     
     @Override

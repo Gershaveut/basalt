@@ -19,7 +19,7 @@ public class Client implements DatabaseListener {
     
     private final Database database;
     
-    private final Folder root = new Folder(Folder.SEPARATOR);
+    private final Folder root = new Folder("root");
     private final Person clientPerson = new Person("Вы", 0, Role.ADMIN, null);
     
     private boolean offline = false;

@@ -104,13 +104,15 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			
 			var input = JOptionPane.showInputDialog(this, "Переименовать", name, JOptionPane.PLAIN_MESSAGE);
 
-			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-				if (selectedNode instanceof NoteInfo note) {
-					listener.rename(note.getId(), input);
-				} else {
-					var folder = (Folder) selectedNode;
-
-					listener.rename(folder.getPath(), input);
+			if (!input.isEmpty()) {
+				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+					if (selectedNode instanceof NoteInfo note) {
+						listener.rename(note.getId(), input);
+					} else {
+						var folder = (Folder) selectedNode;
+						
+						listener.rename(folder.getPath(), input);
+					}
 				}
 			}
 		});
