@@ -2,6 +2,7 @@ package dev.code_offline.basalt.model.note;
 
 import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt.model.Folder;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
 
@@ -9,7 +10,7 @@ public class NoteInfo {
 	private final long id;
     private final String name;
     private final long person;
-    private final String path;
+    private final @Nullable String path;
     private final List<Long> links;
     
     private String author = "Loading...";
@@ -30,7 +31,7 @@ public class NoteInfo {
         return name;
     }
     
-    public String getPath() {
+    public @Nullable String getPath() {
         return path;
     }
     

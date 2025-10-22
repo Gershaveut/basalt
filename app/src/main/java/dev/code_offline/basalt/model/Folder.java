@@ -8,9 +8,12 @@ public class Folder {
     
     private String path;
 
+    public Folder() {
+		this.path = SEPARATOR;
+	}
+    
     public Folder(String path) {
-        if (!path.contains(SEPARATOR))
-            path = SEPARATOR + path;
+        path = SEPARATOR + path;
         
         this.path = path;
     }
@@ -22,6 +25,13 @@ public class Folder {
             setParent(parent);
     }
 
+    public static Folder of(String path) {
+        var folder = new Folder();
+        folder.setPath(path);
+        
+        return folder;
+    }
+    
     @Override
     public String toString() {
         return getName();
@@ -49,10 +59,10 @@ public class Folder {
     public @Nullable Folder getParent() {
         var parentPath = path.substring(0, path.lastIndexOf(SEPARATOR));
         
-        if (parentPath.equals(SEPARATOR))
+        if (parentPath.isEmpty())
             return null;
         
-        return new Folder(parentPath);
+        return Folder.of(parentPath);
     }
     
     @JsonIgnore

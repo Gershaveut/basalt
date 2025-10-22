@@ -1,13 +1,14 @@
 package dev.code_offline.basalt.view.tool.folder;
 
 import dev.code_offline.basalt.model.Folder;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.EventListener;
 
 public interface FolderListener extends EventListener {
     void openFile(long id);
-    void newFile(Folder parent);
-    void newFolder(Folder folder);
+    void newFile(@Nullable Folder parent);
+    void newFolder(@Nullable Folder folder);
     void moveFile(long id, String path);
     void moveFolder(String is, String path);
     void rename(long id, String newName);

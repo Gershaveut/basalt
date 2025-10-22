@@ -19,7 +19,6 @@ public class Client implements DatabaseListener {
     
     private final Database database;
     
-    private final Folder root = new Folder("root");
     private final Person clientPerson = new Person("Вы", 0, Role.ADMIN, null);
     
     private boolean offline = false;
@@ -50,10 +49,6 @@ public class Client implements DatabaseListener {
 	
 	public Mono<List<Folder>> getFolders() {
 		return database.getFolders();
-	}
-	
-	public Folder getRoot() {
-		return root;
 	}
 	
 	public Mono<Note> getNote(long id) {

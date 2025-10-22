@@ -100,7 +100,7 @@ public class ClientController implements ClientListener, FolderListener {
         menuBar.addMenuBarListener(new MenuBarListener() {
             @Override
             public void newFile() {
-                newFileCreate(client.getRoot());
+                newFileCreate(null);
             }
             
             @Override
@@ -122,7 +122,6 @@ public class ClientController implements ClientListener, FolderListener {
         mainFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                mainFrame.setVisible(false);
                 close(true);
             }
         });
@@ -189,7 +188,7 @@ public class ClientController implements ClientListener, FolderListener {
             var notesNode = notes.stream().map(n -> new NoteNode(n, client)).toList();
            
             client.getFolders().subscribe(folders -> {
-                folderPanel.setModel(notesInfo, folders, client.getRoot());
+                folderPanel.setModel(notesInfo, folders);
             });
             graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
         });
@@ -227,8 +226,13 @@ public class ClientController implements ClientListener, FolderListener {
         });
     }
 
-    private void newFileCreate(Folder folder) {
-        client.addNote(new Note("Новая записка", client.getClientPerson().getId(), folder.getPath()));
+    private void newFileCreate(@Nullable Folder folder) {
+        @Nullable String path = null;
+        
+        if (folder != null)
+            path = folder.getPath();
+        
+        client.addNote(new Note("Новая записка", client.getClientPerson().getId(), path));
     }
 
     @Override
@@ -237,12 +241,12 @@ public class ClientController implements ClientListener, FolderListener {
     }
 
     @Override
-    public void newFile(Folder parent) {
+    public void newFile(@Nullable Folder parent) {
         newFileCreate(parent);
     }
 
     @Override
-    public void newFolder(Folder parent) {
+    public void newFolder(@Nullable Folder parent) {
         var newFolder = new Folder("Новая папка", parent);
 
         client.addFolder(newFolder);

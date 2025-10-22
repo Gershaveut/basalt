@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedList;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.function.Consumer;
 
 @RestController
@@ -26,7 +28,7 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		if (id.equals(path))
 			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 		
-		var response = updateFolder(id, folder -> folder.setParent(new Folder(path)));
+		var response = updateFolder(id, folder -> folder.setParent(path));
 		
 		sync();
 		return response;
@@ -41,18 +43,28 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 	
 	@Override
 	public ResponseEntity<Folder> deleteEntity(@PathVariable String id) {
-		noteRepository.findAll().forEach(note -> {
-			if (Objects.equals(note.getPath(), id)) {
-				noteRepository.delete(note);
-			}
-		});
+		Queue<String> queue = new LinkedList<>();
+		queue.add(id);
 		
-		folderRepository.findAll().forEach(folder -> {
-			if (folder.getParent() != null && Objects.equals(folder.getParent().getPath(), id))
-				deleteEntity(id);
-		});
+		while (!queue.isEmpty()) {
+			var currentId = queue.poll();
+			
+			noteRepository.findAll().forEach(note -> {
+				if (note.getPath().equals(currentId)) {
+					noteRepository.delete(note);
+				}
+			});
+			
+			folderRepository.deleteById(currentId);
+			
+			folderRepository.findAll().forEach(folder -> {
+				if (folder.getParent() != null && folder.getParent().getPath().equals(currentId))
+					queue.add(folder.getPath());
+			});
+		}
 		
-		return super.deleteEntity(id);
+		sync();
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	private ResponseEntity<Folder> updateFolder(String id, Consumer<Folder> updateAction) {
@@ -76,7 +88,7 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		
 		folderRepository.findAll().forEach(folder -> {
 			if (folder.getParent() != null && folder.getParent().getPath().equals(id)) {
-				updateFolder(folder.getPath(), f -> f.setParent(target));
+				updateFolder(folder.getPath(), f -> f.setParent(target.getPath()));
 			}
 		});
 		

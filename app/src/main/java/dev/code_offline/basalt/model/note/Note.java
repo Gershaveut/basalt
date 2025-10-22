@@ -1,6 +1,7 @@
 package dev.code_offline.basalt.model.note;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,12 +12,12 @@ public class Note {
     private long person;
 
     private String text;
-    private String path;
+    private @Nullable String path;
     private List<Long> links;
 
     public Note() {}
     
-    public Note(String name, long author, String text, String path, List<Long> links) {
+    public Note(String name, long author, String text, @Nullable String path, List<Long> links) {
         this.name = name;
         this.person = author;
         this.text = text;
@@ -24,11 +25,11 @@ public class Note {
         this.links = links;
     }
 
-    public Note(String name, long author, String text, String path) {
+    public Note(String name, long author, String text, @Nullable String path) {
         this(name, author, text, path, new ArrayList<>());
     }
 
-    public Note(String name, long author, String path) {
+    public Note(String name, long author, @Nullable String path) {
         this(name, author, "", path);
     }
     
@@ -53,7 +54,7 @@ public class Note {
         return text;
     }
 
-    public String getPath() {
+    public @Nullable String getPath() {
         return path;
     }
 
@@ -74,7 +75,7 @@ public class Note {
         this.text = text;
     }
 
-    public void setPath(String path) {
+    public void setPath(@Nullable String path) {
         this.path = path;
     }
 

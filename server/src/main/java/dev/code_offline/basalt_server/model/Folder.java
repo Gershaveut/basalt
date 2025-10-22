@@ -3,7 +3,6 @@ package dev.code_offline.basalt_server.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import org.springframework.lang.Nullable;
 
 @Entity
@@ -14,10 +13,20 @@ public class Folder {
 	private String path;
 	
 	public Folder() {
+		this.path = SEPARATOR;
 	}
 	
 	public Folder(String path) {
+		path = SEPARATOR + path;
+		
 		this.path = path;
+	}
+	
+	public static Folder of(String path) {
+		var folder = new Folder();
+		folder.setPath(path);
+		
+		return folder;
 	}
 
 	public String getPath() {
@@ -45,11 +54,11 @@ public class Folder {
 		if (parentPath.isEmpty())
 			return null;
 		
-		return new Folder(parentPath);
+		return Folder.of(parentPath);
 	}
 	
 	@JsonIgnore
-	public void setParent(Folder parent) {
-		path = parent.getPath() + SEPARATOR + getName();
+	public void setParent(String parent) {
+		path = parent + SEPARATOR + getName();
 	}
 }
