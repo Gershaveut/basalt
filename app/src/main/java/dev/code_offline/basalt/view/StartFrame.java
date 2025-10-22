@@ -7,6 +7,7 @@ import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt.model.RecentDatabase;
 import dev.code_offline.basalt.model.database.NetworkVersionException;
+import dev.code_offline.basalt.model.database.ServerConnectException;
 import dev.code_offline.basalt_server.BasaltApplication;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -19,6 +20,7 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.net.ConnectException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -53,7 +55,7 @@ public class StartFrame extends JFrame {
 		connectDatabaseButton.addActionListener(e -> {
 			var ip = JOptionPane.showInputDialog(this, "Введите адрес сервера:", "Подключение", JOptionPane.PLAIN_MESSAGE);
 			
-			if (!ip.isEmpty()) {
+			if (ip != null && !ip.isEmpty()) {
 				connectServer(ip);
 			}
 		});
@@ -167,8 +169,7 @@ public class StartFrame extends JFrame {
 				openDatabase(new Client(new Database()));
 				
 				addRecentDatabase(new RecentDatabase(path, true));
-			} catch (Exception exception) {
-				Main.logger.severe(exception.toString());
+			} catch (ServerConnectException | NetworkVersionException exception) {
 				JOptionPane.showMessageDialog(this, "Неизвестная ошибка", "Ошибка", JOptionPane.ERROR_MESSAGE);
 				throw exception;
 			}
@@ -188,7 +189,7 @@ public class StartFrame extends JFrame {
 			addRecentDatabase(new RecentDatabase(ip, false));
 		} catch (NetworkVersionException exception) {
 			JOptionPane.showMessageDialog(this, "Версии клиента и сервера не совпадают", "Ошибка", JOptionPane.ERROR_MESSAGE);
-		} catch (Exception ignored) {
+		} catch (ServerConnectException ignored) {
 			JOptionPane.showMessageDialog(this, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
 		}
 	}

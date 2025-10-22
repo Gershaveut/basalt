@@ -104,7 +104,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			
 			var input = JOptionPane.showInputDialog(this, "Переименовать", name, JOptionPane.PLAIN_MESSAGE);
 
-			if (!input.isEmpty()) {
+			if (input != null && !input.isEmpty()) {
 				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
 					if (selectedNode instanceof NoteInfo note) {
 						listener.rename(note.getId(), input);

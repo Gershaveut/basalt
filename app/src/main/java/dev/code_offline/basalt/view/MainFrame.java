@@ -20,6 +20,8 @@ import dev.code_offline.basalt.view.tool.graph.GraphPanel;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +39,7 @@ public class MainFrame extends JFrame {
         this.setLayout(new BorderLayout());
         this.setSize(600, 600);
         this.setLocationRelativeTo(null);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         var menuBar = new MenuBar();
 

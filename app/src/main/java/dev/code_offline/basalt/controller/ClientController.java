@@ -26,10 +26,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -121,9 +118,17 @@ public class ClientController implements ClientListener, FolderListener {
         });
 
         client.addClientListener(this);
+        
+        mainFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                mainFrame.setVisible(false);
+                close(true);
+            }
+        });
     }
     
-    private void close() {
+    private void close(boolean exit) {
         mainFrame.dispose();
         
         client.close();
@@ -131,7 +136,14 @@ public class ClientController implements ClientListener, FolderListener {
         if (startFrame.context != null)
             startFrame.context.close();
         
-        startFrame.setVisible(true);
+        startFrame.setVisible(!exit);
+        
+        if (exit)
+            System.exit(0);
+    }
+    
+    private void close() {
+        close(false);
     }
     
     @Override
