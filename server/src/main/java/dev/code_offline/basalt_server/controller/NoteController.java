@@ -34,6 +34,36 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 			}
 	}
 	
+	@PatchMapping("/{id}/edit")
+	public ResponseEntity<Note> edit(@PathVariable Long id, @RequestBody String newText) {
+		var noteData = noteRepository.findById(id);
+		
+		if (noteData.isPresent()) {
+			var note = noteData.get();
+			
+			note.setText(newText);
+			
+			return new ResponseEntity<>(noteRepository.save(note), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@PatchMapping("/{id}/move")
+	public ResponseEntity<Note> move(@PathVariable Long id, @RequestBody String path) {
+		var noteData = noteRepository.findById(id);
+		
+		if (noteData.isPresent()) {
+			var note = noteData.get();
+			
+			note.setPath(path);
+			
+			return new ResponseEntity<>(noteRepository.save(note), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
 	@Override
 	protected CrudRepository<Note, Long> getRepository() {
 		return noteRepository;
