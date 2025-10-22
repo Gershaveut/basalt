@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.util.logging.Logger;
 
 public class Main {
+	public static final byte NETWORK_VERSION = 1;
+	
 	public static Logger logger = Logger.getGlobal();
 
 	public static void main(String[] args) {

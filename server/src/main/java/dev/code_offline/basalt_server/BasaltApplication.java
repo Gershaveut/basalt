@@ -11,6 +11,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 @EnableAutoConfiguration(exclude = RepositoryRestMvcAutoConfiguration.class)
 @SpringBootApplication
 public class BasaltApplication {
+    public static final byte NETWORK_VERSION = 1;
+    
     public static final Logger logger = LoggerFactory.getLogger(BasaltApplication.class);
 
     public static void main(String[] args) {

@@ -6,6 +6,7 @@ import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt.model.RecentDatabase;
+import dev.code_offline.basalt.model.database.NetworkVersionException;
 import dev.code_offline.basalt_server.BasaltApplication;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -185,6 +186,8 @@ public class StartFrame extends JFrame {
 			openDatabase(new Client(new Database(ip)));
 			
 			addRecentDatabase(new RecentDatabase(ip, false));
+		} catch (NetworkVersionException exception) {
+			JOptionPane.showMessageDialog(this, "Версии клиента и сервера не совпадают", "Ошибка", JOptionPane.ERROR_MESSAGE);
 		} catch (Exception ignored) {
 			JOptionPane.showMessageDialog(this, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
 		}

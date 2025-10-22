@@ -1,8 +1,10 @@
 package dev.code_offline.basalt.model.database;
 
+import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.socket.CloseStatus;
@@ -29,20 +31,27 @@ public class Database implements WebSocketHandler {
 	private final WebClient webClient;
 	private final CompletableFuture<WebSocketSession> session;
 	
-	public Database(String ip) throws Exception {
+	public Database(String ip) throws ServerConnectException, NetworkVersionException {
 		if (!ip.contains(":"))
 			ip = ip + ":" + DEFAULT_PORT;
 		
 		this.webClient = WebClient.create("http://" + ip);
 
-		if (webClient.head().exchangeToMono(clientResponse -> Mono.just(clientResponse.statusCode())).block() != HttpStatus.NO_CONTENT) {
-			throw new Exception("Server connect error");
+		@Nullable Byte version = webClient.get()
+				.retrieve()
+				.bodyToMono(Byte.class)
+				.block();
+	
+		if (version == null) {
+			throw new ServerConnectException();
+		} else if (version != Main.NETWORK_VERSION) {
+			throw new NetworkVersionException();
 		}
 		
 		session = new StandardWebSocketClient().execute(this, "ws://" + ip + "/echo");
 	}
 	
-	public Database() throws Exception {
+	public Database() throws ServerConnectException, NetworkVersionException {
 		this("localhost:" + DEFAULT_PORT);
 	}
 	
