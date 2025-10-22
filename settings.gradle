@@ -1,2 +1,3 @@
 rootProject.name = 'basalt'
 
+include ":app", ":server"

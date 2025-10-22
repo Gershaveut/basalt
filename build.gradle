@@ -1,24 +1,16 @@
-plugins {
-    id 'java'
-}
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'application'
 
-group = 'dev.code_offline'
-version = '1.0-SNAPSHOT'
+    repositories {
+        mavenCentral()
+    }
 
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.dyn4j:dyn4j:5.0.2'
-    implementation 'net.sf.doolin:javadocking:1.4.2'
-    implementation 'org.commonmark:commonmark:0.24.0'
-    implementation 'org.checkerframework:checker-qual:3.49.2'
-    implementation 'com.google.code.gson:gson:2.12.1'
-    implementation 'org.slf4j:slf4j-api:2.0.17'
-    implementation 'org.slf4j:slf4j-simple:2.0.17'
-}
-
-test {
-    useJUnitPlatform()
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+        // implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'org.springframework.boot:spring-boot-starter-websocket'
+        runtimeOnly 'com.h2database:h2'
+    }
 }
