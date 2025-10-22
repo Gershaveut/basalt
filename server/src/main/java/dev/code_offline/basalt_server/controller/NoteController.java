@@ -27,8 +27,10 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 				var note = noteData.get();
 				
 				note.setName(newName);
+				noteRepository.save(note);
 				
-				return new ResponseEntity<>(noteRepository.save(note), HttpStatus.OK);
+				sync();
+				return new ResponseEntity<>(note, HttpStatus.OK);
 			} else {
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
@@ -42,8 +44,10 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 			var note = noteData.get();
 			
 			note.setText(newText);
+			noteRepository.save(note);
 			
-			return new ResponseEntity<>(noteRepository.save(note), HttpStatus.OK);
+			sync();
+			return new ResponseEntity<>(note, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -57,8 +61,10 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 			var note = noteData.get();
 			
 			note.setPath(path);
+			noteRepository.save(note);
 			
-			return new ResponseEntity<>(noteRepository.save(note), HttpStatus.OK);
+			sync();
+			return new ResponseEntity<>(note, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}

@@ -26,12 +26,18 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		if (id.equals(path))
 			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 		
-		return updateFolder(id, folder -> folder.setParent(new Folder(path)));
+		var response = updateFolder(id, folder -> folder.setParent(new Folder(path)));
+		
+		sync();
+		return response;
 	}
 	
 	@PatchMapping("/{id}/rename")
 	public ResponseEntity<Folder> rename(@PathVariable String id, @RequestBody String newName) {
-		return updateFolder(id, folder -> folder.setName(newName));
+		var response = updateFolder(id, folder -> folder.setName(newName));
+		
+		sync();
+		return response;
 	}
 	
 	@Override
@@ -69,7 +75,7 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		
 		folderRepository.findAll().forEach(folder -> {
 			if (folder.getParent() != null && folder.getParent().getPath().equals(target.getPath())) {
-				move(folder.getPath(), target.getPath());
+				updateFolder(folder.getPath(), f -> f.setParent(target));
 			}
 		});
 		
