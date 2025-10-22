@@ -160,10 +160,12 @@ public class ClientController implements ClientListener, FolderListener {
                     try {
                         var name = matcherName.group(1).trim();
                         
-                        var number = notes.stream().filter(n -> n.getName().matches(name)).findFirst().orElseThrow().getId();
-                        
-                        if (number != note.getId() && links.stream().noneMatch(l -> l == number))
-                            links.add(number);
+                        notes.stream().filter(n -> n.getName().matches(name)).forEach(findNote -> {
+                            var number = findNote.getId();
+                            
+                            if (number != note.getId() && links.stream().noneMatch(l -> l == number))
+                                links.add(number);
+                        });
                     } catch (Exception ignored){
                     }
                 }

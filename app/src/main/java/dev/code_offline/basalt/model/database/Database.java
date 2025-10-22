@@ -72,13 +72,17 @@ public class Database implements WebSocketHandler {
 		webClient.post()
 				.uri(uri)
 				.bodyValue(entity)
-				.retrieve();
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
 	}
 
 	private void deleteEntity(String uri, String id) {
 		 webClient.delete()
 				.uri(uri + "/" + id)
-				.retrieve();
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
 	}
 	
 	private void deleteEntity(String uri, long id) {
@@ -133,35 +137,45 @@ public class Database implements WebSocketHandler {
 		webClient.patch()
 				.uri(NOTES + "/" + id + "/rename")
 				.bodyValue(newName)
-				.retrieve();
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
 	}
 	
 	public void editNote(long id, String newText) {
 		webClient.patch()
 				.uri(NOTES + "/" + id + "/edit")
 				.bodyValue(newText)
-				.retrieve();
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
 	}
 	
 	public void moveNote(long id, String path) {
 		webClient.patch()
 				.uri(NOTES + "/" + id + "/move")
 				.bodyValue(path)
-				.retrieve();
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
 	}
 	
 	public void moveFolder(String id, String path) {
 		webClient.patch()
 				.uri(FOLDERS + "/" + id + "/move")
 				.bodyValue(path)
-				.retrieve();
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
 	}
 	
 	public void renameFolder(String id, String newName) {
 		webClient.patch()
 				.uri(FOLDERS + "/" + id + "/rename")
 				.bodyValue(newName)
-				.retrieve();
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
 	}
 	
 	public void addDatabaseListener(DatabaseListener clientListener) {
