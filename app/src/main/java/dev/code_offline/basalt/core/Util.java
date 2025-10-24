@@ -3,6 +3,7 @@ package dev.code_offline.basalt.core;
 import org.dyn4j.geometry.Vector2;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -25,5 +26,13 @@ public class Util {
             
             }
         }
+    }
+    
+    public static boolean isContextKey(KeyEvent e) {
+        return e.getKeyCode() == KeyEvent.VK_CONTEXT_MENU;
+    }
+    
+    public static boolean isDeleteKey(KeyEvent e) {
+        return e.getKeyCode() == KeyEvent.VK_DELETE;
     }
 }

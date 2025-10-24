@@ -4,6 +4,7 @@ import com.google.gson.FormattingStyle;
 import com.google.gson.Gson;
 import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.controller.client.Client;
+import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.RecentDatabase;
 import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.model.database.NetworkVersionException;
@@ -15,6 +16,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
@@ -63,22 +66,42 @@ public class StartFrame extends JFrame {
 		buttonPanel.add(openDatabaseButton);
 		buttonPanel.add(connectDatabaseButton);
 		
+		recentList = new JList<>();
 		var recentPanel = new JPanel(new BorderLayout());
+		var popupMenu = new JPopupMenu();
+	
+		var openItem = new JMenuItem("Открыть");
+		var deleteItem = new JMenuItem("Удалить");
+	
+		openItem.addActionListener(e -> openRecentDatabase());
+		deleteItem.addActionListener(e -> removeRecentDatabase(recentList.getSelectedValue()));
+		
+		popupMenu.add(openItem);
+		popupMenu.add(new JSeparator());
+		popupMenu.add(deleteItem);
 		
 		var recentLabel = new JLabel("Недавние базы данных:");
-		recentList = new JList<>();
 		
 		recentList.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-					var recentDatabase = recentList.getSelectedValue();
+			public void mousePressed(MouseEvent e) {
+				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+					openRecentDatabase();
+				} else if (SwingUtilities.isRightMouseButton(e)) {
+					recentList.setSelectedIndex(recentList.locationToIndex(e.getPoint()));
 					
-					if (recentDatabase.isOffline()) {
-						startServer(recentDatabase.getAddress());
-					} else {
-						connectServer(recentDatabase.getAddress());
-					}
+					popupMenu.show(recentPanel, e.getX(), e.getY());
+				}
+			}
+		});
+		
+		recentList.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (Util.isContextKey(e) && !recentList.isSelectionEmpty()) {
+					popupMenu.show(recentPanel, 0, 0);
+				} else if (Util.isDeleteKey(e)) {
+					removeRecentDatabase(recentList.getSelectedValue());
 				}
 			}
 		});
@@ -97,6 +120,16 @@ public class StartFrame extends JFrame {
 		}
 		
 		this.setVisible(true);
+	}
+	
+	private void openRecentDatabase() {
+		var recentDatabase = recentList.getSelectedValue();
+		
+		if (recentDatabase.isOffline()) {
+			startServer(recentDatabase.getAddress());
+		} else {
+			connectServer(recentDatabase.getAddress());
+		}
 	}
 	
 	private void loadRecents() throws Exception {
@@ -133,6 +166,17 @@ public class StartFrame extends JFrame {
 			} catch (Exception ignored) {
 				Main.logger.severe("Error save recents");
 			}
+		}
+	}
+	
+	private void removeRecentDatabase(RecentDatabase recentDatabase) {
+		recentDatabaseList.remove(recentDatabase);
+		updateRecents();
+		
+		try {
+			saveRecents();
+		} catch (Exception ignored) {
+			Main.logger.severe("Error save recents");
 		}
 	}
 	

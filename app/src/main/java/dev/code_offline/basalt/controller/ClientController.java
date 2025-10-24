@@ -55,21 +55,8 @@ public class ClientController implements ClientListener, FolderListener {
         tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+                if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
                     openSelectedNote();
-                }
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    int selRow = tree.getRowForLocation(e.getX(), e.getY());
-                    @Nullable TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
-                    tree.setSelectionPath(selPath);
-
-                    if (selRow > -1) {
-                        tree.setSelectionRow(selRow);
-                    }
                 }
             }
         });

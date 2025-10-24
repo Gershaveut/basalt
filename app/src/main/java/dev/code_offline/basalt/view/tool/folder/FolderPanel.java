@@ -2,6 +2,7 @@ package dev.code_offline.basalt.view.tool.folder;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
+import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt.view.tool.BasaltDockable;
@@ -116,17 +117,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 				}
 			}
 		});
-		delete.addActionListener(e -> {
-			assert selectedNode != null;
-
-            for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-                if (selectedNode instanceof NoteInfo note) {
-                    listener.delete(note.getId());
-                } else {
-                    listener.delete(((Folder) selectedNode).getPath());
-                }
-            }
-		});
+		delete.addActionListener(e -> deleteSelection());
 		
 		var separator1 = new JSeparator();
 		var separator2 = new JSeparator();
@@ -166,8 +157,19 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 	
 		tree.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseReleased(MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON3) {
+			public void mousePressed(MouseEvent e) {
+				if (SwingUtilities.isRightMouseButton(e)) {
+					int selRow = tree.getRowForLocation(e.getX(), e.getY());
+					@Nullable TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+					
+					if (selPath != null) {
+						tree.setSelectionPath(selPath);
+					}
+					
+					if (selRow > -1) {
+						tree.setSelectionRow(selRow);
+					}
+					
 					showPopupMenu(setPopupMenuContext, e.getX(), e.getY());
 				}
 			}
@@ -175,31 +177,45 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		tree.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_CONTEXT_MENU) {
-					showPopupMenu(setPopupMenuContext, 0, 0); // TODO: Назначить координату y
+				if (Util.isContextKey(e)) {
+					showPopupMenu(setPopupMenuContext, 0, 0);
+				} else if (Util.isDeleteKey(e) && selectedNode != null) {
+					deleteSelection();
 				}
 			}
+		});
+		tree.addTreeSelectionListener(e -> {
+			var treeNode = e.getPath();
+			
+			selectedNode = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
+			selectedParentNode = ((DefaultMutableTreeNode) treeNode.getParentPath().getLastPathComponent()).getUserObject();
 		});
 		
 		add(new JScrollPane(tree), BorderLayout.CENTER);
 	}
 	
+	private void deleteSelection() {
+		assert selectedNode != null;
+		
+		for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+			if (selectedNode instanceof NoteInfo note) {
+				listener.delete(note.getId());
+			} else {
+				listener.delete(((Folder) selectedNode).getPath());
+			}
+		}
+		
+		selectedNode = null;
+		selectedParentNode = null;
+	}
+	
 	private void showPopupMenu(Consumer<PopupMenuContext> setPopupMenuContext, int x, int y) {
-		@Nullable TreePath treeNode = getTree().getSelectionPath();
         var context = PopupMenuContext.Empty;
-
-		if (treeNode != null) {
-			selectedNode = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
-			selectedParentNode = ((DefaultMutableTreeNode) treeNode.getParentPath().getLastPathComponent()).getUserObject();
-
-            if (selectedNode instanceof NoteInfo) {
-                context = PopupMenuContext.Note;
-            } else if (selectedNode instanceof Folder) {
-                context = PopupMenuContext.Folder;
-            }
-		} else {
-			selectedNode = null;
-			selectedParentNode = null;
+		
+		if (selectedNode instanceof NoteInfo) {
+			context = PopupMenuContext.Note;
+		} else if (selectedNode instanceof Folder) {
+			context = PopupMenuContext.Folder;
 		}
 
         setPopupMenuContext.accept(context);
