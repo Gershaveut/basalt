@@ -1,6 +1,6 @@
 package dev.code_offline.basalt;
 
-import dev.code_offline.basalt.view.StartFrame;
+import dev.code_offline.basalt.view.start.StartFrame;
 
 import javax.swing.*;
 import java.util.logging.Logger;

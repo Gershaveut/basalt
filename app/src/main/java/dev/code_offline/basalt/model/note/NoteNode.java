@@ -1,14 +1,14 @@
 package dev.code_offline.basalt.model.note;
 
-import dev.code_offline.basalt.controller.client.Client;
+import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.model.graph.Node;
 import org.dyn4j.dynamics.Body;
 
 public class NoteNode extends NoteInfo implements Node {
     private final Body body = new Body();
 
-    public NoteNode(Note note, Client client) {
-	    super(note, client);
+    public NoteNode(Note note, Database database) {
+	    super(note, database);
     }
     
     @Override

@@ -3,19 +3,19 @@ package dev.code_offline.basalt.controller;
 import com.javadocking.dock.CompositeDock;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.TabDock;
-import dev.code_offline.basalt.controller.client.Client;
-import dev.code_offline.basalt.controller.client.ClientListener;
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.Folder;
+import dev.code_offline.basalt.model.database.Database;
+import dev.code_offline.basalt.model.database.DatabaseListener;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt.model.note.NoteNode;
 import dev.code_offline.basalt.view.BasaltFrame;
-import dev.code_offline.basalt.view.StartFrame;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.menubar.MenuBarListener;
+import dev.code_offline.basalt.view.start.StartFrame;
 import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.folder.FolderListener;
 import dev.code_offline.basalt.view.tool.folder.FolderPanel;
@@ -30,27 +30,29 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-public class ClientController implements ClientListener, FolderListener {
-	public Client client;
-    
-    private final StartFrame startFrame;
+public class DatabaseController implements DatabaseListener, FolderListener {
+	public Database database;
+	
+	private final StartFrame startFrame;
     private final BasaltFrame basaltFrame;
     private final GraphPanel graphPanel;
     private final FolderPanel folderPanel;
+    private final StartController startController;
 
     private final TabDock tabDock;
     private final CompositeDock dock;
 
-    public ClientController(BasaltFrame basaltFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Client client, MenuBar menuBar, StartFrame startFrame) {
+    public DatabaseController(BasaltFrame basaltFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController) {
         this.startFrame = startFrame;
         this.basaltFrame = basaltFrame;
         this.graphPanel = graphPanel;
         this.folderPanel = folderPanel;
         this.tabDock = tabDock;
 		this.dock = dock;
-		this.client = client;
-
-        var tree = folderPanel.getTree();
+		this.database = database;
+		this.startController = startController;
+		
+		var tree = folderPanel.getTree();
 
         tree.addMouseListener(new MouseAdapter() {
             @Override
@@ -109,7 +111,7 @@ public class ClientController implements ClientListener, FolderListener {
             }
         });
 
-        client.addClientListener(this);
+        database.addDatabaseListener(this);
         
         basaltFrame.addWindowListener(new WindowAdapter() {
             @Override
@@ -122,10 +124,10 @@ public class ClientController implements ClientListener, FolderListener {
     private void close(boolean exit) {
         basaltFrame.dispose();
         
-        client.close();
+        database.close();
         
-        if (startFrame.context != null)
-            startFrame.context.close();
+        if (startController.getContext() != null)
+            startController.getContext().close();
         
         startFrame.setVisible(!exit);
         
@@ -139,7 +141,7 @@ public class ClientController implements ClientListener, FolderListener {
     
     @Override
     public void sync() {
-        client.getNotes().subscribe(notes -> {
+        database.getNotes().subscribe(notes -> {
             notes.forEach(note -> {
                 var links = new ArrayList<Long>();
                 
@@ -176,10 +178,10 @@ public class ClientController implements ClientListener, FolderListener {
                 note.setLinks(links);
             });
             
-            var notesInfo = notes.stream().map(n -> new NoteInfo(n, client)).toList();
-            var notesNode = notes.stream().map(n -> new NoteNode(n, client)).toList();
+            var notesInfo = notes.stream().map(n -> new NoteInfo(n, database)).toList();
+            var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
            
-            client.getFolders().subscribe(folders -> {
+            database.getFolders().subscribe(folders -> {
                 folderPanel.setModel(notesInfo, folders);
             });
             graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
@@ -204,10 +206,10 @@ public class ClientController implements ClientListener, FolderListener {
     }
 
     private void openNote(long id) {
-        client.getNote(id).subscribe(note -> {
+        database.getNote(id).subscribe(note -> {
             var markdownEditor = new MarkdownEditorPanel(note, basaltFrame);
 
-            markdownEditor.addMarkdownListener(text -> client.editNote(note.getId(), text));
+            markdownEditor.addMarkdownListener(text -> database.editNote(note.getId(), text));
 
             var addToDock = tabDock.isEmpty();
         
@@ -224,7 +226,7 @@ public class ClientController implements ClientListener, FolderListener {
         if (folder != null)
             path = folder.getPath();
         
-        client.addNote(new Note("Новая записка", client.getClientPerson().getId(), path));
+        database.addNote(new Note("Новая записка", 1, path)); // TODO: получение пользователя клиента
     }
 
     @Override
@@ -241,27 +243,27 @@ public class ClientController implements ClientListener, FolderListener {
     public void newFolder(@Nullable Folder parent) {
         var newFolder = new Folder("Новая папка", parent);
 
-        client.addFolder(newFolder);
+        database.addFolder(newFolder);
     }
     
     @Override
     public void moveFile(long id, String path) {
-       client.moveNote(id, path);
+       database.moveNote(id, path);
     }
     
     @Override
     public void moveFolder(String id, String path) {
-        client.moveFolder(id, path);
+        database.moveFolder(id, path);
     }
     
     @Override
     public void rename(long id, String newName) {
-        client.renameNote(id, newName);
+        database.renameNote(id, newName);
     }
 
     @Override
     public void rename(String path, String newName) {
-        client.renameFolder(path, newName);
+        database.renameFolder(path, newName);
     }
 
     @Override
@@ -271,11 +273,11 @@ public class ClientController implements ClientListener, FolderListener {
                 tabDock.removeDockable(dockable);
         });
         
-        client.deleteNote(id);
+        database.deleteNote(id);
     }
 
     @Override
     public void delete(String path) {
-        client.deleteFolder(path);
+        database.deleteFolder(path);
     }
 }

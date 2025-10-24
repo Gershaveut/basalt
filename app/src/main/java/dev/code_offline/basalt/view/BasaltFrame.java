@@ -5,13 +5,14 @@ import com.javadocking.dock.Position;
 import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
 import com.javadocking.model.FloatDockModel;
-import dev.code_offline.basalt.controller.ClientController;
-import dev.code_offline.basalt.controller.GraphController;
-import dev.code_offline.basalt.controller.LogController;
+import dev.code_offline.basalt.controller.DatabaseController;
 import dev.code_offline.basalt.controller.SettingsController;
-import dev.code_offline.basalt.controller.client.Client;
+import dev.code_offline.basalt.controller.StartController;
+import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.model.graph.Graph;
+import dev.code_offline.basalt.model.settings.BasaltSettings;
 import dev.code_offline.basalt.view.menubar.MenuBar;
+import dev.code_offline.basalt.view.start.StartFrame;
 import dev.code_offline.basalt.view.tool.LogPanel;
 import dev.code_offline.basalt.view.tool.Tool;
 import dev.code_offline.basalt.view.tool.folder.FolderPanel;
@@ -24,14 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BasaltFrame extends JFrame {
-    public final Client client;
+    public final Database database;
     
     private final EventListenerList listeners = new EventListenerList();
     
     private boolean debug;
 
-    public BasaltFrame(Client client, StartFrame startFrame) throws HeadlessException {
-        this.client = client;
+    public BasaltFrame(Database database, StartFrame startFrame, StartController startController) throws HeadlessException {
+        this.database = database;
 
         this.setTitle("Basalt");
         this.setLayout(new BorderLayout());
@@ -42,7 +43,7 @@ public class BasaltFrame extends JFrame {
         var menuBar = new MenuBar();
 
         var graph = new Graph();
-        var graphPanel = new GraphPanel(graph, this, client.isOffline());
+        var graphPanel = new GraphPanel(graph, this, true);
         var folderPanel = new FolderPanel();
         var logPanel = new LogPanel();
 
@@ -103,11 +104,8 @@ public class BasaltFrame extends JFrame {
         add(splitPane, BorderLayout.CENTER);
         add(toolPanel, BorderLayout.WEST);
         
-        new LogController(logPanel);
-        
-        new GraphController(graph, graphPanel);
-        new ClientController(this, graphPanel, folderPanel, rightTabDock, rightSplitDock, client, menuBar, startFrame);
-        new SettingsController(menuBar.getSettingsFrame(), this);
+        new DatabaseController(this, graphPanel, folderPanel, rightTabDock, rightSplitDock, database, menuBar, startFrame, startController);
+        new SettingsController(menuBar.getSettingsFrame(), this, new BasaltSettings());
 
         this.setJMenuBar(menuBar);
         this.setVisible(true);

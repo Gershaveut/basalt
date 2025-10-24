@@ -6,18 +6,23 @@ import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.dyn4j.dynamics.Body;
+import org.dyn4j.dynamics.TimeStep;
 import org.dyn4j.dynamics.joint.DistanceJoint;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
+import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
+import org.dyn4j.world.listener.StepListener;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Level;
 
-public class GraphCanvas extends JComponent {
+public class GraphCanvas extends JComponent implements ComponentListener, MouseListener, MouseMotionListener, MouseWheelListener, StepListener<Body> {
     private final double NANO_TO_BASE = 1.0e9;
 
     public final int NODE_SIZE = 25;
@@ -28,6 +33,13 @@ public class GraphCanvas extends JComponent {
     public final double DAMPING = 0.5;
     public final double REST_DISTANCE = 150;
     public final double SPRING_FREQUENCY = 8;
+    
+    private final int MOVE_GRAPH = MouseEvent.BUTTON3;
+    private final int MOVE_NODE = MouseEvent.BUTTON1;
+    
+    private final double SCALE_MAX = 5;
+    private final double SCALE_MIN = 0.3;
+    private final double SCALE_POW = 1.1;
     
     public boolean debug;
 
@@ -44,6 +56,9 @@ public class GraphCanvas extends JComponent {
     private final Runnable physicThreadRun;
     private @Nullable Thread physicThread;
     private long last;
+    
+    private @Nullable Point lastMousePos;
+    private @Nullable Node draggedNode;
 
     public GraphCanvas(Graph graph, boolean isOffline) {
         this.graph = graph;
@@ -80,6 +95,12 @@ public class GraphCanvas extends JComponent {
 
             physicThread.start();
         }
+        
+        this.addMouseListener(this);
+        this.addMouseMotionListener(this);
+        this.addMouseWheelListener(this);
+        this.addComponentListener(this);
+        this.getWorld().addStepListener(this);
     }
 
     public Vector2 getOffset() {
@@ -207,7 +228,6 @@ public class GraphCanvas extends JComponent {
         g2d.dispose();
     }
 
-
     // возвращает позицию мыши в мировом представлении
     public @Nullable Vector2 getMouseWorldPosition() {
         var mousePosition = getMousePosition();
@@ -237,4 +257,126 @@ public class GraphCanvas extends JComponent {
 
         restart();
     }
+    
+    private void centerGraph() {
+        if (!graph.getNodes().isEmpty()) {
+            var arrayX = graph.getNodes().stream().mapToDouble(n -> n.getBody().getWorldCenter().x).toArray();
+            var arrayY = graph.getNodes().stream().mapToDouble(n -> n.getBody().getWorldCenter().y).toArray();
+            
+            double minX = Arrays.stream(arrayX).min().orElseThrow();
+            double maxX = Arrays.stream(arrayX).max().orElseThrow();
+            
+            double minY = Arrays.stream(arrayY).min().orElseThrow();
+            double maxY = Arrays.stream(arrayY).max().orElseThrow();
+            
+            double graphWidth = maxX - minX;
+            double graphHeight = maxY - minY;
+            
+            var x = ((this.getWidth() / this.getScale() - graphWidth) / 2 - minX);
+            var y = ((this.getHeight() / this.getScale() - graphHeight) / 2 - minY);
+            
+            this.setOffset(x, y);
+        }
+    }
+    
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (e.getButton() == MOVE_GRAPH) {
+            lastMousePos = e.getPoint();
+        } else if (e.getButton() == MOVE_NODE) {
+            var focusNode = this.getFocusatedNode();
+            
+            if (focusNode == null)
+                return;
+            
+            draggedNode = focusNode;
+            draggedNode.getBody().setMass(MassType.INFINITE);
+        }
+    }
+    
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        if (e.getButton() == MOVE_GRAPH) {
+            lastMousePos = null;
+        } else if (e.getButton() == MOVE_NODE) {
+            if (draggedNode != null) {
+                draggedNode.getBody().setMass(this.NODE_MASS);
+                draggedNode = null;
+            }
+        }
+    }
+    
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        if (lastMousePos != null) {
+            var newOffsetX = this.getOffset().x + (e.getX() - lastMousePos.x);
+            var newOffsetY = this.getOffset().y + (e.getY() - lastMousePos.y);
+            this.setOffset(newOffsetX, newOffsetY);
+            lastMousePos = e.getPoint();
+            
+            this.repaint();
+        }
+        
+        // перемещение ноды
+        if (draggedNode != null) {
+            var targetPos = this.getMouseWorldPosition();
+            
+            if (targetPos == null)
+                return;
+            
+            Vector2 nodePos = draggedNode.getBody().getWorldCenter();
+            Vector2 force = targetPos.subtract(nodePos);
+            
+            draggedNode.getBody().translate(force);
+            this.repaint();
+        }
+    }
+    
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        var offset = this.getOffset();
+        var scale = this.getScale();
+        
+        double mouseX = e.getX();
+        double mouseY = e.getY();
+        
+        double graphMouseX = (mouseX - offset.x) / scale;
+        double graphMouseY = (mouseY - offset.y) / scale;
+        
+        double wheelDelta = e.getPreciseWheelRotation();
+        double scaleFactor = Math.pow(SCALE_POW, -wheelDelta);
+        
+        this.setScale(scale *= scaleFactor);
+        this.setScale(Math.max(SCALE_MIN, Math.min(SCALE_MAX, scale)));
+        
+        if (SCALE_MAX > scale && SCALE_MIN < scale) {
+            offset.x = mouseX - graphMouseX * scale;
+            offset.y = mouseY - graphMouseY * scale;
+        }
+        
+        this.repaint();
+    }
+    
+    @Override
+    public void end(TimeStep step, PhysicsWorld<Body, ?> world) {
+        SwingUtilities.invokeLater(this::repaint);
+    }
+    
+    @Override
+    public void componentResized(ComponentEvent e) {
+        if (this.getWidth() > 0 && this.getHeight() > 0) {
+            centerGraph();
+        }
+    }
+    
+    @Override public void mouseClicked(MouseEvent e) {}
+    @Override public void mouseEntered(MouseEvent e) {}
+    @Override public void mouseExited(MouseEvent e) {}
+    @Override public void mouseMoved(MouseEvent e) {}
+    @Override public void begin(TimeStep step, PhysicsWorld<Body, ?> world) {}
+    @Override public void updatePerformed(TimeStep step, PhysicsWorld<Body, ?> world) {}
+    @Override public void postSolve(TimeStep step, PhysicsWorld<Body, ?> world) {}
+    @Override public void componentMoved(ComponentEvent e) {}
+    @Override public void componentShown(ComponentEvent e) {}
+    @Override public void componentHidden(ComponentEvent e) {}
 }

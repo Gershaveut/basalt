@@ -1,6 +1,6 @@
 package dev.code_offline.basalt.model.note;
 
-import dev.code_offline.basalt.controller.client.Client;
+import dev.code_offline.basalt.model.database.Database;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
@@ -14,7 +14,7 @@ public class NoteInfo {
     
     private String author = "Loading...";
 
-    public NoteInfo(Note note, Client client) {
+    public NoteInfo(Note note, Database database) {
 		
 		this.id = note.getId();
         this.name = note.getName();
@@ -22,7 +22,7 @@ public class NoteInfo {
         this.path = note.getPath();
         this.links = note.getLinks();
         
-        // client.getPerson(person).subscribe(p -> author = p.getName()); TODO: временно отключено
+        // database.getPerson(person).subscribe(p -> author = p.getName()); TODO: временно отключено
 	}
     
     @Override

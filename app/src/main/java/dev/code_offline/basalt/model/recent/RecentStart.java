@@ -1,10 +1,10 @@
-package dev.code_offline.basalt.model;
+package dev.code_offline.basalt.model.recent;
 
-public class RecentDatabase {
+public class RecentStart {
 	private final String address;
 	private final boolean isOffline;
 
-	public RecentDatabase(String address, boolean isOffline) {
+	public RecentStart(String address, boolean isOffline) {
 		this.address = address;
 		this.isOffline = isOffline;
 	}
