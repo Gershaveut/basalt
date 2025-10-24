@@ -20,7 +20,6 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.net.ConnectException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -72,7 +71,7 @@ public class StartFrame extends JFrame {
 		recentList.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
+				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
 					var recentDatabase = recentList.getSelectedValue();
 					
 					if (recentDatabase.isOffline()) {
