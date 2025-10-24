@@ -3,7 +3,6 @@ package dev.code_offline.basalt_server.websocket;
 import dev.code_offline.basalt_server.BasaltApplication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.PingMessage;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;

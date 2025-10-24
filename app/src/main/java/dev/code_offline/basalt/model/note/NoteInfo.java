@@ -1,7 +1,6 @@
 package dev.code_offline.basalt.model.note;
 
 import dev.code_offline.basalt.controller.client.Client;
-import dev.code_offline.basalt.model.Folder;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;

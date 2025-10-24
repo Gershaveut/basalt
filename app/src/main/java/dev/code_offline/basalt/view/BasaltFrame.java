@@ -5,9 +5,9 @@ import com.javadocking.dock.Position;
 import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
 import com.javadocking.model.FloatDockModel;
+import dev.code_offline.basalt.controller.ClientController;
 import dev.code_offline.basalt.controller.GraphController;
 import dev.code_offline.basalt.controller.LogController;
-import dev.code_offline.basalt.controller.ClientController;
 import dev.code_offline.basalt.controller.SettingsController;
 import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt.model.graph.Graph;
@@ -20,19 +20,17 @@ import dev.code_offline.basalt.view.tool.graph.GraphPanel;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainFrame extends JFrame {
+public class BasaltFrame extends JFrame {
     public final Client client;
     
     private final EventListenerList listeners = new EventListenerList();
     
     private boolean debug;
 
-    public MainFrame(Client client, StartFrame startFrame) throws HeadlessException {
+    public BasaltFrame(Client client, StartFrame startFrame) throws HeadlessException {
         this.client = client;
 
         this.setTitle("Basalt");

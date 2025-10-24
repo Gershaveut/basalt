@@ -3,8 +3,8 @@ package dev.code_offline.basalt.view.tool.graph;
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.graph.Graph;
+import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.DebugModeListener;
-import dev.code_offline.basalt.view.MainFrame;
 import dev.code_offline.basalt.view.tool.BasaltDockable;
 
 import javax.swing.*;
@@ -17,13 +17,13 @@ import java.awt.event.MouseWheelEvent;
 public class GraphPanel extends JPanel implements BasaltDockable, DebugModeListener {
     public final GraphCanvas graphCanvas;
 
-    public GraphPanel(Graph graph, MainFrame mainFrame, boolean isOffline) {
+    public GraphPanel(Graph graph, BasaltFrame basaltFrame, boolean isOffline) {
         super(new BorderLayout());
 
         graphCanvas = new GraphCanvas(graph, isOffline);
         this.add(graphCanvas, BorderLayout.CENTER);
 
-        mainFrame.addDebugModeListener(this);
+        basaltFrame.addDebugModeListener(this);
     }
 
     @Override

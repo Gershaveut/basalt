@@ -8,7 +8,7 @@ import dev.code_offline.basalt.model.settings.Setting;
 import dev.code_offline.basalt.model.settings.SettingsCategory;
 import dev.code_offline.basalt.model.settings.SettingsModel;
 import dev.code_offline.basalt.model.settings.SettingsTab;
-import dev.code_offline.basalt.view.MainFrame;
+import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt.view.settings.SettingsListener;
 
@@ -28,7 +28,7 @@ public class SettingsController implements SettingsListener {
     private final SettingsFrame settingsFrame;
     private SettingsModel settingsModel;
 
-    public SettingsController(SettingsFrame settingsFrame, MainFrame mainFrame) {
+    public SettingsController(SettingsFrame settingsFrame, BasaltFrame basaltFrame) {
         this.settingsFrame = settingsFrame;
 
         var settingsTabs = new HashSet<SettingsTab>();
@@ -42,14 +42,14 @@ public class SettingsController implements SettingsListener {
         var debugMode = new Setting("Режим отладки", "После отключения отладки требуется перезагрузка!", false);
         debugMode.addSettingListener(value -> {
             if ((Boolean) value) {
-                mainFrame.enableDebug();
+                basaltFrame.enableDebug();
             }
         });
         
         var debugGenerateDatabase = new Setting("Генерация базы данных", false);
         debugGenerateDatabase.addSettingListener(value -> {
             if ((Boolean) value) {
-                var debugClient = mainFrame.client;
+                var debugClient = basaltFrame.client;
               
                 debugClient.getNotes().subscribe(notes -> {
                     if (notes.size() < 20) {

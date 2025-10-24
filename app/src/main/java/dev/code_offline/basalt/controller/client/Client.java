@@ -1,9 +1,9 @@
 package dev.code_offline.basalt.controller.client;
 
 import dev.code_offline.basalt.Main;
+import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.model.database.DatabaseListener;
-import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
 import dev.code_offline.basalt.model.person.Role;

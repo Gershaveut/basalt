@@ -3,10 +3,9 @@ package dev.code_offline.basalt.view.tool.markdown;
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.note.Note;
+import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.DebugModeListener;
-import dev.code_offline.basalt.view.MainFrame;
 import dev.code_offline.basalt.view.tool.BasaltDockable;
-import dev.code_offline.basalt.view.tool.Tool;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -31,7 +30,7 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable, Debug
     
     private final Note note;
 
-    public MarkdownEditorPanel(Note note, MainFrame mainFrame) {
+    public MarkdownEditorPanel(Note note, BasaltFrame basaltFrame) {
         setLayout(new BorderLayout());
 
         this.note = note;
@@ -117,7 +116,7 @@ public class MarkdownEditorPanel extends JPanel implements BasaltDockable, Debug
 
         updatePreview();
         
-        mainFrame.addDebugModeListener(this);
+        basaltFrame.addDebugModeListener(this);
     }
 
     private AbstractButton getResizeButton(AbstractButton button) {

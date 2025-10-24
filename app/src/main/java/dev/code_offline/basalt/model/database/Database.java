@@ -4,8 +4,6 @@ import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;

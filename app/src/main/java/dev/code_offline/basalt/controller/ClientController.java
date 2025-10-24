@@ -3,16 +3,16 @@ package dev.code_offline.basalt.controller;
 import com.javadocking.dock.CompositeDock;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.TabDock;
-import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.controller.client.Client;
 import dev.code_offline.basalt.controller.client.ClientListener;
+import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt.model.note.NoteNode;
-import dev.code_offline.basalt.view.MainFrame;
+import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.StartFrame;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.menubar.MenuBarListener;
@@ -34,16 +34,16 @@ public class ClientController implements ClientListener, FolderListener {
 	public Client client;
     
     private final StartFrame startFrame;
-    private final MainFrame mainFrame;
+    private final BasaltFrame basaltFrame;
     private final GraphPanel graphPanel;
     private final FolderPanel folderPanel;
 
     private final TabDock tabDock;
     private final CompositeDock dock;
 
-    public ClientController(MainFrame mainFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Client client, MenuBar menuBar, StartFrame startFrame) {
+    public ClientController(BasaltFrame basaltFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Client client, MenuBar menuBar, StartFrame startFrame) {
         this.startFrame = startFrame;
-        this.mainFrame = mainFrame;
+        this.basaltFrame = basaltFrame;
         this.graphPanel = graphPanel;
         this.folderPanel = folderPanel;
         this.tabDock = tabDock;
@@ -124,7 +124,7 @@ public class ClientController implements ClientListener, FolderListener {
 
         client.addClientListener(this);
         
-        mainFrame.addWindowListener(new WindowAdapter() {
+        basaltFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 close(true);
@@ -133,7 +133,7 @@ public class ClientController implements ClientListener, FolderListener {
     }
     
     private void close(boolean exit) {
-        mainFrame.dispose();
+        basaltFrame.dispose();
         
         client.close();
         
@@ -201,7 +201,7 @@ public class ClientController implements ClientListener, FolderListener {
     
     @Override
     public void onLostConnection() {
-        JOptionPane.showMessageDialog(mainFrame, "Соединение потеряно", "Ошибка соединения", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(basaltFrame, "Соединение потеряно", "Ошибка соединения", JOptionPane.ERROR_MESSAGE);
         close();
     }
     
@@ -218,7 +218,7 @@ public class ClientController implements ClientListener, FolderListener {
 
     private void openNote(long id) {
         client.getNote(id).subscribe(note -> {
-            var markdownEditor = new MarkdownEditorPanel(note, mainFrame);
+            var markdownEditor = new MarkdownEditorPanel(note, basaltFrame);
 
             markdownEditor.addMarkdownListener(text -> client.editNote(note.getId(), text));
 
