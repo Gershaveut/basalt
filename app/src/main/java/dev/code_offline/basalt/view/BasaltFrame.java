@@ -108,7 +108,7 @@ public class BasaltFrame extends JFrame {
         add(toolPanel, BorderLayout.WEST);
         
         new DatabaseController(this, graphPanel, folderPanel, rightTabDock, rightSplitDock, database, menuBar, startFrame, startController);
-        new SettingsController(menuBar.getSettingsFrame(), this, new BasaltSettings());
+        new SettingsController(menuBar.getSettingsFrame(), this, new BasaltSettings(), graphPanel.graphCanvas);
 
         this.setJMenuBar(menuBar);
         this.setVisible(true);

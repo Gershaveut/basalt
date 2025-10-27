@@ -5,10 +5,16 @@ import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class SettingsFrame extends JFrame {
     private final EventListenerList listeners = new EventListenerList();
@@ -26,7 +32,7 @@ public class SettingsFrame extends JFrame {
         this.setLayout(new BorderLayout());
         this.setSize(500, 650);
         this.setLocationRelativeTo(null);
-        this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         var splitPanel = new JSplitPane();
         var actionPanel = new JPanel();
@@ -58,11 +64,8 @@ public class SettingsFrame extends JFrame {
         });
 
         cancelButton.addActionListener(e -> {
-            notifyListeners((listener) -> {
-                assert revertSettingsModel != null;
-                listener.revertSettings(revertSettingsModel);
-            });
-
+            cancel();
+            
             this.setVisible(false);
         });
 
@@ -81,8 +84,24 @@ public class SettingsFrame extends JFrame {
 
         add(splitPanel);
         add(actionPanel, BorderLayout.SOUTH);
+        
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                cancel();
+                
+                setVisible(false);
+            }
+        });
     }
-
+    
+    private void cancel() {
+        notifyListeners((listener) -> {
+            assert revertSettingsModel != null;
+            listener.revertSettings(revertSettingsModel);
+        });
+    }
+    
     public SettingsFrame(SettingsModel model) {
         this();
 
@@ -155,19 +174,38 @@ public class SettingsFrame extends JFrame {
 
                     var value = setting.getDefaultValue();
 
-                    if (setting.getValue() != null) {
+                    if (setting.getValue() != null && setting.getDefaultValue().getClass() == setting.getValue()) {
                         value = setting.getValue();
                     }
-
+                    
+                    var field = new JTextField();
+                    
+                    field.setMaximumSize(new Dimension(200, settingBox.getPreferredSize().height));
+                    
+                    field.getDocument().addDocumentListener(new DocumentListener() {
+                        @Override
+                        public void insertUpdate(DocumentEvent e) {
+                            onTextUpdate();
+                        }
+                        
+                        @Override
+                        public void removeUpdate(DocumentEvent e) {
+                            onTextUpdate();
+                        }
+                        
+                        @Override
+                        public void changedUpdate(DocumentEvent e) {
+                            onTextUpdate();
+                        }
+                        
+                        private void onTextUpdate() {
+                            setting.setValue(field.getText());
+                        }
+                    });
+                    
                     switch (value) {
                         case String s:
-                            var field = new JTextField();
-                            field.setMaximumSize(new Dimension(200, settingBox.getPreferredSize().height));
-
                             field.setText(s);
-                            field.addActionListener(e -> {
-                                setting.setValue(field.getText());
-                            });
 
                             settingBox.add(field);
                             break;
@@ -184,7 +222,7 @@ public class SettingsFrame extends JFrame {
                         default:
                             throw new IllegalStateException("Unexpected value: " + setting.getDefaultValue());
                     }
-
+                    
                     categoryPanel.add(settingPanel);
                 });
 

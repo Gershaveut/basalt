@@ -9,36 +9,49 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.logging.Level;
 
 public class BasaltSettings {
 	private final String FILE_NAME = "settings.json";
 	
 	private SettingsModel settingsModel;
+
+	private final Setting maxFps;
+	private final Setting physicMaxFps;
 	
 	private final Setting debugMode;
 	private final Setting debugGenerateDatabase;
 	
 	public BasaltSettings() {
-		var settingsTabs = new HashSet<SettingsTab>();
+		var settingsTabs = new ArrayList<SettingsTab>();
 		
 		var generalTab = new SettingsTab("Основные", "Основные настройки программы");
-		
+		var toolTab = new SettingsTab("Инструменты");
 		var miscTab = new SettingsTab("Разное");
+	
+		var graphCategory = new SettingsCategory("Граф");
+		
+		maxFps = new Setting("Частота кадров", null, "60");
+		physicMaxFps = new Setting("Частота обновления физики", null, "120");
 		
 		var debugCategory = new SettingsCategory("Отладка", "Используйте на свой страх и риск!");
 		
 		debugMode = new Setting("Режим отладки", "После отключения отладки требуется перезагрузка!", false);
-		debugGenerateDatabase = new Setting("Генерация базы данных", false);
+		debugGenerateDatabase = new Setting("Генерация базы данных", null, false);
+	
+		graphCategory.add(maxFps);
+		graphCategory.add(physicMaxFps);
+		toolTab.add(graphCategory);
 		
 		debugCategory.add(debugGenerateDatabase);
 		debugCategory.add(debugMode);
 		miscTab.add(debugCategory);
 		
-		settingsTabs.add(miscTab);
 		settingsTabs.add(generalTab);
+		settingsTabs.add(toolTab);
+		settingsTabs.add(miscTab);
 		
 		settingsModel = new SettingsModel(settingsTabs);
 	}
@@ -92,6 +105,14 @@ public class BasaltSettings {
 	
 	public SettingsModel getSettingsModel() {
 		return settingsModel;
+	}
+	
+	public Setting getPhysicMaxFps() {
+		return physicMaxFps;
+	}
+	
+	public Setting getMaxFps() {
+		return maxFps;
 	}
 	
 	public Setting getDebugMode() {

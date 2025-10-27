@@ -2,13 +2,13 @@ package dev.code_offline.basalt.model.settings;
 
 import org.springframework.lang.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SettingsCategory implements Cloneable {
     private final String name;
     private final @Nullable String description;
-    private Set<Setting> settings = new HashSet<>();
+    private List<Setting> settings = new ArrayList<>();
 
     public SettingsCategory(String name, @Nullable String description) {
         this.name = name;
@@ -27,7 +27,7 @@ public class SettingsCategory implements Cloneable {
         return description;
     }
 
-    public Set<Setting> getSettings() {
+    public List<Setting> getSettings() {
         return settings;
     }
 
@@ -39,7 +39,7 @@ public class SettingsCategory implements Cloneable {
     public SettingsCategory clone() {
         try {
             SettingsCategory cloned = (SettingsCategory) super.clone();
-            cloned.settings = new HashSet<>();
+            cloned.settings = new ArrayList<>();
             settings.forEach(setting -> cloned.settings.add(setting.clone()));
             return cloned;
         } catch (CloneNotSupportedException e) {

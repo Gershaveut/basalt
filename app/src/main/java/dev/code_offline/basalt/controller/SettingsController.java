@@ -7,6 +7,7 @@ import dev.code_offline.basalt.model.settings.SettingsModel;
 import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt.view.settings.SettingsListener;
+import dev.code_offline.basalt.view.tool.graph.GraphCanvas;
 
 import java.util.logging.Level;
 
@@ -14,10 +15,17 @@ public class SettingsController implements SettingsListener {
     private final SettingsFrame settingsFrame;
 	private final BasaltSettings basaltSettings;
 	
-	public SettingsController(SettingsFrame settingsFrame, BasaltFrame basaltFrame, BasaltSettings basaltSettings) {
+	public SettingsController(SettingsFrame settingsFrame, BasaltFrame basaltFrame, BasaltSettings basaltSettings, GraphCanvas graphCanvas) {
         this.settingsFrame = settingsFrame;
 		this.basaltSettings = basaltSettings;
-		
+        
+        basaltSettings.getMaxFps().addSettingListener(value -> {
+            graphCanvas.setMaxFps(Integer.parseInt(value.toString()));
+        });
+        basaltSettings.getPhysicMaxFps().addSettingListener(value -> {
+            graphCanvas.setMaxFps(Integer.parseInt(value.toString()));
+        });
+        
 		basaltSettings.getDebugMode().addSettingListener(value -> {
             if ((Boolean) value) {
                 basaltFrame.enableDebug();
@@ -40,7 +48,6 @@ public class SettingsController implements SettingsListener {
                 });
             }
         });
-        
 
         settingsFrame.addSettingsListener(this);
         

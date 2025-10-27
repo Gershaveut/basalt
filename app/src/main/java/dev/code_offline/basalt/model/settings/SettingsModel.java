@@ -1,25 +1,25 @@
 package dev.code_offline.basalt.model.settings;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SettingsModel implements Cloneable {
-    private Set<SettingsTab> settingsTabs;
+    private List<SettingsTab> settingsTabs;
 
-    public SettingsModel(Set<SettingsTab> settingsModel) {
+    public SettingsModel(List<SettingsTab> settingsModel) {
         this.settingsTabs = settingsModel;
     }
 
     public SettingsModel() {
-        this(new HashSet<>());
+        this(new ArrayList<>());
     }
 
-    public Set<SettingsTab> getSettingsTabs() {
+    public List<SettingsTab> getSettingsTabs() {
         return settingsTabs;
     }
 
-    public Set<Setting> getSettings() {
-        var settings = new HashSet<Setting>();
+    public List<Setting> getSettings() {
+        var settings = new ArrayList<Setting>();
 
         settingsTabs.forEach(tab -> {
             tab.getSettingsCategories().forEach(category -> {
@@ -34,7 +34,7 @@ public class SettingsModel implements Cloneable {
     public SettingsModel clone() {
         try {
             SettingsModel cloned = (SettingsModel) super.clone();
-            cloned.settingsTabs = new HashSet<>();
+            cloned.settingsTabs = new ArrayList<>();
             settingsTabs.forEach(tab -> cloned.settingsTabs.add(tab.clone()));
             return cloned;
         } catch (CloneNotSupportedException e) {
