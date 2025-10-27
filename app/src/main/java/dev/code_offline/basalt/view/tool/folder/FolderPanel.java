@@ -6,7 +6,7 @@ import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt.view.tool.BasaltDockable;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -60,8 +60,8 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			}
 		});
 		newFile.addActionListener(e -> {
-			@Nullable Object selected = selectedNode;
-			@Nullable Folder folder = null;
+			Object selected = selectedNode;
+			Folder folder = null;
 			
 			if (selected != null) {
 				if (selected instanceof Folder f) {
@@ -77,8 +77,8 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			}
 		});
 		newFolder.addActionListener(e -> {
-			@Nullable Object selected = selectedNode;
-			@Nullable Folder folder = null;
+			Object selected = selectedNode;
+			Folder folder = null;
 			
 			if (selected != null) {
 				if (selected instanceof Folder f) {
@@ -160,7 +160,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			public void mousePressed(MouseEvent e) {
 				if (SwingUtilities.isRightMouseButton(e)) {
 					int selRow = tree.getRowForLocation(e.getX(), e.getY());
-					@Nullable TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+					TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
 					
 					if (selPath != null) {
 						tree.setSelectionPath(selPath);
@@ -277,7 +277,7 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 	
 	private @Nullable DefaultMutableTreeNode createFolder(Folder folder, ArrayList<DefaultMutableTreeNode> folderNodes, DefaultMutableTreeNode root) {
 		DefaultMutableTreeNode parentNode = root;
-		@Nullable Folder parent = folder.getParent();
+		Folder parent = folder.getParent();
 	
 		if (folderNodes.stream().anyMatch(treeNode -> ((Folder) treeNode.getUserObject()).getPath().equals(folder.getPath())))
 			return null;

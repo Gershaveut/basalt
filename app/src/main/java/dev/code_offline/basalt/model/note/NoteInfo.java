@@ -1,7 +1,7 @@
 package dev.code_offline.basalt.model.note;
 
 import dev.code_offline.basalt.model.database.Database;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 

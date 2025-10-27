@@ -1,6 +1,6 @@
 package dev.code_offline.basalt.model.person;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 public class Person {
     private long id;

@@ -4,7 +4,7 @@ import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.DockableState;
 import com.javadocking.dockable.StateActionDockable;
 import com.javadocking.dockable.action.DefaultDockableStateActionFactory;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import java.awt.*;

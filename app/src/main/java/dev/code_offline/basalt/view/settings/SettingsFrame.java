@@ -1,7 +1,7 @@
 package dev.code_offline.basalt.view.settings;
 
 import dev.code_offline.basalt.model.settings.SettingsModel;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

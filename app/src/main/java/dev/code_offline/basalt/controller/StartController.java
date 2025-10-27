@@ -9,8 +9,8 @@ import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.start.StartFrame;
 import dev.code_offline.basalt.view.start.StartListener;
 import dev.code_offline.basalt_server.BasaltApplication;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import java.util.List;
@@ -57,6 +57,7 @@ public class StartController implements StartListener {
 				
 				addRecentStart(new RecentStart(path, true));
 			} catch (ServerConnectException | NetworkVersionException exception) {
+				startFrame.setVisible(true);
 				JOptionPane.showMessageDialog(startFrame, "Неизвестная ошибка", "Ошибка", JOptionPane.ERROR_MESSAGE);
 				throw exception;
 			}
@@ -64,8 +65,8 @@ public class StartController implements StartListener {
 			if (context != null)
 				context.close();
 			
-			JOptionPane.showMessageDialog(startFrame, "Ошибка при запуске сервера", "Ошибка", JOptionPane.ERROR_MESSAGE);
 			startFrame.setVisible(true);
+			JOptionPane.showMessageDialog(startFrame, "Ошибка при запуске сервера", "Ошибка", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	

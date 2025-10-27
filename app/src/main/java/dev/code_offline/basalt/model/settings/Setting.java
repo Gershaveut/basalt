@@ -1,28 +1,33 @@
 package dev.code_offline.basalt.model.settings;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.lang.Nullable;
 
 import javax.swing.event.EventListenerList;
-import java.util.Objects;
 
 public class Setting implements Cloneable {
     private final String name;
+    @JsonIgnore
     private final @Nullable String description;
+    @JsonIgnore
     private final Object defaultValue;
     private @Nullable Object value;
 
     private final EventListenerList listeners = new EventListenerList();
 
+    @JsonCreator
+    protected Setting(@JsonProperty(value = "name", required = true) String name, @JsonProperty(value = "value", required = true) Object value) {
+        this(name, null, value);
+    }
+    
     public Setting(String name, @Nullable String description, Object defaultValue) {
         this.name = name;
         this.description = description;
         this.defaultValue = defaultValue;
 
         this.value = this.defaultValue;
-    }
-
-    public Setting(String name, Object defaultValue) {
-        this(name, null, defaultValue);
     }
 
     public String getName() {
@@ -58,17 +63,6 @@ public class Setting implements Cloneable {
 
     public void removeSettingListener(SettingListener settingListener) {
         listeners.remove(SettingListener.class, settingListener);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Setting setting)) return false;
-        return Objects.equals(name, setting.name) && Objects.equals(description, setting.description) && Objects.equals(defaultValue, setting.defaultValue);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, description, defaultValue);
     }
 
     @Override

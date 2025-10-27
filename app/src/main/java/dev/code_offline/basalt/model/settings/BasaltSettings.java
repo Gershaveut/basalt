@@ -1,9 +1,7 @@
 package dev.code_offline.basalt.model.settings;
 
-import com.google.gson.FormattingStyle;
-import com.google.gson.Gson;
 import dev.code_offline.basalt.Main;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import dev.code_offline.basalt.core.Util;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -43,25 +41,18 @@ public class BasaltSettings {
 		settingsTabs.add(generalTab);
 		
 		settingsModel = new SettingsModel(settingsTabs);
-		
-		try {
-			Main.logger.log(Level.INFO, "Loading settings...");
-			loadSettings();
-		} catch (Exception e) {
-			Main.logger.log(Level.SEVERE, "Error loading settings: " + e.getMessage());
-		}
 	}
 	
-	private void loadSettings() throws Exception {
+	public void loadSettings() throws Exception {
 		var ignored = new File(FILE_NAME).createNewFile();
 		
-		var json = new Gson().fromJson(Files.readString(Path.of(FILE_NAME)), Setting[].class);
+		var json = Util.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), Setting[].class);
 		
 		if (json != null) {
 			var settings = Arrays.stream(json).toList();
 			
 			settings.forEach(setting -> {
-				@Nullable Setting findSetting = settingsModel.getSettings().stream().filter(set -> set.hashCode() == setting.hashCode()).findFirst().orElse(null);
+				Setting findSetting = settingsModel.getSettings().stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElse(null);
 				
 				if (findSetting != null) {
 					findSetting.setValue(setting.getValue());
@@ -75,7 +66,7 @@ public class BasaltSettings {
 		var changed = false;
 		
 		for (Setting setting : settingsModel.getSettings()) {
-			if (revertSettingsModel.getSettings().stream().filter(set -> set.hashCode() == setting.hashCode()).findFirst().orElseThrow().getValue() != setting.getValue()) {
+			if (revertSettingsModel.getSettings().stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElseThrow().getValue() != setting.getValue()) {
 				setting.notifyListeners();
 				changed = true;
 			}
@@ -86,7 +77,7 @@ public class BasaltSettings {
 			
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
-				writer.write(new Gson().newBuilder().setFormattingStyle(FormattingStyle.PRETTY).create().toJson(settingsModel.getSettings()));
+				writer.write(Util.getMapper().writeValueAsString(settingsModel.getSettings()));
 				
 				writer.close();
 			} catch (IOException e) {

@@ -1,5 +1,7 @@
 package dev.code_offline.basalt.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.dyn4j.geometry.Vector2;
 
 import java.awt.*;
@@ -34,5 +36,12 @@ public class Util {
     
     public static boolean isDeleteKey(KeyEvent e) {
         return e.getKeyCode() == KeyEvent.VK_DELETE;
+    }
+    
+    public static ObjectMapper getMapper() {
+        var mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        
+        return mapper;
     }
 }

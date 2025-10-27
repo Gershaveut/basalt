@@ -1,12 +1,16 @@
 package dev.code_offline.basalt.model.recent;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class RecentStart {
 	private final String address;
-	private final boolean isOffline;
+	private final boolean offline;
 
-	public RecentStart(String address, boolean isOffline) {
+	@JsonCreator
+	public RecentStart(@JsonProperty(value = "address", required = true) String address, @JsonProperty(value = "offline", required = true) boolean isOffline) {
 		this.address = address;
-		this.isOffline = isOffline;
+		this.offline = isOffline;
 	}
 	
 	@Override
@@ -19,6 +23,6 @@ public class RecentStart {
 	}
 	
 	public boolean isOffline() {
-		return isOffline;
+		return offline;
 	}
 }

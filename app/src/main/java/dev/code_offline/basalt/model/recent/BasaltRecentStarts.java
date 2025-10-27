@@ -1,8 +1,7 @@
 package dev.code_offline.basalt.model.recent;
 
-import com.google.gson.FormattingStyle;
-import com.google.gson.Gson;
 import dev.code_offline.basalt.Main;
+import dev.code_offline.basalt.core.Util;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,15 +20,16 @@ public class BasaltRecentStarts {
 	public BasaltRecentStarts() {
 		try {
 			loadRecents();
-		} catch (Exception ignored) {
+		} catch (Exception exception) {
 			Main.logger.severe("Error load recents");
+			Main.logger.severe(exception.toString());
 		}
 	}
 	
 	private void loadRecents() throws Exception {
 		var ignored = new File(FILE_NAME).createNewFile();
 		
-		var json = new Gson().fromJson(Files.readString(Path.of(FILE_NAME)), RecentStart[].class);
+		var json = Util.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), RecentStart[].class);
 		
 		if (json != null) {
 			recentStarts = new ArrayList<>(Arrays.stream(json).toList());
@@ -38,7 +38,7 @@ public class BasaltRecentStarts {
 	
 	private void saveRecents() throws Exception {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
-		writer.write(new Gson().newBuilder().setFormattingStyle(FormattingStyle.PRETTY).create().toJson(recentStarts));
+		writer.write(Util.getMapper().writeValueAsString(recentStarts));
 		
 		writer.close();
 	}

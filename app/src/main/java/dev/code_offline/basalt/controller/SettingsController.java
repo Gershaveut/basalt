@@ -1,11 +1,14 @@
 package dev.code_offline.basalt.controller;
 
+import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.settings.BasaltSettings;
 import dev.code_offline.basalt.model.settings.SettingsModel;
 import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt.view.settings.SettingsListener;
+
+import java.util.logging.Level;
 
 public class SettingsController implements SettingsListener {
     private final SettingsFrame settingsFrame;
@@ -39,8 +42,16 @@ public class SettingsController implements SettingsListener {
         });
         
 
-        settingsFrame.setModel(basaltSettings.getSettingsModel());
         settingsFrame.addSettingsListener(this);
+        
+        try {
+            Main.logger.log(Level.INFO, "Loading settings...");
+            basaltSettings.loadSettings();
+        } catch (Exception e) {
+            Main.logger.log(Level.SEVERE, "Error loading settings: " + e.getMessage());
+        }
+        
+        settingsFrame.setModel(basaltSettings.getSettingsModel());
     }
     
     @Override

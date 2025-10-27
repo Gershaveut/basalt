@@ -1,7 +1,7 @@
 package dev.code_offline.basalt.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 public class Folder {
     public static final String SEPARATOR = "@";

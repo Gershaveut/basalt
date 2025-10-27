@@ -1,7 +1,7 @@
 package dev.code_offline.basalt.model.note;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

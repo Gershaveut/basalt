@@ -1,5 +1,4 @@
-@DefaultQualifier(value = NonNull.class)
+@NonNullApi
 package dev.code_offline.basalt.model.database;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.framework.qual.DefaultQualifier;
+import org.springframework.lang.NonNullApi;

@@ -3,7 +3,7 @@ package dev.code_offline.basalt.view.tool;
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.core.Icons;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import java.awt.*;

@@ -4,7 +4,6 @@ import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.TimeStep;
 import org.dyn4j.dynamics.joint.DistanceJoint;
@@ -14,6 +13,7 @@ import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.StepListener;
+import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import java.awt.*;

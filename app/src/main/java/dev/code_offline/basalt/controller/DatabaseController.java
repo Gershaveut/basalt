@@ -21,7 +21,7 @@ import dev.code_offline.basalt.view.tool.folder.FolderListener;
 import dev.code_offline.basalt.view.tool.folder.FolderPanel;
 import dev.code_offline.basalt.view.tool.graph.GraphPanel;
 import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorPanel;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -76,7 +76,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
         graphPanel.graphCanvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                @Nullable Node focusNode = graphPanel.graphCanvas.getFocusatedNode();
+                Node focusNode = graphPanel.graphCanvas.getFocusatedNode();
 
                 if (focusNode == null) return;
 
@@ -195,7 +195,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
     }
     
     private void openSelectedNote() {
-        @Nullable TreePath treeNode = folderPanel.getTree().getSelectionPath();
+        TreePath treeNode = folderPanel.getTree().getSelectionPath();
 
         if (treeNode != null) {
             var selected = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
@@ -221,7 +221,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
     }
 
     private void newFileCreate(@Nullable Folder folder) {
-        @Nullable String path = null;
+        String path = null;
         
         if (folder != null)
             path = folder.getPath();

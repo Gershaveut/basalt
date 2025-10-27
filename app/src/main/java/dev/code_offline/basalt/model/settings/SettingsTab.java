@@ -1,6 +1,6 @@
 package dev.code_offline.basalt.model.settings;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;

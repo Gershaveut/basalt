@@ -1,7 +1,7 @@
 package dev.code_offline.basalt.view.tool.folder;
 
 import dev.code_offline.basalt.model.Folder;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import java.util.EventListener;
 

@@ -1,6 +1,6 @@
 package dev.code_offline.basalt.view.tool;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import java.awt.*;

@@ -2,7 +2,7 @@ package dev.code_offline.basalt.view.tool.folder;
 
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
