@@ -122,6 +122,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
     }
     
     private void close(boolean exit) {
+        graphPanel.graphCanvas.dispose();
         basaltFrame.dispose();
         
         database.close();

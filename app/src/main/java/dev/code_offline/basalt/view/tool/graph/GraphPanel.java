@@ -54,11 +54,16 @@ public class GraphPanel extends JPanel implements BasaltDockable, DebugModeListe
     @Override
     public void debugEnabled() {
         var debugPanel = new JPanel(new GridLayout(0, 1));
-
+        
+        var fpsLabel = new JLabel();
+        var physicFpsLabel = new JLabel();
         var offsetLabel = new JLabel();
         var scaleLocationLabel = new JLabel();
         var mouseLocationLabel = new JLabel();
 
+        debugPanel.add(fpsLabel);
+        debugPanel.add(physicFpsLabel);
+        debugPanel.add(new JSeparator());
         debugPanel.add(offsetLabel);
         debugPanel.add(scaleLocationLabel);
         debugPanel.add(mouseLocationLabel);
@@ -68,6 +73,8 @@ public class GraphPanel extends JPanel implements BasaltDockable, DebugModeListe
 
         var mouseAdapter = new MouseAdapter() {
             void update(MouseEvent e) {
+                fpsLabel.setText("FPS: " + graphCanvas.getFps());
+                physicFpsLabel.setText("Physic FPS: " + graphCanvas.getPhysicFps());
                 offsetLabel.setText("Graph offset: " + (int) graphCanvas.getOffset().x + " " +  (int) graphCanvas.getOffset().y);
                 scaleLocationLabel.setText("Graph scale: " + graphCanvas.getScale());
                 mouseLocationLabel.setText("Mouse location: " + graphCanvas.getMouseWorldPosition());

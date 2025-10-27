@@ -5,14 +5,11 @@ import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
 import org.dyn4j.dynamics.Body;
-import org.dyn4j.dynamics.TimeStep;
 import org.dyn4j.dynamics.joint.DistanceJoint;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
-import org.dyn4j.world.PhysicsWorld;
 import org.dyn4j.world.World;
-import org.dyn4j.world.listener.StepListener;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
@@ -22,7 +19,8 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Level;
 
-public class GraphCanvas extends JComponent implements ComponentListener, MouseListener, MouseMotionListener, MouseWheelListener, StepListener<Body> {
+@SuppressWarnings("BusyWait")
+public class GraphCanvas extends JComponent implements ComponentListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private final double NANO_TO_BASE = 1.0e9;
 
     public final int NODE_SIZE = 25;
@@ -59,6 +57,21 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     
     private @Nullable Point lastMousePos;
     private @Nullable Node draggedNode;
+    
+    private boolean paintThreadLive; // нужно что-бы дать знать когда потоку на покой
+    private final Runnable paintThreadRun;
+    private @Nullable Thread paintThread;
+    
+    private int maxFps = 60;
+    private int physicMaxFps = 120;
+    
+    private int fps;
+    private int physicFps;
+    
+    private int countFrame;
+    private int countPhysicFrame;
+    private long lastFrame;
+    private long lastPhysicFrame;
 
     public GraphCanvas(Graph graph, boolean isOffline) {
         this.graph = graph;
@@ -76,31 +89,98 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                 double elapsedTime = (double) diff / NANO_TO_BASE;
 
                 world.update(elapsedTime);
-
+                
+                ++countPhysicFrame;
+                
+                if (time - lastPhysicFrame > NANO_TO_BASE) {
+                    physicFps = countPhysicFrame;
+                    
+                    countPhysicFrame = 0;
+                    lastPhysicFrame = time;
+                }
+                
                 try {
                     // освобождение процессора
-                    Thread.sleep(1000 / 60);
+                    Thread.sleep(1000 / physicMaxFps);
                 } catch (InterruptedException e) {
                     Main.LOGGER.severe("Physic thread error: " + e.getMessage());
                 }
             }
         };
-
+        
         world.setGravity(GRAVITY);
 
-        if (!graph.getNodes().isEmpty()) {
-            physicThread = new Thread(physicThreadRun, "PhysicThread");
-
+        paintThreadRun = () -> {
+            paintThreadLive = true;
+            
+            while (paintThreadLive) {
+                this.repaint();
+                
+                var time = System.nanoTime();
+                
+                ++countFrame;
+                
+                if (time - lastFrame > NANO_TO_BASE) {
+                    fps = countFrame;
+                    
+                    countFrame = 0;
+                    lastFrame = time;
+                }
+                
+                try {
+                    Thread.sleep(1000 / maxFps);
+                } catch (InterruptedException e) {
+                    Main.LOGGER.severe("Paint thread error: " + e.getMessage());
+                }
+            }
+        };
+        
+        if (!graph.getNodes().isEmpty())
             initializeNodes();
+        
+        physicThread = new Thread(physicThreadRun, "PhysicThread");
+        paintThread = new Thread(paintThreadRun, "PaintThread");
 
-            physicThread.start();
-        }
+        var handler = new Thread.UncaughtExceptionHandler() { // может и не использоваться нужна чательная проверка
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                restart();
+            }
+        };
+            
+        physicThread.setUncaughtExceptionHandler(handler);
+        paintThread.setUncaughtExceptionHandler(handler);
+            
+        physicThread.start();
+        paintThread.start();
         
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.addMouseWheelListener(this);
         this.addComponentListener(this);
-        this.getWorld().addStepListener(this);
+    }
+    
+    public void dispose() {
+        if (physicThreadLive) {
+            physicThreadLive = false;
+                
+            try {
+                assert physicThread != null;
+                physicThread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (paintThreadLive) {
+            paintThreadLive = false;
+            
+            try {
+                assert paintThread != null;
+                paintThread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public Vector2 getOffset() {
@@ -123,7 +203,31 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     public World<Body> getWorld() {
         return world;
     }
-
+    
+    public int getMaxFps() {
+        return maxFps;
+    }
+    
+    public void setMaxFps(int maxFps) {
+        this.maxFps = maxFps;
+    }
+    
+    public int getPhysicMaxFps() {
+        return physicMaxFps;
+    }
+    
+    public void setPhysicMaxFps(int physicMaxFps) {
+        this.physicMaxFps = physicMaxFps;
+    }
+    
+    public int getFps() {
+        return fps;
+    }
+    
+    public int getPhysicFps() {
+        return physicFps;
+    }
+    
     private void initializeNodes() {
         graph.getNodes().forEach(node -> {
             var body = node.getBody();
@@ -159,26 +263,15 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
         });
     }
 
-
-    // функция для обновления графа
     public void restart() {
-        if (physicThreadLive) {
-            physicThreadLive = false;
-
-            try {
-                assert physicThread != null;
-                physicThread.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        initializeNodes();
-
+        dispose();
+        
         physicThread = new Thread(physicThreadRun, "PhysicThread");
+        paintThread = new Thread(paintThreadRun, "PaintThread");
+        
         physicThread.start();
+        paintThread.start();
     }
-
 
     @Override
     public void paintComponent(Graphics graphics) {
@@ -255,7 +348,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     public void setGraph(Graph graph) {
         this.graph = graph;
 
-        restart();
+        initializeNodes();
     }
     
     private void centerGraph() {
@@ -353,11 +446,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     }
     
     @Override
-    public void end(TimeStep step, PhysicsWorld<Body, ?> world) {
-        SwingUtilities.invokeLater(this::repaint);
-    }
-    
-    @Override
     public void componentResized(ComponentEvent e) {
         if (this.getWidth() > 0 && this.getHeight() > 0) {
             centerGraph();
@@ -368,9 +456,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     @Override public void mouseEntered(MouseEvent e) {}
     @Override public void mouseExited(MouseEvent e) {}
     @Override public void mouseMoved(MouseEvent e) {}
-    @Override public void begin(TimeStep step, PhysicsWorld<Body, ?> world) {}
-    @Override public void updatePerformed(TimeStep step, PhysicsWorld<Body, ?> world) {}
-    @Override public void postSolve(TimeStep step, PhysicsWorld<Body, ?> world) {}
     @Override public void componentMoved(ComponentEvent e) {}
     @Override public void componentShown(ComponentEvent e) {}
     @Override public void componentHidden(ComponentEvent e) {}
