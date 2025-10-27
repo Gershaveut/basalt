@@ -16,6 +16,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 import java.util.logging.Level;
 
@@ -414,6 +415,8 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             
             if (targetPos == null)
                 return;
+            else
+                targetPos = targetPos.subtract(new Vector2((double) NODE_SIZE / 2, (double) NODE_SIZE / 2));
             
             Vector2 nodePos = draggedNode.getBody().getWorldCenter();
             Vector2 force = targetPos.subtract(nodePos);

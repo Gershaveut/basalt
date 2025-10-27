@@ -23,7 +23,7 @@ public class SettingsController implements SettingsListener {
             graphCanvas.setMaxFps(Integer.parseInt(value.toString()));
         });
         basaltSettings.getPhysicMaxFps().addSettingListener(value -> {
-            graphCanvas.setMaxFps(Integer.parseInt(value.toString()));
+            graphCanvas.setPhysicMaxFps(Integer.parseInt(value.toString()));
         });
         
 		basaltSettings.getDebugMode().addSettingListener(value -> {

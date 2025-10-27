@@ -174,7 +174,7 @@ public class SettingsFrame extends JFrame {
 
                     var value = setting.getDefaultValue();
 
-                    if (setting.getValue() != null && setting.getDefaultValue().getClass() == setting.getValue()) {
+                    if (setting.getValue() != null && setting.getDefaultValue().getClass() == setting.getValue().getClass()) {
                         value = setting.getValue();
                     }
                     
