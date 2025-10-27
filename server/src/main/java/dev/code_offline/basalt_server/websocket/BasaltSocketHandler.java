@@ -1,6 +1,7 @@
 package dev.code_offline.basalt_server.websocket;
 
 import dev.code_offline.basalt_server.BasaltApplication;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -16,12 +17,12 @@ public class BasaltSocketHandler extends TextWebSocketHandler {
 	private static final List<WebSocketSession> sessions = new ArrayList<>();
 	
 	@Override
-	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+	public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
 		sessions.remove(session);
 	}
 	
 	@Override
-	public void afterConnectionEstablished(WebSocketSession session) {
+	public void afterConnectionEstablished(@NonNull WebSocketSession session) {
 		sessions.add(session);
 	}
 	

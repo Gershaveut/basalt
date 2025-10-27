@@ -39,7 +39,10 @@ public class BasaltFrame extends JFrame {
         this.setSize(600, 600);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
+        this.toFront();
+        
+        Toolkit.getDefaultToolkit().beep();
+        
         var menuBar = new MenuBar();
 
         var graph = new Graph();

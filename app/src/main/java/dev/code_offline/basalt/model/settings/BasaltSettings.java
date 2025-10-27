@@ -73,7 +73,7 @@ public class BasaltSettings {
 		}
 		
 		if (changed) {
-			Main.logger.log(Level.INFO, "Save settings...");
+			Main.LOGGER.log(Level.INFO, "Save settings...");
 			
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
@@ -81,7 +81,7 @@ public class BasaltSettings {
 				
 				writer.close();
 			} catch (IOException e) {
-				Main.logger.log(Level.SEVERE, "Error save settings: " + e.getMessage());
+				Main.LOGGER.log(Level.SEVERE, "Error save settings: " + e.getMessage());
 			}
 		}
 	}

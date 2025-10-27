@@ -21,8 +21,8 @@ public class BasaltRecentStarts {
 		try {
 			loadRecents();
 		} catch (Exception exception) {
-			Main.logger.severe("Error load recents");
-			Main.logger.severe(exception.toString());
+			Main.LOGGER.severe("Error load recents");
+			Main.LOGGER.severe(exception.toString());
 		}
 	}
 	
@@ -54,7 +54,7 @@ public class BasaltRecentStarts {
 			try {
 				saveRecents();
 			} catch (Exception ignored) {
-				Main.logger.severe("Error save recents");
+				Main.LOGGER.severe("Error save recents");
 			}
 		}
 	}
@@ -65,7 +65,7 @@ public class BasaltRecentStarts {
 		try {
 			saveRecents();
 		} catch (Exception ignored) {
-			Main.logger.severe("Error save recents");
+			Main.LOGGER.severe("Error save recents");
 		}
 	}
 }

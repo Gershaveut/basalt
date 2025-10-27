@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class AboutFrame extends JFrame {
-    private static int LOGO_SIZE = 300;
+    private static final int LOGO_SIZE = 300;
 
     public AboutFrame() {
         var panel = new JPanel();

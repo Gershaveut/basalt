@@ -79,9 +79,9 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
 
                 try {
                     // освобождение процессора
-                    Thread.sleep(5);
+                    Thread.sleep(1000 / 60);
                 } catch (InterruptedException e) {
-                    Main.logger.severe("Physic thread error: " + e.getMessage());
+                    Main.LOGGER.severe("Physic thread error: " + e.getMessage());
                 }
             }
         };
@@ -153,7 +153,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                     joint.setSpringFrequency(SPRING_FREQUENCY);
                     world.addJoint(joint);
                 } catch (Exception ignored) {
-                    Main.logger.log(Level.WARNING,  String.format("Note Id: %d Name: %s causes error", node.getId(), node.getName()));
+                    Main.LOGGER.log(Level.WARNING,  String.format("Note Id: %d Name: %s causes error", node.getId(), node.getName()));
                 }
             });
         });
@@ -313,8 +313,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             var newOffsetY = this.getOffset().y + (e.getY() - lastMousePos.y);
             this.setOffset(newOffsetX, newOffsetY);
             lastMousePos = e.getPoint();
-            
-            this.repaint();
         }
         
         // перемещение ноды
@@ -328,7 +326,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             Vector2 force = targetPos.subtract(nodePos);
             
             draggedNode.getBody().translate(force);
-            this.repaint();
         }
     }
     
@@ -353,8 +350,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             offset.x = mouseX - graphMouseX * scale;
             offset.y = mouseY - graphMouseY * scale;
         }
-        
-        this.repaint();
     }
     
     @Override

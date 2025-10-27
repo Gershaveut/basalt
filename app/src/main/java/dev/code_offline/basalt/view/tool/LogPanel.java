@@ -24,7 +24,7 @@ public class LogPanel extends JPanel implements BasaltDockable {
 		
 		add(logScroll, BorderLayout.CENTER);
 		
-		Main.logger.addHandler(new Handler() {
+		Main.LOGGER.addHandler(new Handler() {
 			@Override
 			public void publish(LogRecord record) {
 				logArena.append(record.getLevel() + ": " + record.getMessage() + "\n");

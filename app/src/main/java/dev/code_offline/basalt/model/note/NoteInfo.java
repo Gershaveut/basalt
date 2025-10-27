@@ -12,7 +12,7 @@ public class NoteInfo {
     private final @Nullable String path;
     private final List<Long> links;
     
-    private String author = "Loading...";
+    private final String author = "Loading...";
 
     public NoteInfo(Note note, Database database) {
 		

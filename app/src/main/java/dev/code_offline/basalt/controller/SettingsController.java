@@ -45,10 +45,10 @@ public class SettingsController implements SettingsListener {
         settingsFrame.addSettingsListener(this);
         
         try {
-            Main.logger.log(Level.INFO, "Loading settings...");
+            Main.LOGGER.log(Level.INFO, "Loading settings...");
             basaltSettings.loadSettings();
         } catch (Exception e) {
-            Main.logger.log(Level.SEVERE, "Error loading settings: " + e.getMessage());
+            Main.LOGGER.log(Level.SEVERE, "Error loading settings: " + e.getMessage());
         }
         
         settingsFrame.setModel(basaltSettings.getSettingsModel());

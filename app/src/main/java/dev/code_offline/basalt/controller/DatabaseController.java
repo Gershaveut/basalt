@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class DatabaseController implements DatabaseListener, FolderListener {
-	public Database database;
+	public final Database database;
 	
 	private final StartFrame startFrame;
     private final BasaltFrame basaltFrame;
