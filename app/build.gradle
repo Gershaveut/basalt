@@ -36,7 +36,7 @@ javapackager {
     mainClass = 'dev.code_offline.basalt.Main'
     customizedJre = false
     bundleJre = true
-    platform = 'windows'
+    platform = 'auto'
 
     name = archivesBaseName
     organizationName = 'code-offline'
