@@ -27,6 +27,22 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
+    - name: Upload app JAR
+      uses: actions/upload-artifact@v4
+      with:
+        name: basalt.jar
+        path: app/build/libs/*.jar
+        overwrite: true
+        if-no-files-found: error
+
+    - name: Upload server JAR
+      uses: actions/upload-artifact@v4
+      with:
+        name: basalt-server.jar
+        path: server/build/libs/*.jar
+        overwrite: true
+        if-no-files-found: error
+
   dependency-submission:
 
     runs-on: ubuntu-latest
