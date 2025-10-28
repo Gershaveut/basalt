@@ -12,9 +12,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class SettingsFrame extends JFrame {
     private final EventListenerList listeners = new EventListenerList();
@@ -199,7 +197,7 @@ public class SettingsFrame extends JFrame {
                         }
                         
                         private void onTextUpdate() {
-                            setting.setValue(field.getText());
+                            notifyListeners(settingsListener -> settingsListener.setValue(setting.getName(), field.getText()));
                         }
                     });
                     
@@ -214,7 +212,7 @@ public class SettingsFrame extends JFrame {
 
                             checkbox.setSelected(b);
                             checkbox.addActionListener(e -> {
-                                setting.setValue(checkbox.isSelected());
+                                notifyListeners(settingsListener -> settingsListener.setValue(setting.getName(), checkbox.isSelected()));
                             });
 
                             settingBox.add(checkbox);

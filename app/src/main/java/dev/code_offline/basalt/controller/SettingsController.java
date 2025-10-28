@@ -71,4 +71,9 @@ public class SettingsController implements SettingsListener {
         basaltSettings.revertSettings(revertSettingsModel);
         settingsFrame.setModel(revertSettingsModel);
     }
+    
+    @Override
+    public void setValue(String name, Object value) {
+        basaltSettings.getSettingsModel().getSettings().stream().filter(set -> set.getName().equals(name)).findFirst().orElseThrow().setValue(value);
+    }
 }
