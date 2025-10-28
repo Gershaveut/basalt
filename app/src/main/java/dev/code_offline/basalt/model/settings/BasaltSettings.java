@@ -1,7 +1,8 @@
 package dev.code_offline.basalt.model.settings;
 
-import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.core.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,10 +12,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
 
 public class BasaltSettings {
-	private final String FILE_NAME = "settings.json";
+	private static final Logger LOGGER = LoggerFactory.getLogger(BasaltSettings.class);
+	
+	private static final String FILE_NAME = "settings.json";
 	
 	private SettingsModel settingsModel;
 
@@ -86,15 +88,15 @@ public class BasaltSettings {
 		}
 		
 		if (changed) {
-			Main.LOGGER.log(Level.INFO, "Save settings...");
+			LOGGER.info("Save settings...");
 			
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
 				writer.write(Util.getMapper().writeValueAsString(settingsModel.getSettings()));
 				
 				writer.close();
-			} catch (IOException e) {
-				Main.LOGGER.log(Level.SEVERE, "Error save settings: " + e.getMessage());
+			} catch (IOException exception) {
+				LOGGER.error("Error save settings", exception);
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package dev.code_offline.basalt_server.websocket;
 
-import dev.code_offline.basalt_server.BasaltApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -14,6 +15,8 @@ import java.util.List;
 
 @Component
 public class BasaltSocketHandler extends TextWebSocketHandler {
+	private static final Logger LOGGER = LoggerFactory.getLogger(BasaltSocketHandler.class);
+	
 	private static final List<WebSocketSession> sessions = new ArrayList<>();
 	
 	@Override
@@ -31,7 +34,7 @@ public class BasaltSocketHandler extends TextWebSocketHandler {
 			try {
 				session.sendMessage(new TextMessage("sync"));
 			} catch (IOException e) {
-				BasaltApplication.logger.error(e.getMessage());
+				LOGGER.error("Sync error", e);
 			}
 		});
 	}

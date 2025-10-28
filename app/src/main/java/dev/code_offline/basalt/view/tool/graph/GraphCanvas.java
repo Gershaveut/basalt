@@ -4,12 +4,15 @@ import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
+import dev.code_offline.basalt.model.recent.BasaltRecentStarts;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.joint.DistanceJoint;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.World;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
@@ -21,6 +24,8 @@ import java.util.logging.Level;
 
 @SuppressWarnings("BusyWait")
 public class GraphCanvas extends JComponent implements ComponentListener, MouseListener, MouseMotionListener, MouseWheelListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphCanvas.class);
+    
     private final double NANO_TO_BASE = 1.0e9;
 
     public final int NODE_SIZE = 25;
@@ -102,8 +107,8 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                 try {
                     // освобождение процессора
                     Thread.sleep(1000 / physicMaxFps);
-                } catch (InterruptedException e) {
-                    Main.LOGGER.severe("Physic thread error: " + e.getMessage());
+                } catch (InterruptedException exception) {
+					LOGGER.error("Physic thread error", exception);
                 }
             }
         };
@@ -129,8 +134,8 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                 
                 try {
                     Thread.sleep(1000 / maxFps);
-                } catch (InterruptedException e) {
-                    Main.LOGGER.severe("Paint thread error: " + e.getMessage());
+                } catch (InterruptedException exception) {
+					LOGGER.error("Paint thread error", exception);
                 }
             }
         };
@@ -257,7 +262,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                     joint.setSpringFrequency(SPRING_FREQUENCY);
                     world.addJoint(joint);
                 } catch (Exception ignored) {
-                    Main.LOGGER.log(Level.WARNING,  String.format("Note Id: %d Name: %s causes error", node.getId(), node.getName()));
+                    LOGGER.warn("Note Id: {} Name: {} causes error", node.getId(), node.getName());
                 }
             });
         });

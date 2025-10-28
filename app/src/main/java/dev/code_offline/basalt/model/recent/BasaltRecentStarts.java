@@ -1,7 +1,8 @@
 package dev.code_offline.basalt.model.recent;
 
-import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.core.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,6 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BasaltRecentStarts {
+	private static final Logger LOGGER = LoggerFactory.getLogger(BasaltRecentStarts.class);
+	
 	private static final String FILE_NAME = "recents.json";
 
 	private List<RecentStart> recentStarts = new ArrayList<>();
@@ -21,8 +24,7 @@ public class BasaltRecentStarts {
 		try {
 			loadRecents();
 		} catch (Exception exception) {
-			Main.LOGGER.severe("Error load recents");
-			Main.LOGGER.severe(exception.toString());
+			LOGGER.error("Error load recents", exception);
 		}
 	}
 	
@@ -51,21 +53,21 @@ public class BasaltRecentStarts {
 		if (recentStarts.stream().noneMatch(d -> d.getAddress().equals(recentStart.getAddress()))) {
 			recentStarts.add(recentStart);
 			
-			try {
-				saveRecents();
-			} catch (Exception ignored) {
-				Main.LOGGER.severe("Error save recents");
-			}
+			trySaveRecents();
 		}
 	}
 	
 	public void removeRecentStart(RecentStart recentStart) {
 		recentStarts.remove(recentStart);
 		
+		trySaveRecents();
+	}
+	
+	private void trySaveRecents() {
 		try {
 			saveRecents();
 		} catch (Exception ignored) {
-			Main.LOGGER.severe("Error save recents");
+			LOGGER.error("Error save recents");
 		}
 	}
 }

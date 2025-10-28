@@ -1,14 +1,17 @@
 package dev.code_offline.basalt.view.tool;
 
 import com.javadocking.dockable.DockingMode;
-import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.core.Icons;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 public class LogPanel extends JPanel implements BasaltDockable {
 	private final JTextArea logArena;
@@ -23,25 +26,21 @@ public class LogPanel extends JPanel implements BasaltDockable {
 		logArena.setEditable(false);
 		
 		add(logScroll, BorderLayout.CENTER);
-		
-		Main.LOGGER.addHandler(new Handler() {
+
+		System.setOut(new PrintStream(new OutputStream() {
+			final PrintStream out = System.out;
+			
 			@Override
-			public void publish(LogRecord record) {
-				logArena.append(record.getLevel() + ": " + record.getMessage() + "\n");
+			public void write(int b) {
+				var text = String.valueOf((char) b);
+				
+				logArena.append(text);
 				JScrollBar vertical = logScroll.getVerticalScrollBar();
 				vertical.setValue(vertical.getMaximum());
+				
+				out.print(text);
 			}
-			
-			@Override
-			public void flush() {
-			
-			}
-			
-			@Override
-			public void close() throws SecurityException {
-			
-			}
-		});
+		}));
 	}
 	
 	@Override

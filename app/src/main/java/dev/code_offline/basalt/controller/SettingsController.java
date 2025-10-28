@@ -8,10 +8,12 @@ import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt.view.settings.SettingsListener;
 import dev.code_offline.basalt.view.tool.graph.GraphCanvas;
-
-import java.util.logging.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SettingsController implements SettingsListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SettingsController.class);
+    
     private final SettingsFrame settingsFrame;
 	private final BasaltSettings basaltSettings;
 	
@@ -52,10 +54,10 @@ public class SettingsController implements SettingsListener {
         settingsFrame.addSettingsListener(this);
         
         try {
-            Main.LOGGER.log(Level.INFO, "Loading settings...");
+            LOGGER.info("Loading settings...");
             basaltSettings.loadSettings();
-        } catch (Exception e) {
-            Main.LOGGER.log(Level.SEVERE, "Error loading settings: " + e.getMessage());
+        } catch (Exception exception) {
+			LOGGER.error("Error loading settings", exception);
         }
         
         settingsFrame.setModel(basaltSettings.getSettingsModel());
