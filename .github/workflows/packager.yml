@@ -41,25 +41,28 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: app.exe
+          name: basalt.exe
           path: app/build/*.exe
           overwrite: true
           retention-days: 7
+          if-no-files-found: error
 
       - name: Upload macOS DMG
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: app.dmg
+          name: basalt.dmg
           path: app/build/*.dmg
           overwrite: true
           retention-days: 7
+          if-no-files-found: error
 
       - name: Upload Linux AppImage
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: app.AppImage
+          name: basalt.AppImage
           path: app/build/*.AppImage
           overwrite: true
           retention-days: 7
+          if-no-files-found: error
