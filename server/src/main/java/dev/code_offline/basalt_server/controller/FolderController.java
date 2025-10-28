@@ -48,7 +48,7 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 			var currentId = queue.poll();
 			
 			noteRepository.findAll().forEach(note -> {
-				if (note.getPath().equals(currentId)) {
+				if (note.getPath() != null && note.getPath().equals(currentId)) {
 					noteRepository.delete(note);
 				}
 			});
@@ -78,7 +78,7 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		folderRepository.save(target);
 		
 		noteRepository.findAll().forEach(note -> {
-			if (note.getPath().equals(target.getPath())) {
+			if (note.getPath() != null && note.getPath().equals(id)) {
 				note.setPath(target.getPath());
 				noteRepository.save(note);
 			}

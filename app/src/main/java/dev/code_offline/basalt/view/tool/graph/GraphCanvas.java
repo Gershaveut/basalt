@@ -383,7 +383,11 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                 return;
             
             draggedNode = focusNode;
-            draggedNode.getBody().setMass(MassType.INFINITE);
+            
+            var body = draggedNode.getBody();
+            
+            body.clearForce();
+            body.setMass(MassType.INFINITE);
         }
     }
     

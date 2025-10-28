@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import org.springframework.lang.Nullable;
 
 @Entity
 public class Note {
@@ -14,12 +15,12 @@ public class Note {
     private String name;
     private long person;
     private String text;
-    private String path;
+    private @Nullable String path;
 	
 	public Note() {
 	}
 	
-	public Note(String name, long person, String text, String path) {
+	public Note(String name, long person, String text, @Nullable String path) {
         this.name = name;
         this.person = person;
         this.text = text;
@@ -54,11 +55,11 @@ public class Note {
         this.text = text;
     }
     
-    public String getPath() {
+    public @Nullable String getPath() {
         return path;
     }
     
-    public void setPath(String path) {
+    public void setPath(@Nullable String path) {
         this.path = path;
     }
 }

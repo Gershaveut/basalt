@@ -40,7 +40,7 @@ public class SettingsController implements SettingsListener {
                         for (int i = 1; i < 25; i++) {
                             var note = new Note(String.valueOf(i), 1, null);
                             
-                            note.setText(String.format("[%d]", i + 1));
+                            note.setText(String.format("[[%d]]", i + 1));
                             
                             debugDatabase.addNote(note);
                         }
