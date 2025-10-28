@@ -20,7 +20,6 @@ public enum Icons {
     SAVE("save"),
     TERMINAL("terminal");
 
-    private static final int ICON_SIZE = 30;
     private static final Color COLOR = Color.BLACK;
 
     private final String path;
@@ -46,7 +45,7 @@ public enum Icons {
     }
 
     public static ImageIcon getIcon(String path) {
-        return new ImageIcon(filterIcon(getRawIcon(path)).getImage().getScaledInstance(ICON_SIZE, ICON_SIZE, 0));
+        return new ImageIcon(filterIcon(getRawIcon(path)).getImage());
     }
 
     public static ImageIcon filterIcon (ImageIcon icon) {

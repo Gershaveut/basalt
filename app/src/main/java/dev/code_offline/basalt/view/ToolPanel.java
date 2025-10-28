@@ -8,15 +8,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Objects;
 
 public class ToolPanel extends JPanel {
-    private final int TOOL_BUTTON_SIZE = 50;
+    private static final int TOOL_BUTTON_SIZE = 50;
+    private static final int ICON_SIZE = (int) (TOOL_BUTTON_SIZE * 0.65);
 
     public ToolPanel(List<Tool> tools) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         tools.forEach(tool -> {
-            var toolButton = new JButton(tool.getIconOriginal());
+            var toolButton = new JButton(new ImageIcon(Objects.requireNonNull(tool.getIconOriginal()).getImage().getScaledInstance(ICON_SIZE, ICON_SIZE, 0)));
 
             var closeAction = new DefaultDockableStateAction(tool, DockableState.CLOSED);
             var restoreAction = new DefaultDockableStateAction(tool, DockableState.NORMAL);
