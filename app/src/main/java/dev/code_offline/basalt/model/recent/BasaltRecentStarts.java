@@ -16,7 +16,7 @@ import java.util.List;
 public class BasaltRecentStarts {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BasaltRecentStarts.class);
 	
-	private static final String FILE_NAME = "recents.json";
+	private static final String FILE_NAME = Util.savePrefix("recents.json");
 
 	private List<RecentStart> recentStarts = new ArrayList<>();
 

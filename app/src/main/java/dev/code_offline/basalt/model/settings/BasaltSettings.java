@@ -16,7 +16,7 @@ import java.util.Arrays;
 public class BasaltSettings {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BasaltSettings.class);
 	
-	private static final String FILE_NAME = "settings.json";
+	private static final String FILE_NAME = Util.savePrefix("settings.json");
 	
 	private SettingsModel settingsModel;
 
