@@ -59,21 +59,23 @@ public class BasaltSettings {
 	}
 	
 	public void loadSettings() throws Exception {
-		var ignored = new File(FILE_NAME).createNewFile();
+		var created = new File(FILE_NAME).createNewFile();
 		
-		var json = Util.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), Setting[].class);
-		
-		if (json != null) {
-			var settings = Arrays.stream(json).toList();
+		if (!created) {
+			var json = Util.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), Setting[].class);
 			
-			settings.forEach(setting -> {
-				Setting findSetting = settingsModel.getSettings().stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElse(null);
+			if (json != null) {
+				var settings = Arrays.stream(json).toList();
 				
-				if (findSetting != null) {
-					findSetting.setValue(setting.getValue());
-					findSetting.notifyListeners();
-				}
-			});
+				settings.forEach(setting -> {
+					Setting findSetting = settingsModel.getSettings().stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElse(null);
+					
+					if (findSetting != null) {
+						findSetting.setValue(setting.getValue());
+						findSetting.notifyListeners();
+					}
+				});
+			}
 		}
 	}
 	

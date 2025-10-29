@@ -1,8 +1,8 @@
 package dev.code_offline.basalt.controller;
 
-import com.javadocking.dock.CompositeDock;
-import com.javadocking.dock.Position;
-import com.javadocking.dock.TabDock;
+import com.javadocking.DockingManager;
+import com.javadocking.dock.*;
+import com.javadocking.dockable.Dockable;
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.database.Database;
@@ -99,7 +99,29 @@ public class DatabaseController implements DatabaseListener, FolderListener {
             
             @Override
             public void save() {
-                Util.foreachNonList(tabDock::getDockableCount, tabDock::getDockable, (dockable) -> {
+                var dockModel = DockingManager.getDockModel();
+                var docakbles = new ArrayList<Dockable>();
+                
+                dockModel.getRootKeys(basaltFrame).forEachRemaining(o -> {
+                    String key = (String) o;
+                    var dock = dockModel.getRootDock(key);
+                    
+                    if (dock instanceof CompositeDock compositeDock) {
+                        Util.foreachNonList(compositeDock::getChildDockCount, compositeDock::getChildDock, (childDock) -> {
+                            if (childDock instanceof LeafDock leafDock) {
+                                Util.foreachNonList(leafDock::getDockableCount, leafDock::getDockable, docakbles::add);
+                            } else if (childDock instanceof CompositeDock compositeDock1) {
+                                Util.foreachNonList(compositeDock1::getChildDockCount, compositeDock1::getChildDock, (childDock1) -> {
+                                    if (childDock1 instanceof LeafDock leafDock) {
+                                        Util.foreachNonList(leafDock::getDockableCount, leafDock::getDockable, docakbles::add);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+                
+                docakbles.forEach(dockable -> {
                     if (((Tool) dockable).getBasaltDockable() instanceof MarkdownEditorPanel markdownEditorPanel)
                         markdownEditorPanel.save();
                 });
@@ -254,6 +276,9 @@ public class DatabaseController implements DatabaseListener, FolderListener {
     
     @Override
     public void moveFolder(String id, String path) {
+        if (id.equals(path))
+            return;
+        
         database.moveFolder(id, path);
     }
     

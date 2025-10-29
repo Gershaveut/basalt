@@ -29,16 +29,20 @@ public class LogPanel extends JPanel implements BasaltDockable {
 
 		System.setOut(new PrintStream(new OutputStream() {
 			final PrintStream out = System.out;
-			
+		
 			@Override
-			public void write(int b) {
-				var text = String.valueOf((char) b);
+			public void write(byte[] b, int off, int len) {
+				var text = new String(b, off, len);
 				
 				logArena.append(text);
 				JScrollBar vertical = logScroll.getVerticalScrollBar();
 				vertical.setValue(vertical.getMaximum());
 				
 				out.print(text);
+			}
+			
+			@Override
+			public void write(int b) {
 			}
 		}));
 	}

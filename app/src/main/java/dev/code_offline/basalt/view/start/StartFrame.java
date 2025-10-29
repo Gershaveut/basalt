@@ -13,6 +13,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -69,12 +70,14 @@ public class StartFrame extends JFrame {
 		recentList.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
-					openRecentDatabase();
-				} else if (SwingUtilities.isRightMouseButton(e)) {
-					recentList.setSelectedIndex(recentList.locationToIndex(e.getPoint()));
-					
-					popupMenu.show(recentPanel, e.getX(), e.getY());
+				if (isVisible()) {
+					if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+						openRecentDatabase();
+					} else if (SwingUtilities.isRightMouseButton(e)) {
+						recentList.setSelectedIndex(recentList.locationToIndex(e.getPoint()));
+						
+						popupMenu.show(recentPanel, e.getX(), e.getY());
+					}
 				}
 			}
 		});
@@ -133,6 +136,12 @@ public class StartFrame extends JFrame {
 			result = fileChooser.showSaveDialog(this);
 		} else {
 			result = fileChooser.showOpenDialog(this);
+			
+			if (result == JFileChooser.APPROVE_OPTION && !fileChooser.getSelectedFile().exists()) {
+				JOptionPane.showMessageDialog(this, "Файл не найден!", "Ошибка", JOptionPane.ERROR_MESSAGE);
+				
+				return;
+			}
 		}
 		
 		if (result == JFileChooser.APPROVE_OPTION) {

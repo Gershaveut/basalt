@@ -29,12 +29,14 @@ public class BasaltRecentStarts {
 	}
 	
 	private void loadRecents() throws Exception {
-		var ignored = new File(FILE_NAME).createNewFile();
+		var created = new File(FILE_NAME).createNewFile();
 		
-		var json = Util.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), RecentStart[].class);
-		
-		if (json != null) {
-			recentStarts = new ArrayList<>(Arrays.stream(json).toList());
+		if (!created) {
+			var json = Util.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), RecentStart[].class);
+			
+			if (json != null) {
+				recentStarts = new ArrayList<>(Arrays.stream(json).toList());
+			}
 		}
 	}
 	

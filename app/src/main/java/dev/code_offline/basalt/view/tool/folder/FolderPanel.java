@@ -20,7 +20,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 
@@ -30,10 +29,9 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 	private final JTree tree = new JTree(new Object[0]);
 	private final JPopupMenu popupMenu = new JPopupMenu();
 	
-	private @Nullable Object selectedNode;
-	private @Nullable Object selectedParentNode;
+	private @Nullable TreePath selectedTreePath;
 	
-	public FolderPanel() {
+	public FolderPanel(JFrame parentFrame) {
 		super(new BorderLayout());
 		
 		tree.setDragEnabled(true);
@@ -52,23 +50,23 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		var delete = new JMenuItem("Удалить");
 		
 		openFile.addActionListener(e -> {
-			assert selectedNode != null;
-			var selectedNote = (NoteInfo) selectedNode;
+			assert getSelectedNode() != null;
+			var selectedNote = (NoteInfo) getSelectedNode();
 			
 			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
 				listener.openFile(selectedNote.getId());
 			}
 		});
 		newFile.addActionListener(e -> {
-			Object selected = selectedNode;
+			Object selected = getSelectedNode();
 			Folder folder = null;
 			
 			if (selected != null) {
 				if (selected instanceof Folder f) {
 					folder = f;
 				} else {
-					assert selectedParentNode != null;
-					folder = (Folder) selectedParentNode;
+					assert getSelectedParentNode() != null;
+					folder = (Folder) getSelectedParentNode();
 				}
 			}
 			
@@ -77,16 +75,11 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			}
 		});
 		newFolder.addActionListener(e -> {
-			Object selected = selectedNode;
+			Object selected = getSelectedNode();
 			Folder folder = null;
 			
-			if (selected != null) {
-				if (selected instanceof Folder f) {
-					folder = f;
-				} else {
-					assert selectedParentNode != null;
-					folder = (Folder) selectedParentNode;
-				}
+			if (selected instanceof Folder f) {
+				folder = f;
 			}
 			
 			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
@@ -94,23 +87,23 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			}
 		});
 		rename.addActionListener(e -> {
-			assert selectedNode != null;
+			assert getSelectedNode() != null;
             String name;
 
-            if (selectedNode instanceof NoteInfo note) {
+            if (getSelectedNode() instanceof NoteInfo note) {
                 name = note.getName();
             } else {
-                name = ((Folder) selectedNode).getName();
+                name = ((Folder) getSelectedNode()).getName();
             }
 			
-			var input = JOptionPane.showInputDialog(this.getParent(), "Переименовать", name, JOptionPane.PLAIN_MESSAGE);
+			var input = JOptionPane.showInputDialog(parentFrame, "Переименовать", name, JOptionPane.PLAIN_MESSAGE);
 
 			if (input != null && !input.isEmpty()) {
 				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-					if (selectedNode instanceof NoteInfo note) {
+					if (getSelectedNode() instanceof NoteInfo note) {
 						listener.rename(note.getId(), input);
 					} else {
-						var folder = (Folder) selectedNode;
+						var folder = (Folder) getSelectedNode();
 						
 						listener.rename(folder.getPath(), input);
 					}
@@ -179,42 +172,50 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 			public void keyPressed(KeyEvent e) {
 				if (Util.isContextKey(e)) {
 					showPopupMenu(setPopupMenuContext, 0, 0);
-				} else if (Util.isDeleteKey(e) && selectedNode != null) {
+				} else if (Util.isDeleteKey(e) && getSelectedNode() != null) {
 					deleteSelection();
 				}
 			}
 		});
 		tree.addTreeSelectionListener(e -> {
-			var treeNode = e.getPath();
-			
-			selectedNode = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
-			selectedParentNode = ((DefaultMutableTreeNode) treeNode.getParentPath().getLastPathComponent()).getUserObject();
+			selectedTreePath = e.getNewLeadSelectionPath();
 		});
 		
 		add(new JScrollPane(tree), BorderLayout.CENTER);
 	}
+
+	private @Nullable Object getSelectedNode() {
+		if (selectedTreePath == null)
+			return null;
+		
+		return ((DefaultMutableTreeNode) selectedTreePath.getLastPathComponent()).getUserObject();
+	}
+	
+	private @Nullable Object getSelectedParentNode() {
+		if (selectedTreePath == null)
+			return null;
+		
+		return ((DefaultMutableTreeNode) selectedTreePath.getParentPath().getLastPathComponent()).getUserObject();
+	}
 	
 	private void deleteSelection() {
-		assert selectedNode != null;
+		assert getSelectedNode() != null;
 		
 		for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-			if (selectedNode instanceof NoteInfo note) {
+			if (getSelectedNode() instanceof NoteInfo note) {
 				listener.delete(note.getId());
 			} else {
-				listener.delete(((Folder) selectedNode).getPath());
+				listener.delete(((Folder) getSelectedNode()).getPath());
 			}
 		}
-		
-		selectedNode = null;
-		selectedParentNode = null;
 	}
 	
 	private void showPopupMenu(Consumer<PopupMenuContext> setPopupMenuContext, int x, int y) {
         var context = PopupMenuContext.Empty;
 		
-		if (selectedNode instanceof NoteInfo) {
+		if (getSelectedNode() instanceof NoteInfo) {
 			context = PopupMenuContext.Note;
-		} else if (selectedNode instanceof Folder) {
+		} else if (getSelectedNode() instanceof Folder) {
 			context = PopupMenuContext.Folder;
 		}
 
@@ -275,18 +276,14 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		setExpansionState(state);
 	}
 	
-	private @Nullable DefaultMutableTreeNode createFolder(Folder folder, ArrayList<DefaultMutableTreeNode> folderNodes, DefaultMutableTreeNode root) {
+	private void createFolder(Folder folder, ArrayList<DefaultMutableTreeNode> folderNodes, DefaultMutableTreeNode root) {
 		DefaultMutableTreeNode parentNode = root;
 		Folder parent = folder.getParent();
 	
-		if (folderNodes.stream().anyMatch(treeNode -> ((Folder) treeNode.getUserObject()).getPath().equals(folder.getPath())))
-			return null;
-		
 		if (parent != null) {
 			try {
 				parentNode = folderNodes.stream().filter(treeNode -> ((Folder) treeNode.getUserObject()).getPath().equals(parent.getPath())).findFirst().orElseThrow();
 			} catch (Exception ignored) {
-				parentNode = Objects.requireNonNull(createFolder(parent, folderNodes, root));
 			}
 		}
 		
@@ -295,7 +292,6 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		parentNode.add(folderNode);
 		folderNodes.add(folderNode);
 		
-		return folderNode;
 	}
 	
 	public JTree getTree() {

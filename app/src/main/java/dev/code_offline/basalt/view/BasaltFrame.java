@@ -1,6 +1,7 @@
 package dev.code_offline.basalt.view;
 
 import com.javadocking.DockingManager;
+import com.javadocking.dock.Dock;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
@@ -41,13 +42,11 @@ public class BasaltFrame extends JFrame {
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.toFront();
         
-        Toolkit.getDefaultToolkit().beep();
-        
         var menuBar = new MenuBar();
 
         var graph = new Graph();
         var graphPanel = new GraphPanel(graph, this, true);
-        var folderPanel = new FolderPanel();
+        var folderPanel = new FolderPanel(this);
         var logPanel = new LogPanel();
 
         List<Tool> tools = new ArrayList<>();
@@ -81,7 +80,7 @@ public class BasaltFrame extends JFrame {
         // создание доков
         var rightSplitDock = new SplitDock();
         var leftSplitDock = new SplitDock();
-
+        
         // добавление табов в доки
         rightSplitDock.addChildDock(rightTabDock, new Position(Position.CENTER));
         leftSplitDock.addChildDock(leftTabDock, new Position(Position.CENTER));

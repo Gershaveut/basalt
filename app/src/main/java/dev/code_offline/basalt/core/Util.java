@@ -70,7 +70,7 @@ public class Util {
 	}
     
     public static <T> void foreachNonList(Supplier<Integer> count, Function<Integer, T> getter, Consumer<T> action) {
-        for (int i = count.get(); i > 0; i--) {
+        for (int i = 0; i < count.get(); i++) {
             try {
                 action.accept(getter.apply(i));
             } catch (IndexOutOfBoundsException ignored) {
