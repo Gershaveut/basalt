@@ -20,7 +20,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
 import java.util.Random;
-import java.util.logging.Level;
 
 @SuppressWarnings("BusyWait")
 public class GraphCanvas extends JComponent implements ComponentListener, MouseListener, MouseMotionListener, MouseWheelListener {
@@ -92,8 +91,25 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                 long diff = time - this.last;
                 this.last = time;
                 double elapsedTime = (double) diff / NANO_TO_BASE;
-
+                
                 world.update(elapsedTime);
+               
+                SwingUtilities.invokeLater(() -> {
+                    // перемещение ноды
+                    if (draggedNode != null) {
+                        var targetPos = this.getMouseWorldPosition();
+                        
+                        if (targetPos == null)
+                            return;
+                        else
+                            targetPos = targetPos.subtract(new Vector2((double) NODE_SIZE / 2, (double) NODE_SIZE / 2));
+                        
+                        Vector2 nodePos = draggedNode.getBody().getWorldCenter();
+                        Vector2 force = targetPos.subtract(nodePos);
+                        
+                        draggedNode.getBody().translate(force);
+                    }
+                });
                 
                 ++countPhysicFrame;
                 
@@ -283,7 +299,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
         super.paintComponent(graphics);
 
         Graphics2D g2d = (Graphics2D) graphics;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // TODO: убийца ФПС
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // убийца ФПС
         g2d.translate((int) offset.x, (int) offset.y);
         g2d.scale(scale, scale);
 
@@ -388,11 +404,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                 return;
             
             draggedNode = focusNode;
-            
-            var body = draggedNode.getBody();
-            
-            body.clearForce();
-            body.setMass(MassType.INFINITE);
         }
     }
     
@@ -401,10 +412,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
         if (e.getButton() == MOVE_GRAPH) {
             lastMousePos = null;
         } else if (e.getButton() == MOVE_NODE) {
-            if (draggedNode != null) {
-                draggedNode.getBody().setMass(this.NODE_MASS);
-                draggedNode = null;
-            }
+            draggedNode = null;
         }
     }
     
@@ -415,21 +423,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             var newOffsetY = this.getOffset().y + (e.getY() - lastMousePos.y);
             this.setOffset(newOffsetX, newOffsetY);
             lastMousePos = e.getPoint();
-        }
-        
-        // перемещение ноды
-        if (draggedNode != null) {
-            var targetPos = this.getMouseWorldPosition();
-            
-            if (targetPos == null)
-                return;
-            else
-                targetPos = targetPos.subtract(new Vector2((double) NODE_SIZE / 2, (double) NODE_SIZE / 2));
-            
-            Vector2 nodePos = draggedNode.getBody().getWorldCenter();
-            Vector2 force = targetPos.subtract(nodePos);
-            
-            draggedNode.getBody().translate(force);
         }
     }
     
@@ -447,10 +440,11 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
         double wheelDelta = e.getPreciseWheelRotation();
         double scaleFactor = Math.pow(SCALE_POW, -wheelDelta);
         
-        this.setScale(scale *= scaleFactor);
-        this.setScale(Math.max(SCALE_MIN, Math.min(SCALE_MAX, scale)));
+        scale = Math.max(SCALE_MIN, Math.min(SCALE_MAX, scale * scaleFactor));
         
-        if (SCALE_MAX > scale && SCALE_MIN < scale) {
+        this.setScale(scale);
+        
+        if (SCALE_MAX >= scale && SCALE_MIN <= scale) {
             offset.x = mouseX - graphMouseX * scale;
             offset.y = mouseY - graphMouseY * scale;
         }

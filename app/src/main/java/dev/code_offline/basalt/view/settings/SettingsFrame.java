@@ -35,11 +35,13 @@ public class SettingsFrame extends JFrame {
         var splitPanel = new JSplitPane();
         var actionPanel = new JPanel();
 
+        splitPanel.setDividerLocation(150);
+        
         settingsTabLayout = new CardLayout();
 
         settingsMenu = new JPanel();
         settingsTab = new JPanel(settingsTabLayout);
-
+        
         settingsMenu.setLayout(new BoxLayout(settingsMenu, BoxLayout.Y_AXIS));
 
         var scrollMenu = new JScrollPane(settingsMenu);
