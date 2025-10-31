@@ -97,10 +97,11 @@ public class DatabaseController implements DatabaseListener, FolderListener {
                 close();
             }
             
-            @Override
+            @SuppressWarnings("unchecked")
+			@Override
             public void save() {
                 var dockModel = DockingManager.getDockModel();
-                var docakbles = new ArrayList<Dockable>();
+                var dockables = new ArrayList<Dockable>();
                 
                 dockModel.getRootKeys(basaltFrame).forEachRemaining(o -> {
                     String key = (String) o;
@@ -109,11 +110,11 @@ public class DatabaseController implements DatabaseListener, FolderListener {
                     if (dock instanceof CompositeDock compositeDock) {
                         Util.foreachNonList(compositeDock::getChildDockCount, compositeDock::getChildDock, (childDock) -> {
                             if (childDock instanceof LeafDock leafDock) {
-                                Util.foreachNonList(leafDock::getDockableCount, leafDock::getDockable, docakbles::add);
+                                Util.foreachNonList(leafDock::getDockableCount, leafDock::getDockable, dockables::add);
                             } else if (childDock instanceof CompositeDock compositeDock1) {
                                 Util.foreachNonList(compositeDock1::getChildDockCount, compositeDock1::getChildDock, (childDock1) -> {
                                     if (childDock1 instanceof LeafDock leafDock) {
-                                        Util.foreachNonList(leafDock::getDockableCount, leafDock::getDockable, docakbles::add);
+                                        Util.foreachNonList(leafDock::getDockableCount, leafDock::getDockable, dockables::add);
                                     }
                                 });
                             }
@@ -121,7 +122,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
                     }
                 });
                 
-                docakbles.forEach(dockable -> {
+                dockables.forEach(dockable -> {
                     if (((Tool) dockable).getBasaltDockable() instanceof MarkdownEditorPanel markdownEditorPanel)
                         markdownEditorPanel.save();
                 });
