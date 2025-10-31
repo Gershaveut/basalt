@@ -39,7 +39,6 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		
 		tree.setTransferHandler(new FolderTransferHandler(listeners));
-		tree.setCellRenderer(new FolderTreeCellRenderer());
 		
 		var newFile = new JMenuItem("Новый файл");
 		var newFolder = new JMenuItem("Новая папка");
