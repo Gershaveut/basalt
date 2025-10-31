@@ -16,11 +16,11 @@ import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.menubar.MenuBarListener;
 import dev.code_offline.basalt.view.start.StartFrame;
-import dev.code_offline.basalt.view.tool.Tool;
+import dev.code_offline.basalt.view.tool.AbstractTool;
 import dev.code_offline.basalt.view.tool.folder.FolderListener;
-import dev.code_offline.basalt.view.tool.folder.FolderPanel;
-import dev.code_offline.basalt.view.tool.graph.GraphPanel;
-import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorPanel;
+import dev.code_offline.basalt.view.tool.folder.FolderTool;
+import dev.code_offline.basalt.view.tool.graph.GraphTool;
+import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorTool;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
@@ -35,24 +35,24 @@ public class DatabaseController implements DatabaseListener, FolderListener {
 	
 	private final StartFrame startFrame;
     private final BasaltFrame basaltFrame;
-    private final GraphPanel graphPanel;
-    private final FolderPanel folderPanel;
+    private final GraphTool graphTool;
+    private final FolderTool folderTool;
     private final StartController startController;
 
     private final TabDock tabDock;
     private final CompositeDock dock;
 
-    public DatabaseController(BasaltFrame basaltFrame, GraphPanel graphPanel, FolderPanel folderPanel, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController) {
+    public DatabaseController(BasaltFrame basaltFrame, GraphTool graphTool, FolderTool folderTool, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController) {
         this.startFrame = startFrame;
         this.basaltFrame = basaltFrame;
-        this.graphPanel = graphPanel;
-        this.folderPanel = folderPanel;
+        this.graphTool = graphTool;
+        this.folderTool = folderTool;
         this.tabDock = tabDock;
 		this.dock = dock;
 		this.database = database;
 		this.startController = startController;
 		
-		var tree = folderPanel.getTree();
+		var tree = folderTool.getTree();
 
         tree.addMouseListener(new MouseAdapter() {
             @Override
@@ -71,12 +71,12 @@ public class DatabaseController implements DatabaseListener, FolderListener {
             }
         });
 
-        folderPanel.addFolderListener(this);
+        folderTool.addFolderListener(this);
 
-        graphPanel.graphCanvas.addMouseListener(new MouseAdapter() {
+        graphTool.graphCanvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                Node focusNode = graphPanel.graphCanvas.getFocusatedNode();
+                Node focusNode = graphTool.graphCanvas.getFocusatedNode();
 
                 if (focusNode == null) return;
 
@@ -123,8 +123,8 @@ public class DatabaseController implements DatabaseListener, FolderListener {
                 });
                 
                 dockables.forEach(dockable -> {
-                    if (((Tool) dockable).getBasaltDockable() instanceof MarkdownEditorPanel markdownEditorPanel)
-                        markdownEditorPanel.save();
+                    if (((AbstractTool) dockable).getDockable() instanceof MarkdownEditorTool markdownEditorTool)
+                        markdownEditorTool.save();
                 });
             }
             
@@ -145,7 +145,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
     }
     
     private void close(boolean exit) {
-        graphPanel.graphCanvas.dispose();
+        graphTool.graphCanvas.dispose();
         basaltFrame.dispose();
         
         database.close();
@@ -206,9 +206,9 @@ public class DatabaseController implements DatabaseListener, FolderListener {
             var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
            
             database.getFolders().subscribe(folders -> {
-                folderPanel.setModel(notesInfo, folders);
+                folderTool.setModel(notesInfo, folders);
             });
-            graphPanel.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
+            graphTool.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
         });
     }
     
@@ -219,7 +219,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
     }
     
     private void openSelectedNote() {
-        TreePath treeNode = folderPanel.getTree().getSelectionPath();
+        TreePath treeNode = folderTool.getTree().getSelectionPath();
 
         if (treeNode != null) {
             var selected = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
@@ -231,13 +231,13 @@ public class DatabaseController implements DatabaseListener, FolderListener {
 
     private void openNote(long id) {
         database.getNote(id).subscribe(note -> {
-            var markdownEditor = new MarkdownEditorPanel(note, basaltFrame);
+            var markdownEditor = new MarkdownEditorTool(note, basaltFrame);
 
             markdownEditor.addMarkdownListener(text -> database.editNote(note.getId(), text));
 
             var addToDock = tabDock.isEmpty();
         
-            tabDock.addDockable(new Tool(markdownEditor), new Position());
+            tabDock.addDockable(markdownEditor.getDockable(), new Position());
         
             if (addToDock)
                 dock.addChildDock(tabDock, new Position(Position.CENTER));

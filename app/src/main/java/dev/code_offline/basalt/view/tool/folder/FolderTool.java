@@ -5,7 +5,7 @@ import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
-import dev.code_offline.basalt.view.tool.BasaltDockable;
+import dev.code_offline.basalt.view.tool.AbstractTool;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-public class FolderPanel extends JPanel implements BasaltDockable {
+public class FolderTool extends AbstractTool {
 	private final EventListenerList listeners = new EventListenerList();
 	
 	private final JTree tree = new JTree(new Object[0]);
@@ -31,8 +31,8 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 	
 	private @Nullable TreePath selectedTreePath;
 	
-	public FolderPanel(JFrame parentFrame) {
-		super(new BorderLayout());
+	public FolderTool(JFrame parentFrame) {
+		this.setLayout(new BorderLayout());
 		
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.ON_OR_INSERT);
@@ -305,11 +305,6 @@ public class FolderPanel extends JPanel implements BasaltDockable {
 	@Override
 	public String getTitle() {
 		return "Проект";
-	}
-	
-	@Override
-	public Component getContent() {
-		return this;
 	}
 	
 	@Override

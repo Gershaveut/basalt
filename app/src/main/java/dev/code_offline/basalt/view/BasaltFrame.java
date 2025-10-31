@@ -1,7 +1,6 @@
 package dev.code_offline.basalt.view;
 
 import com.javadocking.DockingManager;
-import com.javadocking.dock.Dock;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
@@ -14,10 +13,10 @@ import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.settings.BasaltSettings;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.start.StartFrame;
-import dev.code_offline.basalt.view.tool.LogPanel;
-import dev.code_offline.basalt.view.tool.Tool;
-import dev.code_offline.basalt.view.tool.folder.FolderPanel;
-import dev.code_offline.basalt.view.tool.graph.GraphPanel;
+import dev.code_offline.basalt.view.tool.LogTool;
+import dev.code_offline.basalt.view.tool.AbstractTool;
+import dev.code_offline.basalt.view.tool.folder.FolderTool;
+import dev.code_offline.basalt.view.tool.graph.GraphTool;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -45,37 +44,32 @@ public class BasaltFrame extends JFrame {
         var menuBar = new MenuBar();
 
         var graph = new Graph();
-        var graphPanel = new GraphPanel(graph, this, true);
-        var folderPanel = new FolderPanel(this);
-        var logPanel = new LogPanel();
+        var graphTool = new GraphTool(graph, this, true);
+        var folderTool = new FolderTool(this);
+        var logTool = new LogTool();
 
-        List<Tool> tools = new ArrayList<>();
+        List<AbstractTool> abstractTools = new ArrayList<>();
 
         // создание модели
         var dockModel = new FloatDockModel();
         dockModel.addOwner("main_frame", this);
         DockingManager.setDockModel(dockModel);
 
-        // создание инструментов
-        var graphDock = new Tool(graphPanel);
-        var folderDock = new Tool(folderPanel);
-        var logDock = new Tool(logPanel);
-        
         // добавление в список инструментов
-        tools.add(folderDock);
-        tools.add(graphDock);
-        tools.add(logDock);
+        abstractTools.add(folderTool);
+        abstractTools.add(graphTool);
+        abstractTools.add(logTool);
 
-        var toolPanel = new ToolPanel(tools);
+        var toolPanel = new ToolPanel(abstractTools);
 
         // создание табов
         var rightTabDock = new TabDock();
         var leftTabDock = new TabDock();
 
         // добавление инструментов в табы
-        rightTabDock.addDockable(graphDock, new Position());
-        leftTabDock.addDockable(folderDock, new Position());
-        rightTabDock.addDockable(logDock, new Position());
+        rightTabDock.addDockable(graphTool.getDockable(), new Position());
+        leftTabDock.addDockable(folderTool.getDockable(), new Position());
+        rightTabDock.addDockable(logTool.getDockable(), new Position());
 
         // создание доков
         var rightSplitDock = new SplitDock();
@@ -106,8 +100,8 @@ public class BasaltFrame extends JFrame {
         add(splitPane, BorderLayout.CENTER);
         add(toolPanel, BorderLayout.WEST);
         
-        new DatabaseController(this, graphPanel, folderPanel, rightTabDock, rightSplitDock, database, menuBar, startFrame, startController);
-        new SettingsController(menuBar.getSettingsFrame(), this, new BasaltSettings(), graphPanel.graphCanvas);
+        new DatabaseController(this, graphTool, folderTool, rightTabDock, rightSplitDock, database, menuBar, startFrame, startController);
+        new SettingsController(menuBar.getSettingsFrame(), this, new BasaltSettings(), graphTool.graphCanvas);
 
         this.setJMenuBar(menuBar);
         this.setVisible(true);

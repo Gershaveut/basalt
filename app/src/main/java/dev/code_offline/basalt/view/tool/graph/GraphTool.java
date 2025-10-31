@@ -5,7 +5,7 @@ import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.DebugModeListener;
-import dev.code_offline.basalt.view.tool.BasaltDockable;
+import dev.code_offline.basalt.view.tool.AbstractTool;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -14,11 +14,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
-public class GraphPanel extends JPanel implements BasaltDockable, DebugModeListener {
+public class GraphTool extends AbstractTool implements DebugModeListener {
     public final GraphCanvas graphCanvas;
-
-    public GraphPanel(Graph graph, BasaltFrame basaltFrame, boolean isOffline) {
-        super(new BorderLayout());
+    
+    public GraphTool(Graph graph, BasaltFrame basaltFrame, boolean isOffline) {
+        this.setLayout(new BorderLayout());
 
         graphCanvas = new GraphCanvas(graph, isOffline);
         this.add(graphCanvas, BorderLayout.CENTER);
@@ -37,11 +37,6 @@ public class GraphPanel extends JPanel implements BasaltDockable, DebugModeListe
     }
 
     @Override
-    public Component getContent() {
-        return this;
-    }
-
-    @Override
     public int getDockingModes() {
         return DockingMode.ALL;
     }
@@ -50,7 +45,7 @@ public class GraphPanel extends JPanel implements BasaltDockable, DebugModeListe
     public ImageIcon getIconOriginal() {
         return Icons.GRAPH.getIcon();
     }
-
+    
     @Override
     public void debugEnabled() {
         var debugPanel = new JPanel(new GridLayout(0, 1));
