@@ -1,12 +1,13 @@
 package dev.code_offline.basalt_server.controller;
 
 import dev.code_offline.basalt_server.model.Person;
-import dev.code_offline.basalt_server.model.Role;
 import dev.code_offline.basalt_server.repository.NoteRepository;
 import dev.code_offline.basalt_server.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +20,39 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	NoteRepository noteRepository;
 	@Autowired
 	PasswordEncoder passwordEncoder;
+
+	@GetMapping("/current")
+	public ResponseEntity<Person> getCurrent(@AuthenticationPrincipal Person current) {
+		return new ResponseEntity<>(current, HttpStatus.OK);
+	}
+	
+	@PatchMapping("/rename")
+	public ResponseEntity<Person> rename(@AuthenticationPrincipal Person currentPerson, @RequestBody String newName) {
+		currentPerson.setUsername(newName);
+		
+		personRepository.save(currentPerson);
+		sync();
+		
+		return new ResponseEntity<>(currentPerson, HttpStatus.OK);
+	}
+	
+	@PatchMapping("/password")
+	public ResponseEntity<String> password(@AuthenticationPrincipal Person currentPerson, @RequestBody String newPassword, @RequestHeader String oldPassword) {
+		if (passwordEncoder.matches(oldPassword, currentPerson.getPassword())) {
+			currentPerson.setPassword(passwordEncoder.encode(newPassword));
+			
+			personRepository.save(currentPerson);
+			
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	}
 	
 	@Override
 	@PostMapping("/register")
-	public ResponseEntity<Person> addEntity(@RequestBody Person entity) {
-		return super.addEntity(new Person(entity.getUsername(), passwordEncoder.encode(entity.getPassword()), entity.getRole(), entity.getDescription()));
+	public ResponseEntity<Person> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody Person entity) {
+		return super.addEntity(currentPerson, new Person(entity.getUsername(), passwordEncoder.encode(entity.getPassword()), entity.getRole(), entity.getDescription()));
 	}
 	
 	@Override

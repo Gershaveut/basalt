@@ -1,13 +1,13 @@
 package dev.code_offline.basalt_server.controller;
 
 import dev.code_offline.basalt_server.model.Note;
+import dev.code_offline.basalt_server.model.Person;
 import dev.code_offline.basalt_server.repository.NoteRepository;
-import dev.code_offline.basalt_server.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,14 +15,10 @@ import org.springframework.web.bind.annotation.*;
 public class NoteController extends AbstractCurdController<Note, Long> {
 	@Autowired
 	NoteRepository noteRepository;
-	@Autowired
-	PersonRepository personRepository;
 	
 	@Override
-	public ResponseEntity<Note> addEntity(@RequestBody Note entity) {
-		var auth = SecurityContextHolder.getContext().getAuthentication();
-		
-		return super.addEntity(new Note(entity.getName(), personRepository.findByUsername(auth.getName()).getId(), entity.getText(), entity.getPath()));
+	public ResponseEntity<Note> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody Note entity) {
+		return super.addEntity(currentPerson, new Note(entity.getName(), currentPerson.getId(), entity.getText(), entity.getPath()));
 	}
 	
 	@PatchMapping("/{id}/rename")

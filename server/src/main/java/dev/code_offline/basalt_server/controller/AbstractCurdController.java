@@ -1,10 +1,12 @@
 package dev.code_offline.basalt_server.controller;
 
+import dev.code_offline.basalt_server.model.Person;
 import dev.code_offline.basalt_server.websocket.BasaltSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public abstract class AbstractCurdController<T, ID> {
 	}
 
 	@PostMapping
-	public ResponseEntity<T> addEntity(@RequestBody T entity) {
+	public ResponseEntity<T> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody T entity) {
 		getRepository().save(entity);
 		sync();
 		return new ResponseEntity<>(entity, HttpStatus.CREATED);
