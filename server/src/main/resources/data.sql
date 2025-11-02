@@ -1,0 +1,1 @@
+INSERT INTO person (id, username, password, role) VALUES (0, 'admin', '{bcrypt}$2a$10$u0UMhsha8s8Cdr/d8.hW3uKZGmBAU3AnD.dAlQ72AOkDFTOsB34QG', 3);

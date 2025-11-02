@@ -7,10 +7,8 @@ import dev.code_offline.basalt_server.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/persons")
@@ -19,10 +17,13 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	PersonRepository personRepository;
 	@Autowired
 	NoteRepository noteRepository;
+	@Autowired
+	PasswordEncoder passwordEncoder;
 	
 	@Override
+	@PostMapping("/register")
 	public ResponseEntity<Person> addEntity(@RequestBody Person entity) {
-		return super.addEntity(new Person(entity.getName(), Role.GUEST, entity.getDescription()));
+		return super.addEntity(new Person(entity.getUsername(), passwordEncoder.encode(entity.getPassword()), entity.getRole(), entity.getDescription()));
 	}
 	
 	@Override
