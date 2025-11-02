@@ -72,14 +72,25 @@ public class StartController implements StartListener {
 	
 	@Override
 	public void connectDatabase(String ip) {
-		try {
-			openBasaltFrame(new Database(ip));
-			
-			addRecentStart(new RecentStart(ip, false));
-		} catch (NetworkVersionException exception) {
-			JOptionPane.showMessageDialog(startFrame, "Версии клиента и сервера не совпадают", "Ошибка", JOptionPane.ERROR_MESSAGE);
-		} catch (ServerConnectException ignored) {
-			JOptionPane.showMessageDialog(startFrame, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
+		JTextField username = new JTextField();
+		JTextField password = new JPasswordField();
+		Object[] message = {
+				"Имя пользователя:", username,
+				"Пароль:", password
+		};
+		
+		var option = JOptionPane.showConfirmDialog(startFrame, message, "Аутентификация", JOptionPane.OK_CANCEL_OPTION);
+		
+		if (option == JOptionPane.OK_OPTION) {
+			try {
+				openBasaltFrame(new Database(ip, username.getText(), password.getText()));
+				
+				addRecentStart(new RecentStart(ip, false));
+			} catch (NetworkVersionException exception) {
+				JOptionPane.showMessageDialog(startFrame, "Версии клиента и сервера не совпадают", "Ошибка", JOptionPane.ERROR_MESSAGE);
+			} catch (ServerConnectException ignored) {
+				JOptionPane.showMessageDialog(startFrame, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 	

@@ -4,13 +4,13 @@ import org.springframework.lang.Nullable;
 
 public class Person {
     private long id;
-    private final String name;
+    private final String username;
     private final Role role;
     @Nullable
     private final String description;
 
-    public Person(String name, int id, Role role, @Nullable String description) {
-        this.name = name;
+    public Person(String username, int id, Role role, @Nullable String description) {
+        this.username = username;
         this.id = id;
         this.role = role;
         this.description = description;
@@ -20,8 +20,8 @@ public class Person {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
     public Role getRole() {

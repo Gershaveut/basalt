@@ -4,6 +4,7 @@ import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
@@ -30,11 +31,14 @@ public class Database implements WebSocketHandler {
 	private final WebClient webClient;
 	private final CompletableFuture<WebSocketSession> session;
 	
-	public Database(String ip) throws ServerConnectException, NetworkVersionException {
+	public Database(String ip, String username, String password) throws ServerConnectException, NetworkVersionException {
 		if (!ip.contains(":"))
 			ip = ip + ":" + DEFAULT_PORT;
 		
-		this.webClient = WebClient.create("http://" + ip);
+		this.webClient = WebClient.builder()
+				.baseUrl("http://" + ip)
+				.filter(ExchangeFilterFunctions.basicAuthentication(username, password))
+				.build();
 	
 		try {
 			var version = Objects.requireNonNull(webClient.get()
@@ -55,7 +59,7 @@ public class Database implements WebSocketHandler {
 	}
 	
 	public Database() throws ServerConnectException, NetworkVersionException {
-		this("localhost:" + DEFAULT_PORT);
+		this("localhost:" + DEFAULT_PORT, "admin", "12345");
 	}
 	
 	public void close() {
@@ -126,7 +130,7 @@ public class Database implements WebSocketHandler {
 	}
 	
 	public void addPerson(Person person) {
-		addEntity(PERSONS, person);
+		addEntity(PERSONS + "/register", person);
 	}
 	
 	public void addFolder(Folder folder) {
