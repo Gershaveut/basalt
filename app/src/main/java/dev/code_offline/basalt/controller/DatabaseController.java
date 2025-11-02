@@ -253,7 +253,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
         if (folder != null)
             path = folder.getPath();
         
-        database.addNote(new Note("Новая записка", 1, path)); // TODO: получение пользователя клиента
+        database.addNote(new Note("Новая записка", path));
     }
 
     @Override

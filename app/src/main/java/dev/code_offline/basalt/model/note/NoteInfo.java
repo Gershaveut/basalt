@@ -12,7 +12,7 @@ public class NoteInfo {
     private final @Nullable String path;
     private final List<Long> links;
     
-    private final String author = "Loading...";
+    private String author = "Loading...";
 
     public NoteInfo(Note note, Database database) {
 		
@@ -22,7 +22,7 @@ public class NoteInfo {
         this.path = note.getPath();
         this.links = note.getLinks();
         
-        // database.getPerson(person).subscribe(p -> author = p.getName()); TODO: временно отключено
+        database.getPerson(person).subscribe(p -> author = p.getUsername());
 	}
     
     @Override

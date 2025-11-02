@@ -25,12 +25,8 @@ public class Note {
         this.links = links;
     }
 
-    public Note(String name, long author, String text, @Nullable String path) {
-        this(name, author, text, path, new ArrayList<>());
-    }
-
-    public Note(String name, long author, @Nullable String path) {
-        this(name, author, "", path);
+    public Note(String name, @Nullable String path) {
+        this(name, 0, "", path, new ArrayList<>());
     }
     
     @Override

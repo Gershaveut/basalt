@@ -44,7 +44,7 @@ public class BasaltFrame extends JFrame {
         var menuBar = new MenuBar();
 
         var graph = new Graph();
-        var graphTool = new GraphTool(graph, this, true);
+        var graphTool = new GraphTool(graph, this);
         var folderTool = new FolderTool(this);
         var logTool = new LogTool();
 
