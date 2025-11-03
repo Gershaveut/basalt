@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -50,12 +51,14 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	}
 	
 	@Override
+	@Secured({"ROLE_ADMIN"})
 	@PostMapping("/register")
 	public ResponseEntity<Person> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody Person entity) {
 		return super.addEntity(currentPerson, new Person(entity.getUsername(), passwordEncoder.encode(entity.getPassword()), entity.getRole(), entity.getDescription()));
 	}
 	
 	@Override
+	@Secured({"ROLE_ADMIN"})
 	public ResponseEntity<Person> deleteEntity(@PathVariable Long id) {
 		noteRepository.findAll().forEach(note -> {
 			if (note.getPerson() == id) {

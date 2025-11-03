@@ -1,9 +1,7 @@
 package dev.code_offline.basalt_server.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,10 +16,11 @@ public class Person implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
-    private String password;
-    private Role role;
-    private @Nullable String description;
+    private @NotNull String password;
+    private @NotNull Role role;
+    private String description;
 	
 	public Person() {
 	}
