@@ -1,10 +1,8 @@
 package dev.code_offline.basalt.view.tool.graph;
 
-import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
-import dev.code_offline.basalt.model.recent.BasaltRecentStarts;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.joint.DistanceJoint;
 import org.dyn4j.geometry.Geometry;
@@ -159,26 +157,30 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
         if (!graph.getNodes().isEmpty())
             initializeNodes();
         
-        physicThread = new Thread(physicThreadRun, "PhysicThread");
-        paintThread = new Thread(paintThreadRun, "PaintThread");
-
-        var handler = new Thread.UncaughtExceptionHandler() { // может и не использоваться нужна чательная проверка
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                restart();
-            }
-        };
-            
-        physicThread.setUncaughtExceptionHandler(handler);
-        paintThread.setUncaughtExceptionHandler(handler);
-            
-        physicThread.start();
-        paintThread.start();
+        initializeThreads();
         
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.addMouseWheelListener(this);
         this.addComponentListener(this);
+    }
+    
+    private void initializeThreads() {
+        physicThread = new Thread(physicThreadRun, "PhysicThread");
+        paintThread = new Thread(paintThreadRun, "PaintThread");
+        
+        var handler = new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                restart();
+            }
+        };
+        
+        physicThread.setUncaughtExceptionHandler(handler);
+        paintThread.setUncaughtExceptionHandler(handler);
+        
+        physicThread.start();
+        paintThread.start();
     }
     
     public void dispose() {
@@ -188,8 +190,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             try {
                 assert physicThread != null;
                 physicThread.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException ignored) {
             }
         }
         if (paintThreadLive) {
@@ -198,8 +199,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             try {
                 assert paintThread != null;
                 paintThread.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException ignored) {
             }
         }
     }
@@ -286,12 +286,8 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
 
     public void restart() {
         dispose();
-        
-        physicThread = new Thread(physicThreadRun, "PhysicThread");
-        paintThread = new Thread(paintThreadRun, "PaintThread");
-        
-        physicThread.start();
-        paintThread.start();
+    
+        initializeThreads();
     }
 
     @Override
