@@ -3,6 +3,7 @@ package dev.code_offline.basalt_server.controller;
 import dev.code_offline.basalt_server.model.Note;
 import dev.code_offline.basalt_server.model.Person;
 import dev.code_offline.basalt_server.repository.NoteRepository;
+import dev.code_offline.basalt_server.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 public class NoteController extends AbstractCurdController<Note, Long> {
 	@Autowired
 	NoteRepository noteRepository;
+	@Autowired
+	PersonRepository personRepository;
 	
 	@Override
 	public ResponseEntity<Note> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody Note entity) {
@@ -65,6 +68,24 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 			var note = noteData.get();
 			
 			note.setPath(path);
+			noteRepository.save(note);
+			
+			sync();
+			return new ResponseEntity<>(note, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@Secured({"ROLE_MODERATOR"})
+	@PatchMapping("/{id}/author")
+	public ResponseEntity<Note> author(@PathVariable Long id, @RequestBody Long newAuthor) {
+		var noteData = noteRepository.findById(id);
+		
+		if (noteData.isPresent() && personRepository.existsById(newAuthor)) {
+			var note = noteData.get();
+			
+			note.setPerson(newAuthor);
 			noteRepository.save(note);
 			
 			sync();

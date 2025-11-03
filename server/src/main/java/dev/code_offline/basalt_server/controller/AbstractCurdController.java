@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Secured({"ROLE_GUEST"})
 public abstract class AbstractCurdController<T, ID> {
 	@Autowired
 	BasaltSocketHandler basaltSocketHandler;
 	
-	@Secured({"ROLE_GUEST"})
 	@GetMapping
 	public ResponseEntity<List<T>> getEntities() {
 		var entities = new ArrayList<T>();
@@ -31,7 +31,6 @@ public abstract class AbstractCurdController<T, ID> {
 		return new ResponseEntity<>(entities, HttpStatus.OK);
 	}
 	
-	@Secured({"ROLE_GUEST"})
 	@GetMapping("/{id}")
 	public ResponseEntity<T> getEntity(@PathVariable ID id) {
 		var entityData = getRepository().findById(id);
@@ -39,6 +38,7 @@ public abstract class AbstractCurdController<T, ID> {
 		return entityData.map(t -> new ResponseEntity<>(t, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 
+	@Secured({"ROLE_MEMBER"})
 	@PostMapping
 	public ResponseEntity<T> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody T entity) {
 		getRepository().save(entity);
@@ -46,6 +46,7 @@ public abstract class AbstractCurdController<T, ID> {
 		return new ResponseEntity<>(entity, HttpStatus.CREATED);
 	}
 	
+	@Secured({"ROLE_MODERATOR"})
 	@DeleteMapping("/{id}")
 	public ResponseEntity<T> deleteEntity(@PathVariable ID id) {
 		getRepository().deleteById(id);

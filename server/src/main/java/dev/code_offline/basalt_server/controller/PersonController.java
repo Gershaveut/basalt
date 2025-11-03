@@ -57,16 +57,25 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 		return super.addEntity(currentPerson, new Person(entity.getUsername(), passwordEncoder.encode(entity.getPassword()), entity.getRole(), entity.getDescription()));
 	}
 	
-	@Override
-	@Secured({"ROLE_ADMIN"})
-	public ResponseEntity<Person> deleteEntity(@PathVariable Long id) {
-		noteRepository.findAll().forEach(note -> {
-			if (note.getPerson() == id) {
-				noteRepository.delete(note);
-			}
-		});
+	@Secured({"ROLE_MODERATOR"})
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Person> deleteEntity(@PathVariable Long id, @RequestParam boolean deleteNotes) {
+		if (deleteNotes) {
+			noteRepository.findAll().forEach(note -> {
+				if (note.getPerson() == id) {
+					noteRepository.delete(note);
+				}
+			});
+		}
 		
 		return super.deleteEntity(id);
+	}
+	
+	// TODO: Временное решение
+	@Override
+	@DeleteMapping
+	public ResponseEntity<Person> deleteEntity(@PathVariable Long id) {
+		return null;
 	}
 	
 	@Override
