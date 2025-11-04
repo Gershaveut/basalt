@@ -1,9 +1,7 @@
 package dev.code_offline.basalt.view.tool;
 
-import com.javadocking.dockable.DefaultDockable;
-import com.javadocking.dockable.Dockable;
 import com.javadocking.dockable.DockingMode;
-import dev.code_offline.basalt.core.Icons;
+import dev.code_offline.basalt.view.Icons;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;

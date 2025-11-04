@@ -8,7 +8,7 @@ import javax.swing.*;
 public class Main {
 	public static final String APP_NAME = "basalt";
 	
-	public static final byte NETWORK_VERSION = 1;
+	public static final byte NETWORK_VERSION = 2;
 	public static final double APP_VERSION = 0.2;
 	
 	public static void main(String[] args) {

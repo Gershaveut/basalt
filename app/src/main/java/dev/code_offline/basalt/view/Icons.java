@@ -1,6 +1,7 @@
-package dev.code_offline.basalt.core;
+package dev.code_offline.basalt.view;
 
 import dev.code_offline.basalt.Main;
+import dev.code_offline.basalt.Util;
 
 import javax.swing.*;
 import java.awt.*;

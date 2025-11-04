@@ -1,6 +1,9 @@
 package dev.code_offline.basalt.view.tool;
 
-import com.javadocking.dockable.*;
+import com.javadocking.dockable.DefaultDockable;
+import com.javadocking.dockable.Dockable;
+import com.javadocking.dockable.DockableState;
+import com.javadocking.dockable.StateActionDockable;
 import com.javadocking.dockable.action.DefaultDockableStateActionFactory;
 import org.springframework.lang.Nullable;
 

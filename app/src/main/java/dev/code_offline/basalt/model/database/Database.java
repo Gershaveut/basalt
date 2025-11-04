@@ -1,6 +1,6 @@
 package dev.code_offline.basalt.model.database;
 
-import dev.code_offline.basalt.Main;
+import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
@@ -42,7 +42,7 @@ public class Database implements WebSocketHandler {
 					.bodyToMono(Byte.class)
 					.block());
 			
-			if (version != Main.NETWORK_VERSION) {
+			if (version != Util.NETWORK_VERSION) {
 				throw new NetworkVersionException();
 			}
 		} catch (NetworkVersionException exception) {

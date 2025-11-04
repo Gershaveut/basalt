@@ -1,7 +1,7 @@
 package dev.code_offline.basalt.view.start;
 
+import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.controller.StartController;
-import dev.code_offline.basalt.core.Util;
 import dev.code_offline.basalt.model.recent.BasaltRecentStarts;
 import dev.code_offline.basalt.model.recent.RecentStart;
 
@@ -13,7 +13,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;

@@ -1,9 +1,12 @@
 package dev.code_offline.basalt.controller;
 
 import com.javadocking.DockingManager;
-import com.javadocking.dock.*;
+import com.javadocking.dock.CompositeDock;
+import com.javadocking.dock.LeafDock;
+import com.javadocking.dock.Position;
+import com.javadocking.dock.TabDock;
 import com.javadocking.dockable.Dockable;
-import dev.code_offline.basalt.core.Util;
+import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.model.database.DatabaseListener;

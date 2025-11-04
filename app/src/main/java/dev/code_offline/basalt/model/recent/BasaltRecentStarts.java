@@ -1,6 +1,6 @@
 package dev.code_offline.basalt.model.recent;
 
-import dev.code_offline.basalt.core.Util;
+import dev.code_offline.basalt.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,10 +1,10 @@
 package dev.code_offline.basalt.view.tool.folder;
 
 import com.javadocking.dockable.DockingMode;
-import dev.code_offline.basalt.core.Icons;
-import dev.code_offline.basalt.core.Util;
+import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
+import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
 import org.springframework.lang.Nullable;
 

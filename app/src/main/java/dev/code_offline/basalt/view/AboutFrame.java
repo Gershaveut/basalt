@@ -1,12 +1,10 @@
 package dev.code_offline.basalt.view;
 
-import dev.code_offline.basalt.Main;
-import dev.code_offline.basalt.core.Icons;
+import dev.code_offline.basalt.Util;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.Locale;
 
 public class AboutFrame extends JFrame {
     private static final int LOGO_SIZE = 65;
@@ -31,11 +29,11 @@ public class AboutFrame extends JFrame {
        
         textPanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
-        textPanel.add(new JLabel(Main.APP_NAME));
+        textPanel.add(new JLabel(Util.APP_NAME));
         textPanel.add(new JLabel("Code-offline"));
         textPanel.add(Box.createVerticalStrut(15));
-        textPanel.add(new JLabel("Версия программы: " + Main.APP_VERSION));
-        textPanel.add(new JLabel("Версия клиента: " + Main.NETWORK_VERSION));
+        textPanel.add(new JLabel("Версия программы: " + Util.APP_VERSION));
+        textPanel.add(new JLabel("Версия клиента: " + Util.NETWORK_VERSION));
         
         panel.add(logo, BorderLayout.WEST);
         panel.add(textPanel, BorderLayout.CENTER);

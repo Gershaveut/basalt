@@ -13,8 +13,8 @@ import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.settings.BasaltSettings;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.start.StartFrame;
-import dev.code_offline.basalt.view.tool.LogTool;
 import dev.code_offline.basalt.view.tool.AbstractTool;
+import dev.code_offline.basalt.view.tool.LogTool;
 import dev.code_offline.basalt.view.tool.folder.FolderTool;
 import dev.code_offline.basalt.view.tool.graph.GraphTool;
 

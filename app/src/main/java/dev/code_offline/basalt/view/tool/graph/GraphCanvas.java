@@ -1,6 +1,6 @@
 package dev.code_offline.basalt.view.tool.graph;
 
-import dev.code_offline.basalt.core.Util;
+import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
 import org.dyn4j.dynamics.Body;

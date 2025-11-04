@@ -1,10 +1,10 @@
 package dev.code_offline.basalt.view.tool.graph;
 
 import com.javadocking.dockable.DockingMode;
-import dev.code_offline.basalt.core.Icons;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.DebugModeListener;
+import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
 
 import javax.swing.*;

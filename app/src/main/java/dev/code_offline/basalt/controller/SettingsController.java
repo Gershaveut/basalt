@@ -1,6 +1,5 @@
 package dev.code_offline.basalt.controller;
 
-import dev.code_offline.basalt.Main;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.settings.BasaltSettings;
 import dev.code_offline.basalt.model.settings.SettingsModel;
