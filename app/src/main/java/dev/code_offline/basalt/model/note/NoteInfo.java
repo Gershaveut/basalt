@@ -12,7 +12,7 @@ public class NoteInfo {
     private final @Nullable String path;
     private final List<Long> links;
     
-    private String author = "Loading...";
+    private @Nullable String author;
 
     public NoteInfo(Note note, Database database) {
 		this.id = note.getId();
@@ -41,7 +41,7 @@ public class NoteInfo {
         return name;
     }
 
-    public String getAuthor() {
+    public @Nullable String getAuthor() {
         return author;
     }
 

@@ -301,11 +301,14 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             int x = (int) node.getBody().getWorldCenter().x;
             int y = (int) node.getBody().getWorldCenter().y;
 
+            String author = node.getAuthor();
+            
             g2d.fillOval(x, y, NODE_SIZE, NODE_SIZE);
 
             g2d.drawString(node.getName(), x, y);
-            
-            g2d.drawString(node.getAuthor(), x, (int) (y + NODE_SIZE * 1.5));
+           
+            if (author != null)
+                g2d.drawString(node.getAuthor(), x, (int) (y + NODE_SIZE * 1.5));
             
             var nodeOffset = NODE_SIZE / 2;
            
