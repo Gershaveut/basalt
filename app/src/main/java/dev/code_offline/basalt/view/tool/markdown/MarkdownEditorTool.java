@@ -1,7 +1,9 @@
 package dev.code_offline.basalt.view.tool.markdown;
 
 import com.javadocking.dockable.DockingMode;
+import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.model.note.Note;
+import dev.code_offline.basalt.model.person.Person;
 import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.DebugModeListener;
 import dev.code_offline.basalt.view.Icons;
@@ -30,7 +32,7 @@ public class MarkdownEditorTool extends AbstractTool implements DebugModeListene
 	
 	private final Note note;
 	
-	public MarkdownEditorTool(Note note, BasaltFrame basaltFrame) {
+	public MarkdownEditorTool(Note note, BasaltFrame basaltFrame, Person clientPerson) {
 		setLayout(new BorderLayout());
 		
 		this.note = note;
@@ -53,6 +55,8 @@ public class MarkdownEditorTool extends AbstractTool implements DebugModeListene
 		var previewButton = getResizeButton(new JToggleButton(Icons.PREVIEW.getIcon(ICON_SIZE)));
 		var bothButton = getResizeButton(new JToggleButton(Icons.STACK.getIcon(ICON_SIZE)));
 		var saveButton = getResizeButton(new JButton(Icons.SAVE.getIcon(ICON_SIZE)));
+		
+		saveButton.setVisible(Util.accessNote(clientPerson, note));
 		
 		saveButton.setAlignmentX(Container.RIGHT_ALIGNMENT);
 		

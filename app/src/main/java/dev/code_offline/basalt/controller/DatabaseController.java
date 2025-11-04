@@ -207,11 +207,13 @@ public class DatabaseController implements DatabaseListener, FolderListener {
             
             var notesInfo = notes.stream().map(n -> new NoteInfo(n, database)).toList();
             var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
-           
-            database.getFolders().subscribe(folders -> {
-                folderTool.setModel(notesInfo, folders);
+          
+            database.getClientPerson().subscribe(person -> {
+                database.getFolders().subscribe(folders -> {
+                    folderTool.setModel(notesInfo, folders, person);
+                });
+                graphTool.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
             });
-            graphTool.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
         });
     }
     
@@ -234,16 +236,18 @@ public class DatabaseController implements DatabaseListener, FolderListener {
 
     private void openNote(long id) {
         database.getNote(id).subscribe(note -> {
-            var markdownEditor = new MarkdownEditorTool(note, basaltFrame);
-
-            markdownEditor.addMarkdownListener(text -> database.editNote(note.getId(), text));
-
-            var addToDock = tabDock.isEmpty();
-        
-            tabDock.addDockable(markdownEditor.getDockable(), new Position());
-        
-            if (addToDock)
-                dock.addChildDock(tabDock, new Position(Position.CENTER));
+            database.getClientPerson().subscribe(person -> {
+                var markdownEditor = new MarkdownEditorTool(note, basaltFrame, person);
+                
+                markdownEditor.addMarkdownListener(text -> database.editNote(note.getId(), text));
+                
+                var addToDock = tabDock.isEmpty();
+                
+                tabDock.addDockable(markdownEditor.getDockable(), new Position());
+                
+                if (addToDock)
+                    dock.addChildDock(tabDock, new Position(Position.CENTER));
+            });
         });
     }
 

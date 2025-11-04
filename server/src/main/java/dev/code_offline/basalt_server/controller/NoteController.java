@@ -57,7 +57,7 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 		if (noteData.isPresent()) {
 			var note = noteData.get();
 			
-			if (note.getPerson() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR)) {
+			if (hasRole(currnetPerson, Role.MEMBER) && note.getPerson() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR)) {
 				updateAction.accept(note);
 				noteRepository.save(note);
 				

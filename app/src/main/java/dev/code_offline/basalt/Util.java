@@ -2,9 +2,14 @@ package dev.code_offline.basalt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import dev.code_offline.basalt.model.note.Note;
+import dev.code_offline.basalt.model.note.NoteInfo;
+import dev.code_offline.basalt.model.person.Person;
+import dev.code_offline.basalt.model.person.Role;
 import org.dyn4j.geometry.Vector2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.Nullable;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -96,5 +101,27 @@ public final class Util {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         
         return mapper;
+    }
+    
+    public static boolean hasRole(@Nullable Person person, Role role) {
+        if (person == null)
+            return false;
+        
+        return person.getRole().ordinal() >= role.ordinal();
+    }
+    
+    public static boolean accessNote(@Nullable Person person, long noteAuthor) {
+        if (person == null)
+            return false;
+        
+        return hasRole(person, Role.MEMBER) && person.getId() == noteAuthor || hasRole(person, Role.ADMIN);
+    }
+    
+    public static boolean accessNote(@Nullable Person person, Note note) {
+        return accessNote(person, note.getPerson());
+    }
+    
+    public static boolean accessNote(@Nullable Person person, NoteInfo note) {
+        return accessNote(person, note.getPerson());
     }
 }

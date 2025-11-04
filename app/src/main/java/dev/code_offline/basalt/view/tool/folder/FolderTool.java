@@ -4,6 +4,8 @@ import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
+import dev.code_offline.basalt.model.person.Person;
+import dev.code_offline.basalt.model.person.Role;
 import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
 import org.springframework.lang.Nullable;
@@ -20,6 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 
@@ -30,6 +33,8 @@ public class FolderTool extends AbstractTool {
 	private final JPopupMenu popupMenu = new JPopupMenu();
 	
 	private @Nullable TreePath selectedTreePath;
+	
+	private @Nullable Person clientPerson;
 	
 	public FolderTool(JFrame parentFrame) {
 		this.setLayout(new BorderLayout());
@@ -123,24 +128,38 @@ public class FolderTool extends AbstractTool {
 		popupMenu.add(delete);
 		
 		Consumer<PopupMenuContext> setPopupMenuContext = (context) -> {
+			newFile.setVisible(false);
+			newFolder.setVisible(false);
+			separator1.setVisible(false);
             openFile.setVisible(false);
+			separator2.setVisible(false);
             rename.setVisible(false);
             delete.setVisible(false);
-            separator1.setVisible(false);
-            separator2.setVisible(false);
 
+			if (Util.hasRole(clientPerson, Role.MEMBER)) {
+				newFile.setVisible(true);
+				newFolder.setVisible(true);
+			}
+			
             switch (context) {
                 case PopupMenuContext.Note -> {
-                    openFile.setVisible(true);
-                    rename.setVisible(true);
-                    delete.setVisible(true);
-                    separator1.setVisible(true);
-                    separator2.setVisible(true);
+					openFile.setVisible(true);
+					
+					if (Util.hasRole(clientPerson, Role.MEMBER))
+						separator1.setVisible(true);
+					
+					if (Util.accessNote(clientPerson, (NoteInfo) Objects.requireNonNull(getSelectedNode()))) {
+						rename.setVisible(true);
+						delete.setVisible(true);
+						separator2.setVisible(true);
+					}
                 }
                 case PopupMenuContext.Folder -> {
-                    rename.setVisible(true);
-                    delete.setVisible(true);
-                    separator2.setVisible(true);
+					if (Util.hasRole(clientPerson, Role.MEMBER)) {
+						rename.setVisible(true);
+						delete.setVisible(true);
+						separator2.setVisible(true);
+					}
                 }
                 default -> {
                 }
@@ -256,7 +275,9 @@ public class FolderTool extends AbstractTool {
 		}
 	}
 	
-	public void setModel(List<NoteInfo> notes, List<Folder> folders) {
+	public void setModel(List<NoteInfo> notes, List<Folder> folders, Person clientPerson) {
+		this.clientPerson = clientPerson;
+		
 		var rootNode = new DefaultMutableTreeNode(new Folder());
 		var folderNodes = new ArrayList<>(List.of(rootNode));
 		

@@ -15,7 +15,6 @@ public class NoteInfo {
     private String author = "Loading...";
 
     public NoteInfo(Note note, Database database) {
-		
 		this.id = note.getId();
         this.name = note.getName();
         this.person = note.getPerson();
@@ -32,6 +31,10 @@ public class NoteInfo {
     
     public @Nullable String getPath() {
         return path;
+    }
+    
+    public long getPerson() {
+        return person;
     }
     
     public String getName() {
