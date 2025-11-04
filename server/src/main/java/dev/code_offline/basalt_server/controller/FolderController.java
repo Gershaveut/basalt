@@ -15,7 +15,6 @@ import java.util.Queue;
 import java.util.function.Consumer;
 
 @RestController
-@Secured({"ROLE_MODERATOR"})
 @RequestMapping("/folders")
 public class FolderController extends AbstractCurdController<Folder, String> {
 	@Autowired

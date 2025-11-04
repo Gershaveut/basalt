@@ -71,11 +71,10 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 		return super.deleteEntity(id);
 	}
 	
-	// TODO: Временное решение
 	@Override
 	@DeleteMapping
 	public ResponseEntity<Person> deleteEntity(@PathVariable Long id) {
-		return null;
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
 	@Override
