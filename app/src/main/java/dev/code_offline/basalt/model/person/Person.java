@@ -4,18 +4,27 @@ import org.springframework.lang.Nullable;
 
 public class Person {
     private long id;
-    private final String username;
-    private final Role role;
+    private String username;
+    private String password;
+    private Role role;
     @Nullable
-    private final String description;
+    private String description;
 
-    public Person(String username, int id, Role role, @Nullable String description) {
-        this.username = username;
+    protected Person() {
+    }
+    
+    public Person(long id, String username, String password, Role role, @Nullable String description) {
         this.id = id;
-        this.role = role;
+        this.username = username;
+		this.password = password;
+		this.role = role;
         this.description = description;
     }
 
+    public Person(String username, String password, Role role) {
+        this(0, username, password, role, null);
+    }
+    
     public long getId() {
         return id;
     }
@@ -23,7 +32,11 @@ public class Person {
     public String getUsername() {
         return username;
     }
-
+    
+    public String getPassword() {
+        return password;
+    }
+    
     public Role getRole() {
         return role;
     }
@@ -34,5 +47,10 @@ public class Person {
 
     public void setId(long id) {
         this.id = id;
+    }
+    
+    @Override
+    public String toString() {
+        return username;
     }
 }

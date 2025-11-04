@@ -33,7 +33,6 @@ public class FolderTool extends AbstractTool {
 	private final JPopupMenu popupMenu = new JPopupMenu();
 	
 	private @Nullable TreePath selectedTreePath;
-	
 	private @Nullable Person clientPerson;
 	
 	public FolderTool(JFrame parentFrame) {
@@ -118,11 +117,11 @@ public class FolderTool extends AbstractTool {
 			if (input != null && !input.isEmpty()) {
 				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
 					if (getSelectedNode() instanceof NoteInfo note) {
-						listener.rename(note.getId(), input);
+						listener.renameNote(note.getId(), input);
 					} else {
 						var folder = (Folder) getSelectedNode();
 						
-						listener.rename(folder.getPath(), input);
+						listener.renameFolder(folder.getPath(), input);
 					}
 				}
 			}
@@ -229,25 +228,25 @@ public class FolderTool extends AbstractTool {
 		
 		for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
 			if (getSelectedNode() instanceof NoteInfo note) {
-				listener.delete(note.getId());
+				listener.deleteNote(note.getId());
 			} else {
-				listener.delete(((Folder) getSelectedNode()).getPath());
+				listener.deleteFolder(((Folder) getSelectedNode()).getPath());
 			}
 		}
 	}
 	
 	private void showPopupMenu(Consumer<PopupMenuContext> setPopupMenuContext, int x, int y) {
+		var context = PopupMenuContext.Empty;
+			
+		if (getSelectedNode() instanceof NoteInfo) {
+			context = PopupMenuContext.Note;
+		} else if (getSelectedNode() instanceof Folder) {
+			context = PopupMenuContext.Folder;
+		}
+		
+		setPopupMenuContext.accept(context);
+		
 		if (Util.hasRole(clientPerson, Role.MEMBER)) {
-			var context = PopupMenuContext.Empty;
-			
-			if (getSelectedNode() instanceof NoteInfo) {
-				context = PopupMenuContext.Note;
-			} else if (getSelectedNode() instanceof Folder) {
-				context = PopupMenuContext.Folder;
-			}
-			
-			setPopupMenuContext.accept(context);
-			
 			popupMenu.show(tree, x, y);
 		}
 	}

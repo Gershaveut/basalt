@@ -11,12 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -123,5 +125,9 @@ public final class Util {
     
     public static boolean accessNote(@Nullable Person person, NoteInfo note) {
         return accessNote(person, note.getPerson());
+    }
+    
+    public static boolean anyComponentsVisible(JComponent component) {
+        return Arrays.stream(component.getComponents()).anyMatch(Component::isVisible);
     }
 }

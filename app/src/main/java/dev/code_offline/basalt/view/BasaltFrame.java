@@ -15,6 +15,7 @@ import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.start.StartFrame;
 import dev.code_offline.basalt.view.tool.AbstractTool;
 import dev.code_offline.basalt.view.tool.LogTool;
+import dev.code_offline.basalt.view.tool.persons.PersonsTool;
 import dev.code_offline.basalt.view.tool.folder.FolderTool;
 import dev.code_offline.basalt.view.tool.graph.GraphTool;
 
@@ -46,8 +47,9 @@ public class BasaltFrame extends JFrame {
         var graph = new Graph();
         var graphTool = new GraphTool(graph, this);
         var folderTool = new FolderTool(this);
+        var personsTool = new PersonsTool(this);
         var logTool = new LogTool();
-
+        
         List<AbstractTool> abstractTools = new ArrayList<>();
 
         // создание модели
@@ -58,6 +60,7 @@ public class BasaltFrame extends JFrame {
         // добавление в список инструментов
         abstractTools.add(folderTool);
         abstractTools.add(graphTool);
+        abstractTools.add(personsTool);
         abstractTools.add(logTool);
 
         var toolPanel = new ToolPanel(abstractTools);
@@ -68,9 +71,10 @@ public class BasaltFrame extends JFrame {
 
         // добавление инструментов в табы
         rightTabDock.addDockable(graphTool.getDockable(), new Position());
-        leftTabDock.addDockable(folderTool.getDockable(), new Position());
+        rightTabDock.addDockable(personsTool.getDockable(), new Position());
         rightTabDock.addDockable(logTool.getDockable(), new Position());
-
+        leftTabDock.addDockable(folderTool.getDockable(), new Position());
+        
         // создание доков
         var rightSplitDock = new SplitDock();
         var leftSplitDock = new SplitDock();
@@ -100,7 +104,7 @@ public class BasaltFrame extends JFrame {
         add(splitPane, BorderLayout.CENTER);
         add(toolPanel, BorderLayout.WEST);
         
-        new DatabaseController(this, graphTool, folderTool, rightTabDock, rightSplitDock, database, menuBar, startFrame, startController);
+        new DatabaseController(this, graphTool, folderTool, rightTabDock, rightSplitDock, database, menuBar, startFrame, startController, personsTool);
         new SettingsController(menuBar.getSettingsFrame(), this, new BasaltSettings(), graphTool.graphCanvas);
 
         this.setJMenuBar(menuBar);
