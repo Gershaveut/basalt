@@ -45,6 +45,8 @@ public class DatabaseController implements DatabaseListener, FolderListener {
     private final TabDock tabDock;
     private final CompositeDock dock;
 
+    private final String basaltFrameTitle;
+    
     public DatabaseController(BasaltFrame basaltFrame, GraphTool graphTool, FolderTool folderTool, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController) {
         this.startFrame = startFrame;
         this.basaltFrame = basaltFrame;
@@ -55,6 +57,8 @@ public class DatabaseController implements DatabaseListener, FolderListener {
 		this.database = database;
 		this.startController = startController;
 		
+        this.basaltFrameTitle = basaltFrame.getTitle();
+        
 		var tree = folderTool.getTree();
 
         tree.addMouseListener(new MouseAdapter() {
@@ -209,6 +213,8 @@ public class DatabaseController implements DatabaseListener, FolderListener {
             var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
           
             database.getClientPerson().subscribe(person -> {
+                basaltFrame.setTitle(basaltFrameTitle + " - " + person.getRole().name);
+                
                 database.getFolders().subscribe(folders -> {
                     folderTool.setModel(notesInfo, folders, person);
                 });

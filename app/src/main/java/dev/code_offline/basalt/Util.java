@@ -114,7 +114,7 @@ public final class Util {
         if (person == null)
             return false;
         
-        return hasRole(person, Role.MEMBER) && person.getId() == noteAuthor || hasRole(person, Role.ADMIN);
+        return hasRole(person, Role.MEMBER) && person.getId() == noteAuthor || hasRole(person, Role.MODERATOR);
     }
     
     public static boolean accessNote(@Nullable Person person, Note note) {
