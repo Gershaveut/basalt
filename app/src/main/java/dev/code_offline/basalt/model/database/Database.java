@@ -121,6 +121,13 @@ public class Database implements WebSocketHandler {
 		return getEntity(Note.class, NOTES, id);
 	}
 	
+	public Mono<Person> getClientPerson() {
+		return webClient.get()
+				.uri(PERSONS + "/current")
+				.retrieve()
+				.bodyToMono(Person.class);
+	}
+	
 	public Mono<Person> getPerson(long id) {
 		return getEntity(Person.class, PERSONS, id);
 	}
@@ -148,6 +155,24 @@ public class Database implements WebSocketHandler {
 	public void deleteFolder(String path) {
 		deleteEntity(FOLDERS, path);
 	}
+
+	public void renameClientPerson(String newName) {
+		webClient.patch()
+				.uri(PERSONS + "/rename")
+				.bodyValue(newName)
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
+	public void passwordClientPerson(String newPassword) {
+		webClient.patch()
+				.uri(PERSONS + "/password")
+				.bodyValue(newPassword)
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
 	
 	public void renameNote(long id, String newName) {
 		webClient.patch()
@@ -171,6 +196,15 @@ public class Database implements WebSocketHandler {
 		webClient.patch()
 				.uri(NOTES + "/" + id + "/move")
 				.bodyValue(path)
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
+	public void authorNote(long id, long newAuthor) {
+		webClient.patch()
+				.uri(NOTES + "/" + id + "/author")
+				.bodyValue(newAuthor)
 				.retrieve()
 				.toBodilessEntity()
 				.subscribe();
