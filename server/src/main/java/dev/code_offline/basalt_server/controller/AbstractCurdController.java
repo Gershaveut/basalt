@@ -52,7 +52,7 @@ public abstract class AbstractCurdController<T, ID> {
 	
 	@Secured({"ROLE_MODERATOR"})
 	@DeleteMapping("/{id}")
-	public ResponseEntity<T> deleteEntity(@PathVariable ID id) {
+	public ResponseEntity<T> deleteEntity(@AuthenticationPrincipal Person currentPerson, @PathVariable ID id) {
 		getRepository().deleteById(id);
 		sync();
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);

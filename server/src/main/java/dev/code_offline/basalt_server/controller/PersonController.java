@@ -59,7 +59,7 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	
 	@Secured({"ROLE_MODERATOR"})
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Person> deleteEntity(@PathVariable Long id, @RequestParam boolean deleteNotes) {
+	public ResponseEntity<Person> deleteEntity(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestParam boolean deleteNotes) {
 		if (deleteNotes) {
 			noteRepository.findAll().forEach(note -> {
 				if (note.getPerson() == id) {
@@ -68,13 +68,26 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 			});
 		}
 		
-		return super.deleteEntity(id);
+		return super.deleteEntity(currentPerson, id);
+	}
+	
+	@DeleteMapping("/current")
+	public ResponseEntity<Person> deleteEntity(@AuthenticationPrincipal Person currentPerson, @RequestParam boolean deleteNotes) {
+		if (deleteNotes) {
+			noteRepository.findAll().forEach(note -> {
+				if (note.getPerson() == currentPerson.getId()) {
+					noteRepository.delete(note);
+				}
+			});
+		}
+		
+		return super.deleteEntity(currentPerson, currentPerson.getId());
 	}
 	
 	@Override
 	@DeleteMapping
-	public ResponseEntity<Person> deleteEntity(@PathVariable Long id) {
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	public ResponseEntity<Person> deleteEntity(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id) {
+		return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
 	}
 	
 	@Override

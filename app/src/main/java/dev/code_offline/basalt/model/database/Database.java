@@ -148,8 +148,26 @@ public class Database implements WebSocketHandler {
 		deleteEntity(NOTES, id);
 	}
 	
-	public void deletePerson(long id) {
-		deleteEntity(PERSONS, id);
+	public void deletePerson(long id, boolean deleteNotes) {
+		webClient.delete()
+				.uri(uriBuilder -> uriBuilder
+						.path(PERSONS + "/" + id)
+						.queryParam("deleteNotes", deleteNotes)
+						.build())
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
+
+	public void deleteCurrentPerson(boolean deleteNotes) {
+		webClient.delete()
+				.uri(uriBuilder -> uriBuilder
+						.path(PERSONS + "/current")
+						.queryParam("deleteNotes", deleteNotes)
+						.build())
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
 	}
 	
 	public void deleteFolder(String path) {

@@ -10,7 +10,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +27,22 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 	@Override
 	public ResponseEntity<Note> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody Note entity) {
 		return super.addEntity(currentPerson, new Note(entity.getName(), currentPerson.getId(), entity.getText(), entity.getPath()));
+	}
+
+	@Override
+	@Secured({"ROLE_MEMBER"})
+	public ResponseEntity<Note> deleteEntity(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id) {
+		var noteData = noteRepository.findById(id);
+		
+		if (noteData.isPresent()) {
+			if (accessNote(currentPerson, noteData.get())) {
+				return super.deleteEntity(currentPerson, id);
+			} else {
+				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			}
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	@PatchMapping("/{id}/rename")
@@ -57,7 +72,7 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 		if (noteData.isPresent()) {
 			var note = noteData.get();
 			
-			if (hasRole(currnetPerson, Role.MEMBER) && note.getPerson() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR)) {
+			if (accessNote(currnetPerson, note)) {
 				updateAction.accept(note);
 				noteRepository.save(note);
 				
@@ -69,6 +84,10 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+	}
+	
+	private boolean accessNote(Person currnetPerson, Note note) {
+		return hasRole(currnetPerson, Role.MEMBER) && note.getPerson() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR);
 	}
 	
 	@Override
