@@ -26,6 +26,13 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	public ResponseEntity<Person> getCurrent(@AuthenticationPrincipal Person current) {
 		return new ResponseEntity<>(current, HttpStatus.OK);
 	}
+
+	@GetMapping("/username/{username}")
+	public ResponseEntity<Person> getPersonByUsername(@PathVariable String username) {
+		var person = personRepository.findByUsername(username);
+		
+		return new ResponseEntity<>(person, HttpStatus.OK);
+	}
 	
 	@PatchMapping("/rename")
 	public ResponseEntity<Person> rename(@AuthenticationPrincipal Person currentPerson, @RequestBody String newName) {

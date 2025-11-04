@@ -132,6 +132,13 @@ public class Database implements WebSocketHandler {
 		return getEntity(Person.class, PERSONS, id);
 	}
 	
+	public Mono<Person> getPerson(String username) {
+		return webClient.get()
+				.uri(PERSONS + "/username" + "/" + username)
+				.retrieve()
+				.bodyToMono(Person.class);
+	}
+	
 	public void addNote(Note note) {
 		addEntity(NOTES, note);
 	}

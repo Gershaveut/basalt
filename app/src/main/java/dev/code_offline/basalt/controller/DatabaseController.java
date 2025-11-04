@@ -297,6 +297,17 @@ public class DatabaseController implements DatabaseListener, FolderListener {
     }
     
     @Override
+    public void author(long id, String author) {
+        try {
+            database.authorNote(id, Long.parseLong(author));
+        } catch (Exception ignored) {
+            database.getPerson(author).subscribe(person -> {
+                database.authorNote(id, person.getId());
+            });
+        }
+    }
+    
+    @Override
     public void rename(long id, String newName) {
         database.renameNote(id, newName);
     }

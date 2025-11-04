@@ -50,6 +50,7 @@ public class FolderTool extends AbstractTool {
 		
 		var openFile = new JMenuItem("Открыть файл");
 		
+		var author = new JMenuItem("Назначить автора");
 		var rename = new JMenuItem("Переименовать");
 		var delete = new JMenuItem("Удалить");
 		
@@ -90,6 +91,18 @@ public class FolderTool extends AbstractTool {
 				listener.newFolder(folder);
 			}
 		});
+		author.addActionListener(e -> {
+			assert getSelectedNode() != null;
+			NoteInfo note = (NoteInfo) getSelectedNode();
+			
+			var input = JOptionPane.showInputDialog(parentFrame, "Назначить автора", note.getName(), JOptionPane.PLAIN_MESSAGE);
+			
+			if (input != null && !input.isEmpty()) {
+				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+					listener.author(note.getId(), input);
+				}
+			}
+		});
 		rename.addActionListener(e -> {
 			assert getSelectedNode() != null;
             String name;
@@ -124,42 +137,37 @@ public class FolderTool extends AbstractTool {
 		popupMenu.add(separator1);
 		popupMenu.add(openFile);
 		popupMenu.add(separator2);
+		popupMenu.add(author);
 		popupMenu.add(rename);
 		popupMenu.add(delete);
 		
 		Consumer<PopupMenuContext> setPopupMenuContext = (context) -> {
-			newFile.setVisible(false);
-			newFolder.setVisible(false);
 			separator1.setVisible(false);
             openFile.setVisible(false);
 			separator2.setVisible(false);
+			author.setVisible(false);
             rename.setVisible(false);
             delete.setVisible(false);
 
-			if (Util.hasRole(clientPerson, Role.MEMBER)) {
-				newFile.setVisible(true);
-				newFolder.setVisible(true);
-			}
-			
             switch (context) {
                 case PopupMenuContext.Note -> {
 					openFile.setVisible(true);
 					
-					if (Util.hasRole(clientPerson, Role.MEMBER))
-						separator1.setVisible(true);
+					separator1.setVisible(true);
 					
 					if (Util.accessNote(clientPerson, (NoteInfo) Objects.requireNonNull(getSelectedNode()))) {
 						rename.setVisible(true);
 						delete.setVisible(true);
 						separator2.setVisible(true);
 					}
+					
+					if (Util.hasRole(clientPerson, Role.MODERATOR))
+						author.setVisible(true);
                 }
                 case PopupMenuContext.Folder -> {
-					if (Util.hasRole(clientPerson, Role.MEMBER)) {
-						rename.setVisible(true);
-						delete.setVisible(true);
-						separator2.setVisible(true);
-					}
+					rename.setVisible(true);
+					delete.setVisible(true);
+					separator2.setVisible(true);
                 }
                 default -> {
                 }
@@ -229,17 +237,19 @@ public class FolderTool extends AbstractTool {
 	}
 	
 	private void showPopupMenu(Consumer<PopupMenuContext> setPopupMenuContext, int x, int y) {
-        var context = PopupMenuContext.Empty;
-		
-		if (getSelectedNode() instanceof NoteInfo) {
-			context = PopupMenuContext.Note;
-		} else if (getSelectedNode() instanceof Folder) {
-			context = PopupMenuContext.Folder;
+		if (Util.hasRole(clientPerson, Role.MEMBER)) {
+			var context = PopupMenuContext.Empty;
+			
+			if (getSelectedNode() instanceof NoteInfo) {
+				context = PopupMenuContext.Note;
+			} else if (getSelectedNode() instanceof Folder) {
+				context = PopupMenuContext.Folder;
+			}
+			
+			setPopupMenuContext.accept(context);
+			
+			popupMenu.show(tree, x, y);
 		}
-
-        setPopupMenuContext.accept(context);
-		
-		popupMenu.show(tree, x, y);
 	}
 	
 	public void addFolderListener(FolderListener folderListener) {

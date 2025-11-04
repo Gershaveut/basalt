@@ -56,7 +56,7 @@ public class MarkdownEditorTool extends AbstractTool implements DebugModeListene
 		var bothButton = getResizeButton(new JToggleButton(Icons.STACK.getIcon(ICON_SIZE)));
 		var saveButton = getResizeButton(new JButton(Icons.SAVE.getIcon(ICON_SIZE)));
 		
-		saveButton.setVisible(Util.accessNote(clientPerson, note));
+		saveButton.setEnabled(Util.accessNote(clientPerson, note));
 		
 		saveButton.setAlignmentX(Container.RIGHT_ALIGNMENT);
 		
