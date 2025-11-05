@@ -1,12 +1,15 @@
 package dev.code_offline.basalt_server.controller;
 
 import dev.code_offline.basalt_server.model.Folder;
+import dev.code_offline.basalt_server.model.Person;
 import dev.code_offline.basalt_server.repository.FolderRepository;
 import dev.code_offline.basalt_server.repository.NoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedList;
@@ -40,7 +43,7 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 	}
 	
 	@Override
-	public ResponseEntity<Folder> deleteEntity(@PathVariable String id) {
+	public ResponseEntity<Folder> deleteEntity(@AuthenticationPrincipal Person currentPerson, @PathVariable String id) {
 		Queue<String> queue = new LinkedList<>();
 		queue.add(id);
 		

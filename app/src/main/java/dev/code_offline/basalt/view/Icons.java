@@ -19,7 +19,9 @@ public enum Icons {
     STACK("stack"),
     BASALT("basalt"),
     SAVE("save"),
-    TERMINAL("terminal");
+    TERMINAL("terminal"),
+    PERSON("person"),
+    ARTICLE_PERSON("article_person");
 
     private static final Color COLOR = Color.BLACK;
 

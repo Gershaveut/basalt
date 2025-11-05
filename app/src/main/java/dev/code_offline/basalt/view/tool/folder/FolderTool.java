@@ -4,6 +4,8 @@ import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
+import dev.code_offline.basalt.model.person.Person;
+import dev.code_offline.basalt.model.person.Role;
 import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
 import org.springframework.lang.Nullable;
@@ -20,6 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 
@@ -30,6 +33,7 @@ public class FolderTool extends AbstractTool {
 	private final JPopupMenu popupMenu = new JPopupMenu();
 	
 	private @Nullable TreePath selectedTreePath;
+	private @Nullable Person clientPerson;
 	
 	public FolderTool(JFrame parentFrame) {
 		this.setLayout(new BorderLayout());
@@ -45,6 +49,7 @@ public class FolderTool extends AbstractTool {
 		
 		var openFile = new JMenuItem("Открыть файл");
 		
+		var author = new JMenuItem("Назначить автора");
 		var rename = new JMenuItem("Переименовать");
 		var delete = new JMenuItem("Удалить");
 		
@@ -85,6 +90,18 @@ public class FolderTool extends AbstractTool {
 				listener.newFolder(folder);
 			}
 		});
+		author.addActionListener(e -> {
+			assert getSelectedNode() != null;
+			NoteInfo note = (NoteInfo) getSelectedNode();
+			
+			var input = JOptionPane.showInputDialog(parentFrame, "Назначить автора", note.getName(), JOptionPane.PLAIN_MESSAGE);
+			
+			if (input != null && !input.isEmpty()) {
+				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+					listener.author(note.getId(), input);
+				}
+			}
+		});
 		rename.addActionListener(e -> {
 			assert getSelectedNode() != null;
             String name;
@@ -100,11 +117,11 @@ public class FolderTool extends AbstractTool {
 			if (input != null && !input.isEmpty()) {
 				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
 					if (getSelectedNode() instanceof NoteInfo note) {
-						listener.rename(note.getId(), input);
+						listener.renameNote(note.getId(), input);
 					} else {
 						var folder = (Folder) getSelectedNode();
 						
-						listener.rename(folder.getPath(), input);
+						listener.renameFolder(folder.getPath(), input);
 					}
 				}
 			}
@@ -119,28 +136,37 @@ public class FolderTool extends AbstractTool {
 		popupMenu.add(separator1);
 		popupMenu.add(openFile);
 		popupMenu.add(separator2);
+		popupMenu.add(author);
 		popupMenu.add(rename);
 		popupMenu.add(delete);
 		
 		Consumer<PopupMenuContext> setPopupMenuContext = (context) -> {
+			separator1.setVisible(false);
             openFile.setVisible(false);
+			separator2.setVisible(false);
+			author.setVisible(false);
             rename.setVisible(false);
             delete.setVisible(false);
-            separator1.setVisible(false);
-            separator2.setVisible(false);
 
             switch (context) {
                 case PopupMenuContext.Note -> {
-                    openFile.setVisible(true);
-                    rename.setVisible(true);
-                    delete.setVisible(true);
-                    separator1.setVisible(true);
-                    separator2.setVisible(true);
+					openFile.setVisible(true);
+					
+					separator1.setVisible(true);
+					
+					if (Util.accessNote(clientPerson, (NoteInfo) Objects.requireNonNull(getSelectedNode()))) {
+						rename.setVisible(true);
+						delete.setVisible(true);
+						separator2.setVisible(true);
+					}
+					
+					if (Util.hasRole(clientPerson, Role.MODERATOR))
+						author.setVisible(true);
                 }
                 case PopupMenuContext.Folder -> {
-                    rename.setVisible(true);
-                    delete.setVisible(true);
-                    separator2.setVisible(true);
+					rename.setVisible(true);
+					delete.setVisible(true);
+					separator2.setVisible(true);
                 }
                 default -> {
                 }
@@ -202,25 +228,27 @@ public class FolderTool extends AbstractTool {
 		
 		for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
 			if (getSelectedNode() instanceof NoteInfo note) {
-				listener.delete(note.getId());
+				listener.deleteNote(note.getId());
 			} else {
-				listener.delete(((Folder) getSelectedNode()).getPath());
+				listener.deleteFolder(((Folder) getSelectedNode()).getPath());
 			}
 		}
 	}
 	
 	private void showPopupMenu(Consumer<PopupMenuContext> setPopupMenuContext, int x, int y) {
-        var context = PopupMenuContext.Empty;
-		
+		var context = PopupMenuContext.Empty;
+			
 		if (getSelectedNode() instanceof NoteInfo) {
 			context = PopupMenuContext.Note;
 		} else if (getSelectedNode() instanceof Folder) {
 			context = PopupMenuContext.Folder;
 		}
-
-        setPopupMenuContext.accept(context);
 		
-		popupMenu.show(tree, x, y);
+		setPopupMenuContext.accept(context);
+		
+		if (Util.hasRole(clientPerson, Role.MEMBER)) {
+			popupMenu.show(tree, x, y);
+		}
 	}
 	
 	public void addFolderListener(FolderListener folderListener) {
@@ -256,7 +284,9 @@ public class FolderTool extends AbstractTool {
 		}
 	}
 	
-	public void setModel(List<NoteInfo> notes, List<Folder> folders) {
+	public void setModel(List<NoteInfo> notes, List<Folder> folders, Person clientPerson) {
+		this.clientPerson = clientPerson;
+		
 		var rootNode = new DefaultMutableTreeNode(new Folder());
 		var folderNodes = new ArrayList<>(List.of(rootNode));
 		

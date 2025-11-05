@@ -46,7 +46,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     private final World<Body> world = new World<>();
 
     private Graph graph;
-    private final boolean isOffline;
     
     private final Vector2 offset = new Vector2();
 
@@ -75,9 +74,8 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     private long lastFrame;
     private long lastPhysicFrame;
 
-    public GraphCanvas(Graph graph, boolean isOffline) {
+    public GraphCanvas(Graph graph) {
         this.graph = graph;
-        this.isOffline = isOffline;
 
         physicThreadRun = () -> {
             physicThreadLive = true;
@@ -303,14 +301,14 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             int x = (int) node.getBody().getWorldCenter().x;
             int y = (int) node.getBody().getWorldCenter().y;
 
+            String author = node.getAuthor();
+            
             g2d.fillOval(x, y, NODE_SIZE, NODE_SIZE);
 
             g2d.drawString(node.getName(), x, y);
-            
-            /* TODO: временно отключено
-            if (!isOffline)
+           
+            if (author != null)
                 g2d.drawString(node.getAuthor(), x, (int) (y + NODE_SIZE * 1.5));
-            */
             
             var nodeOffset = NODE_SIZE / 2;
            

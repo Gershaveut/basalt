@@ -6,6 +6,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
@@ -27,6 +28,11 @@ public class BasaltSocketHandler extends TextWebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(@NonNull WebSocketSession session) {
 		sessions.add(session);
+	}
+	
+	@Override
+	public void handleMessage(@NonNull WebSocketSession session, @NonNull WebSocketMessage<?> message) throws Exception {
+		session.close();
 	}
 	
 	public void sync() {

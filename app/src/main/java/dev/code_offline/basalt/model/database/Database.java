@@ -4,6 +4,8 @@ import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
+import dev.code_offline.basalt.model.person.Role;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
@@ -30,11 +32,14 @@ public class Database implements WebSocketHandler {
 	private final WebClient webClient;
 	private final CompletableFuture<WebSocketSession> session;
 	
-	public Database(String ip) throws ServerConnectException, NetworkVersionException {
+	public Database(String ip, String username, String password) throws ServerConnectException, NetworkVersionException {
 		if (!ip.contains(":"))
 			ip = ip + ":" + DEFAULT_PORT;
 		
-		this.webClient = WebClient.create("http://" + ip);
+		this.webClient = WebClient.builder()
+				.baseUrl("http://" + ip)
+				.filter(ExchangeFilterFunctions.basicAuthentication(username, password))
+				.build();
 	
 		try {
 			var version = Objects.requireNonNull(webClient.get()
@@ -55,7 +60,7 @@ public class Database implements WebSocketHandler {
 	}
 	
 	public Database() throws ServerConnectException, NetworkVersionException {
-		this("localhost:" + DEFAULT_PORT);
+		this("localhost:" + DEFAULT_PORT, "admin", "12345");
 	}
 	
 	public void close() {
@@ -117,8 +122,22 @@ public class Database implements WebSocketHandler {
 		return getEntity(Note.class, NOTES, id);
 	}
 	
+	public Mono<Person> getClientPerson() {
+		return webClient.get()
+				.uri(PERSONS + "/current")
+				.retrieve()
+				.bodyToMono(Person.class);
+	}
+	
 	public Mono<Person> getPerson(long id) {
 		return getEntity(Person.class, PERSONS, id);
+	}
+	
+	public Mono<Person> getPerson(String username) {
+		return webClient.get()
+				.uri(PERSONS + "/username" + "/" + username)
+				.retrieve()
+				.bodyToMono(Person.class);
 	}
 	
 	public void addNote(Note note) {
@@ -126,7 +145,7 @@ public class Database implements WebSocketHandler {
 	}
 	
 	public void addPerson(Person person) {
-		addEntity(PERSONS, person);
+		addEntity(PERSONS + "/register", person);
 	}
 	
 	public void addFolder(Folder folder) {
@@ -137,12 +156,67 @@ public class Database implements WebSocketHandler {
 		deleteEntity(NOTES, id);
 	}
 	
-	public void deletePerson(long id) {
-		deleteEntity(PERSONS, id);
+	public void deletePerson(long id, boolean deleteNotes) {
+		webClient.delete()
+				.uri(uriBuilder -> uriBuilder
+						.path(PERSONS + "/" + id)
+						.queryParam("deleteNotes", deleteNotes)
+						.build())
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
+
+	public void deleteCurrentPerson(boolean deleteNotes) {
+		webClient.delete()
+				.uri(uriBuilder -> uriBuilder
+						.path(PERSONS + "/current")
+						.queryParam("deleteNotes", deleteNotes)
+						.build())
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
 	}
 	
 	public void deleteFolder(String path) {
 		deleteEntity(FOLDERS, path);
+	}
+
+	public void renameClientPerson(String newName) {
+		webClient.patch()
+				.uri(PERSONS + "/rename")
+				.bodyValue(newName)
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
+	public void passwordClientPerson(String newPassword, String oldPassword) {
+		webClient.patch()
+				.uri(PERSONS + "/password")
+				.bodyValue(newPassword)
+				.header("oldPassword", oldPassword)
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
+	public void descriptionClientPerson(String newDescription) {
+		webClient.patch()
+				.uri(PERSONS + "/description")
+				.bodyValue(newDescription)
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
+	public void rolePerson(long id, Role role) {
+		webClient.patch()
+				.uri(PERSONS + "/" + id + "/role")
+				.bodyValue(role)
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
 	}
 	
 	public void renameNote(long id, String newName) {
@@ -167,6 +241,15 @@ public class Database implements WebSocketHandler {
 		webClient.patch()
 				.uri(NOTES + "/" + id + "/move")
 				.bodyValue(path)
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
+	public void authorNote(long id, long newAuthor) {
+		webClient.patch()
+				.uri(NOTES + "/" + id + "/author")
+				.bodyValue(newAuthor)
 				.retrieve()
 				.toBodilessEntity()
 				.subscribe();

@@ -17,10 +17,10 @@ import java.awt.event.MouseWheelEvent;
 public class GraphTool extends AbstractTool implements DebugModeListener {
     public final GraphCanvas graphCanvas;
     
-    public GraphTool(Graph graph, BasaltFrame basaltFrame, boolean isOffline) {
+    public GraphTool(Graph graph, BasaltFrame basaltFrame) {
         this.setLayout(new BorderLayout());
 
-        graphCanvas = new GraphCanvas(graph, isOffline);
+        graphCanvas = new GraphCanvas(graph);
         this.add(graphCanvas, BorderLayout.CENTER);
 
         basaltFrame.addDebugModeListener(this);

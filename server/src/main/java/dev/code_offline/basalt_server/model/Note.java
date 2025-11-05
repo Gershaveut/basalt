@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.lang.Nullable;
 
 @Entity
@@ -12,10 +13,10 @@ public class Note {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     
-    private String name;
-    private long person;
-    private String text;
-    private @Nullable String path;
+    private @NotNull String name;
+    private @NotNull long person;
+    private @NotNull String text;
+    private String path;
 	
 	public Note() {
 	}

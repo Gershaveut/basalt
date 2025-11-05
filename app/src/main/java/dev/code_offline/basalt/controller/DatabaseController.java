@@ -15,6 +15,8 @@ import dev.code_offline.basalt.model.graph.Node;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt.model.note.NoteNode;
+import dev.code_offline.basalt.model.person.Person;
+import dev.code_offline.basalt.model.person.Role;
 import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.menubar.MenuBarListener;
@@ -24,6 +26,9 @@ import dev.code_offline.basalt.view.tool.folder.FolderListener;
 import dev.code_offline.basalt.view.tool.folder.FolderTool;
 import dev.code_offline.basalt.view.tool.graph.GraphTool;
 import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorTool;
+import dev.code_offline.basalt.view.tool.person.PersonProfileTool;
+import dev.code_offline.basalt.view.tool.person.PersonsListener;
+import dev.code_offline.basalt.view.tool.person.PersonsTool;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
@@ -33,27 +38,33 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-public class DatabaseController implements DatabaseListener, FolderListener {
+public class DatabaseController implements DatabaseListener, FolderListener, PersonsListener {
 	public final Database database;
 	
 	private final StartFrame startFrame;
     private final BasaltFrame basaltFrame;
     private final GraphTool graphTool;
     private final FolderTool folderTool;
+    private final PersonsTool personsTool;
     private final StartController startController;
 
     private final TabDock tabDock;
     private final CompositeDock dock;
 
-    public DatabaseController(BasaltFrame basaltFrame, GraphTool graphTool, FolderTool folderTool, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController) {
+    private final String basaltFrameTitle;
+    
+    public DatabaseController(BasaltFrame basaltFrame, GraphTool graphTool, FolderTool folderTool, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController, PersonsTool personsTool) {
         this.startFrame = startFrame;
         this.basaltFrame = basaltFrame;
         this.graphTool = graphTool;
         this.folderTool = folderTool;
+        this.personsTool = personsTool;
         this.tabDock = tabDock;
 		this.dock = dock;
 		this.database = database;
 		this.startController = startController;
+		
+        this.basaltFrameTitle = basaltFrame.getTitle();
 		
 		var tree = folderTool.getTree();
 
@@ -75,6 +86,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
         });
 
         folderTool.addFolderListener(this);
+        personsTool.addPersonsListener(this);
 
         graphTool.graphCanvas.addMouseListener(new MouseAdapter() {
             @Override
@@ -207,11 +219,18 @@ public class DatabaseController implements DatabaseListener, FolderListener {
             
             var notesInfo = notes.stream().map(n -> new NoteInfo(n, database)).toList();
             var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
-           
-            database.getFolders().subscribe(folders -> {
-                folderTool.setModel(notesInfo, folders);
+          
+            database.getClientPerson().subscribe(clientPerson -> {
+                basaltFrame.setTitle(basaltFrameTitle + " - " + clientPerson.getRole().name);
+                
+                database.getFolders().subscribe(folders -> {
+                    folderTool.setModel(notesInfo, folders, clientPerson);
+                });
+                database.getPersons().subscribe(persons -> {
+                   personsTool.setModel(persons, clientPerson);
+                });
+                graphTool.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
             });
-            graphTool.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
         });
     }
     
@@ -234,16 +253,18 @@ public class DatabaseController implements DatabaseListener, FolderListener {
 
     private void openNote(long id) {
         database.getNote(id).subscribe(note -> {
-            var markdownEditor = new MarkdownEditorTool(note, basaltFrame);
-
-            markdownEditor.addMarkdownListener(text -> database.editNote(note.getId(), text));
-
-            var addToDock = tabDock.isEmpty();
-        
-            tabDock.addDockable(markdownEditor.getDockable(), new Position());
-        
-            if (addToDock)
-                dock.addChildDock(tabDock, new Position(Position.CENTER));
+            database.getClientPerson().subscribe(person -> {
+                var markdownEditor = new MarkdownEditorTool(note, basaltFrame, person);
+                
+                markdownEditor.addMarkdownListener(text -> database.editNote(note.getId(), text));
+                
+                var addToDock = tabDock.isEmpty();
+                
+                tabDock.addDockable(markdownEditor.getDockable(), new Position());
+                
+                if (addToDock)
+                    dock.addChildDock(tabDock, new Position(Position.CENTER));
+            });
         });
     }
 
@@ -253,7 +274,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
         if (folder != null)
             path = folder.getPath();
         
-        database.addNote(new Note("Новая записка", 1, path)); // TODO: получение пользователя клиента
+        database.addNote(new Note("Новая записка", path));
     }
 
     @Override
@@ -287,17 +308,65 @@ public class DatabaseController implements DatabaseListener, FolderListener {
     }
     
     @Override
-    public void rename(long id, String newName) {
+    public void author(long id, String author) {
+        try {
+            database.authorNote(id, Long.parseLong(author));
+        } catch (Exception ignored) {
+            database.getPerson(author).subscribe(person -> {
+                database.authorNote(id, person.getId());
+            });
+        }
+    }
+    
+    @Override
+    public void renameNote(long id, String newName) {
         database.renameNote(id, newName);
     }
 
     @Override
-    public void rename(String path, String newName) {
+    public void renameFolder(String path, String newName) {
         database.renameFolder(path, newName);
     }
-
+    
     @Override
-    public void delete(long id) {
+    public void createPerson(Person person) {
+        database.addPerson(person);
+    }
+    
+    @Override
+    public void openProfile(long id) {
+        TreePath treeNode = personsTool.getTree().getSelectionPath();
+        
+        if (treeNode != null) {
+            var selected = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
+            
+            if (selected instanceof Person person) {
+                database.getPerson(person.getId()).subscribe(person1 -> {
+                    var personProfile = new PersonProfileTool(person1);
+                
+                    var addToDock = tabDock.isEmpty();
+                
+                    tabDock.addDockable(personProfile.getDockable(), new Position());
+                
+                    if (addToDock)
+                        dock.addChildDock(tabDock, new Position(Position.CENTER));
+                });
+            }
+        }
+    }
+    
+    @Override
+    public void rolePerson(long id, Role role) {
+        database.rolePerson(id, role);
+    }
+    
+    @Override
+    public void deletePerson(long id, boolean deleteNotes) {
+        database.deletePerson(id, deleteNotes);
+    }
+    
+    @Override
+    public void deleteNote(long id) {
         Util.foreachNonList(tabDock::getDockableCount, tabDock::getDockable, (dockable) -> {
             if (dockable.getID().contains(String.valueOf(id)))
                 tabDock.removeDockable(dockable);
@@ -307,7 +376,7 @@ public class DatabaseController implements DatabaseListener, FolderListener {
     }
 
     @Override
-    public void delete(String path) {
+    public void deleteFolder(String path) {
         database.deleteFolder(path);
     }
 }

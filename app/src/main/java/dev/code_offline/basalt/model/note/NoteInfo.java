@@ -12,17 +12,16 @@ public class NoteInfo {
     private final @Nullable String path;
     private final List<Long> links;
     
-    private final String author = "Loading...";
+    private @Nullable String author;
 
     public NoteInfo(Note note, Database database) {
-		
 		this.id = note.getId();
         this.name = note.getName();
         this.person = note.getPerson();
         this.path = note.getPath();
         this.links = note.getLinks();
         
-        // database.getPerson(person).subscribe(p -> author = p.getName()); TODO: временно отключено
+        database.getPerson(person).subscribe(p -> author = p.getUsername());
 	}
     
     @Override
@@ -34,11 +33,15 @@ public class NoteInfo {
         return path;
     }
     
+    public long getPerson() {
+        return person;
+    }
+    
     public String getName() {
         return name;
     }
 
-    public String getAuthor() {
+    public @Nullable String getAuthor() {
         return author;
     }
 
