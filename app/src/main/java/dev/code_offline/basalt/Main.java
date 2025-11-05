@@ -6,11 +6,6 @@ import dev.code_offline.basalt.view.start.StartFrame;
 import javax.swing.*;
 
 public class Main {
-	public static final String APP_NAME = "basalt";
-	
-	public static final byte NETWORK_VERSION = 2;
-	public static final double APP_VERSION = 0.2;
-	
 	public static void main(String[] args) {
 		FlatLightLaf.setup();
 		
