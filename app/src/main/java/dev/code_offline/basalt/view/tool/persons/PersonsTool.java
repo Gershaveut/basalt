@@ -29,6 +29,7 @@ public class PersonsTool extends AbstractTool {
 	
 	private final JMenuItem createPerson;
 	private final JMenuItem open;
+	private final JMenuItem role;
 	private final JMenuItem delete;
 	private final JSeparator separator1;
 	private final JSeparator separator2;
@@ -43,6 +44,7 @@ public class PersonsTool extends AbstractTool {
 	
 		createPerson = new JMenuItem("Создать пользователя");
 		open = new JMenuItem("Открыть профиль");
+		role = new JMenuItem("Назначить роль");
 		delete = new JMenuItem("Удалить");
 		
 		separator1 = new JSeparator();
@@ -52,6 +54,7 @@ public class PersonsTool extends AbstractTool {
 		popupMenu.add(separator1);
 		popupMenu.add(open);
 		popupMenu.add(separator2);
+		popupMenu.add(role);
 		popupMenu.add(delete);
 	
 		createPerson.addActionListener(e -> {
@@ -75,6 +78,22 @@ public class PersonsTool extends AbstractTool {
 		open.addActionListener(e -> {
 			for (PersonsListener listener : listeners.getListeners(PersonsListener.class)) {
 				listener.openProfile(Objects.requireNonNull(getSelectedPerson()).getId());
+			}
+		});
+		role.addActionListener(e -> {
+			var person = Objects.requireNonNull(getSelectedPerson());
+			
+			JComboBox<Role> role = new JComboBox<>(Role.values());
+			Object[] message = {
+				"Роль:", role
+			};
+			
+			var option = JOptionPane.showConfirmDialog(parentFrame, message, "Выбор роли " + person.getUsername(), JOptionPane.OK_CANCEL_OPTION);
+			
+			if (option == JOptionPane.OK_OPTION) {
+				for (PersonsListener listener : listeners.getListeners(PersonsListener.class)) {
+					listener.rolePerson(person.getId(), (Role) role.getSelectedItem());
+				}
 			}
 		});
 		delete.addActionListener(e -> {
@@ -140,6 +159,7 @@ public class PersonsTool extends AbstractTool {
 		separator1.setVisible(false);
 		open.setVisible(false);
 		separator2.setVisible(false);
+		role.setVisible(false);
 		delete.setVisible(false);
 		
 		if (hasAdmin)
@@ -153,6 +173,7 @@ public class PersonsTool extends AbstractTool {
 			
 			if (Util.hasRole(clientPerson, Role.MODERATOR)) {
 				separator2.setVisible(true);
+				role.setVisible(true);
 				delete.setVisible(true);
 			}
 		}

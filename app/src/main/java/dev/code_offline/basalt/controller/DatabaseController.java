@@ -16,6 +16,7 @@ import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt.model.note.NoteNode;
 import dev.code_offline.basalt.model.person.Person;
+import dev.code_offline.basalt.model.person.Role;
 import dev.code_offline.basalt.view.BasaltFrame;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.menubar.MenuBarListener;
@@ -334,6 +335,11 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     @Override
     public void openProfile(long id) {
     
+    }
+    
+    @Override
+    public void rolePerson(long id, Role role) {
+        database.rolePerson(id, role);
     }
     
     @Override

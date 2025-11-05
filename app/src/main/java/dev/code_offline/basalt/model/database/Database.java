@@ -4,6 +4,7 @@ import dev.code_offline.basalt.Util;
 import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
+import dev.code_offline.basalt.model.person.Role;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.socket.CloseStatus;
@@ -194,6 +195,24 @@ public class Database implements WebSocketHandler {
 		webClient.patch()
 				.uri(PERSONS + "/password")
 				.bodyValue(newPassword)
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
+	public void descriptionClientPerson(String newDescription) {
+		webClient.patch()
+				.uri(PERSONS + "/description")
+				.bodyValue(newDescription)
+				.retrieve()
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
+	public void rolePerson(long id, Role role) {
+		webClient.patch()
+				.uri(PERSONS + "/" + id + "/role")
+				.bodyValue(role)
 				.retrieve()
 				.toBodilessEntity()
 				.subscribe();
