@@ -44,8 +44,7 @@ jobs:
           name: basalt.exe
           path: app/build/*.exe
           overwrite: true
-          retention-days: 7
-          if-no-files-found: error
+          retention-days: 3
 
       - name: Upload macOS DMG
         if: matrix.os == 'macos-latest'
@@ -54,8 +53,7 @@ jobs:
           name: basalt.dmg
           path: app/build/*.dmg
           overwrite: true
-          retention-days: 7
-          if-no-files-found: error
+          retention-days: 3
 
       - name: Upload Linux AppImage
         if: matrix.os == 'ubuntu-latest'
@@ -64,5 +62,4 @@ jobs:
           name: basalt.AppImage
           path: app/build/*.AppImage
           overwrite: true
-          retention-days: 7
-          if-no-files-found: error
+          retention-days: 3

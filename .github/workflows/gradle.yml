@@ -33,7 +33,7 @@ jobs:
         name: basalt.jar
         path: app/build/libs/*.jar
         overwrite: true
-        if-no-files-found: error
+        retention-days: 3
 
     - name: Upload server JAR
       uses: actions/upload-artifact@v4
@@ -41,7 +41,7 @@ jobs:
         name: basalt-server.jar
         path: server/build/libs/*.jar
         overwrite: true
-        if-no-files-found: error
+        retention-days: 3
 
   dependency-submission:
 
