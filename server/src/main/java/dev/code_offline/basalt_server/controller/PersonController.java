@@ -37,30 +37,41 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	
 	@PatchMapping("/rename")
 	public ResponseEntity<Person> rename(@AuthenticationPrincipal Person currentPerson, @RequestBody String newName) {
-		currentPerson.setUsername(newName);
+		var person = personRepository.findById(currentPerson.getId()).orElseThrow();
 		
-		personRepository.save(currentPerson);
+		person.setUsername(newName);
+		
+		personRepository.save(person);
 		sync();
 		
-		return new ResponseEntity<>(currentPerson, HttpStatus.OK);
+		return new ResponseEntity<>(person, HttpStatus.OK);
 	}
 	
 	@PatchMapping("/description")
 	public ResponseEntity<Person> description(@AuthenticationPrincipal Person currentPerson, @RequestBody String newDescription) {
-		currentPerson.setDescription(newDescription);
+		String description = null;
 		
-		personRepository.save(currentPerson);
+		if (!newDescription.isEmpty())
+			description = newDescription;
+		
+		var person = personRepository.findById(currentPerson.getId()).orElseThrow();
+		
+		person.setDescription(description);
+		
+		personRepository.save(person);
 		sync();
 		
-		return new ResponseEntity<>(currentPerson, HttpStatus.OK);
+		return new ResponseEntity<>(person, HttpStatus.OK);
 	}
 	
 	@PatchMapping("/password")
 	public ResponseEntity<String> password(@AuthenticationPrincipal Person currentPerson, @RequestBody String newPassword, @RequestHeader String oldPassword) {
 		if (passwordEncoder.matches(oldPassword, currentPerson.getPassword())) {
-			currentPerson.setPassword(passwordEncoder.encode(newPassword));
+			var person = personRepository.findById(currentPerson.getId()).orElseThrow();
 			
-			personRepository.save(currentPerson);
+			person.setPassword(passwordEncoder.encode(newPassword));
+			
+			personRepository.save(person);
 			
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
@@ -90,7 +101,11 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	@Secured({"ROLE_ADMIN"})
 	@PostMapping("/register")
 	public ResponseEntity<Person> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody Person entity) {
-		return super.addEntity(currentPerson, new Person(entity.getUsername(), passwordEncoder.encode(entity.getPassword()), entity.getRole(), entity.getDescription()));
+		if (personRepository.findByUsername(entity.getUsername()) == null) {
+			return super.addEntity(currentPerson, new Person(entity.getUsername(), passwordEncoder.encode(entity.getPassword()), entity.getRole(), entity.getDescription()));
+		} else {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
 	}
 	
 	@Secured({"ROLE_MODERATOR"})

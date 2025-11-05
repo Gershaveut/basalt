@@ -13,8 +13,11 @@ public class Setting implements Cloneable {
     private final @Nullable String description;
     @JsonIgnore
     private final Object defaultValue;
+    
     private @Nullable Object value;
-
+    @JsonIgnore
+    private final boolean actionSetting;
+    
     private final EventListenerList listeners = new EventListenerList();
 
     @JsonCreator
@@ -22,12 +25,17 @@ public class Setting implements Cloneable {
         this(name, null, value);
     }
     
-    public Setting(String name, @Nullable String description, Object defaultValue) {
+    public Setting(String name, @Nullable String description, Object defaultValue, boolean actionSetting) {
         this.name = name;
         this.description = description;
         this.defaultValue = defaultValue;
-
+        this.actionSetting = actionSetting;
+        
         this.value = this.defaultValue;
+    }
+    
+    public Setting(String name, @Nullable String description, Object defaultValue) {
+        this(name, description, defaultValue, false);
     }
 
     public String getName() {
@@ -40,6 +48,10 @@ public class Setting implements Cloneable {
 
     public Object getDefaultValue() {
         return defaultValue;
+    }
+    
+    public boolean isActionSetting() {
+        return actionSetting;
     }
 
     public @Nullable Object getValue() {

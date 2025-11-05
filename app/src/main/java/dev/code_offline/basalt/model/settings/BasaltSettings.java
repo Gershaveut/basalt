@@ -1,6 +1,7 @@
 package dev.code_offline.basalt.model.settings;
 
 import dev.code_offline.basalt.Util;
+import dev.code_offline.basalt.model.person.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,19 +21,35 @@ public class BasaltSettings {
 	
 	private SettingsModel settingsModel;
 
+	private final Setting username;
+	private final Setting password;
+	private final Setting description;
+	
 	private final Setting maxFps;
 	private final Setting physicMaxFps;
 	
 	private final Setting debugMode;
 	private final Setting debugGenerateDatabase;
 	
-	public BasaltSettings() {
+	public BasaltSettings(Person clientPerson) {
 		var settingsTabs = new ArrayList<SettingsTab>();
 		
 		var generalTab = new SettingsTab("Основные", "Основные настройки программы");
 		var toolTab = new SettingsTab("Инструменты");
+		var accountTab = new SettingsTab("Аккаунт");
 		var miscTab = new SettingsTab("Разное");
 	
+		var accountCategory = new SettingsCategory("Аккаунт");
+		
+		var defaultDescription = clientPerson.getDescription();
+		
+		if (defaultDescription == null)
+			defaultDescription = "";
+		
+		username = new Setting("Имя пользователя", null, clientPerson.getUsername(), true);
+		password = new Setting("Пароль", null, clientPerson.getPassword(), true);
+		description = new Setting("Описание", null, defaultDescription, true);
+		
 		var graphCategory = new SettingsCategory("Граф");
 		
 		maxFps = new Setting("Частота кадров", null, "60");
@@ -43,6 +60,11 @@ public class BasaltSettings {
 		debugMode = new Setting("Режим отладки", "После отключения отладки требуется перезагрузка!", false);
 		debugGenerateDatabase = new Setting("Генерация базы данных", null, false);
 	
+		accountCategory.add(username);
+		accountCategory.add(password);
+		accountCategory.add(description);
+		accountTab.add(accountCategory);
+		
 		graphCategory.add(maxFps);
 		graphCategory.add(physicMaxFps);
 		toolTab.add(graphCategory);
@@ -51,7 +73,8 @@ public class BasaltSettings {
 		debugCategory.add(debugMode);
 		miscTab.add(debugCategory);
 		
-		settingsTabs.add(generalTab);
+		//settingsTabs.add(generalTab); TODO: пустой таб
+		settingsTabs.add(accountTab);
 		settingsTabs.add(toolTab);
 		settingsTabs.add(miscTab);
 		
@@ -70,7 +93,7 @@ public class BasaltSettings {
 				settings.forEach(setting -> {
 					Setting findSetting = settingsModel.getSettings().stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElse(null);
 					
-					if (findSetting != null) {
+					if (findSetting != null && !findSetting.isActionSetting()) {
 						findSetting.setValue(setting.getValue());
 						findSetting.notifyListeners();
 					}
@@ -109,6 +132,18 @@ public class BasaltSettings {
 	
 	public SettingsModel getSettingsModel() {
 		return settingsModel;
+	}
+	
+	public Setting getUsername() {
+		return username;
+	}
+	
+	public Setting getPassword() {
+		return password;
+	}
+	
+	public Setting getDescription() {
+		return description;
 	}
 	
 	public Setting getPhysicMaxFps() {

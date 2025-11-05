@@ -191,10 +191,11 @@ public class Database implements WebSocketHandler {
 				.subscribe();
 	}
 	
-	public void passwordClientPerson(String newPassword) {
+	public void passwordClientPerson(String newPassword, String oldPassword) {
 		webClient.patch()
 				.uri(PERSONS + "/password")
 				.bodyValue(newPassword)
+				.header("oldPassword", oldPassword)
 				.retrieve()
 				.toBodilessEntity()
 				.subscribe();

@@ -16,8 +16,7 @@ public class Person implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "username", unique = true, nullable = false)
-    private String username;
+    private @NotNull String username;
     private @NotNull String password;
     private @NotNull Role role;
     private String description;
