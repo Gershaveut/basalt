@@ -116,8 +116,10 @@ public class BasaltSettings {
 			LOGGER.info("Save settings...");
 			
 			try {
+				var settings = settingsModel.getSettings().stream().filter(setting -> !setting.isActionSetting()).toList();
+				
 				BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
-				writer.write(Util.getMapper().writeValueAsString(settingsModel.getSettings()));
+				writer.write(Util.getMapper().writeValueAsString(settings));
 				
 				writer.close();
 			} catch (IOException exception) {

@@ -124,6 +124,13 @@ public class PersonsTool extends AbstractTool {
 					showPopupMenu(e.getX(), e.getY());
 				}
 			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (getSelectedPerson() != null && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+					open.doClick();
+				}
+			}
 		});
 		tree.addKeyListener(new KeyAdapter() {
 			@Override
