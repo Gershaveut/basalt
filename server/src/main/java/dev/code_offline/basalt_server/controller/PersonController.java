@@ -1,6 +1,7 @@
 package dev.code_offline.basalt_server.controller;
 
 import dev.code_offline.basalt_server.model.Person;
+import dev.code_offline.basalt_server.model.Role;
 import dev.code_offline.basalt_server.repository.NoteRepository;
 import dev.code_offline.basalt_server.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,16 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 		return new ResponseEntity<>(currentPerson, HttpStatus.OK);
 	}
 	
+	@PatchMapping("/description")
+	public ResponseEntity<Person> description(@AuthenticationPrincipal Person currentPerson, @RequestBody String newDescription) {
+		currentPerson.setDescription(newDescription);
+		
+		personRepository.save(currentPerson);
+		sync();
+		
+		return new ResponseEntity<>(currentPerson, HttpStatus.OK);
+	}
+	
 	@PatchMapping("/password")
 	public ResponseEntity<String> password(@AuthenticationPrincipal Person currentPerson, @RequestBody String newPassword, @RequestHeader String oldPassword) {
 		if (passwordEncoder.matches(oldPassword, currentPerson.getPassword())) {
@@ -55,6 +66,24 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 		}
 		
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	}
+	
+	@Secured({"ROLE_ADMIN"})
+	@PatchMapping("/{id}/role")
+	public ResponseEntity<Person> role(@PathVariable Long id, @RequestBody Role role) {
+		var personData = personRepository.findById(id);
+		
+		if (personData.isPresent()) {
+			var person = personData.get();
+			
+			person.setRole(role);
+			personRepository.save(person);
+			
+			sync();
+			return new ResponseEntity<>(person, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 	}
 	
 	@Override
