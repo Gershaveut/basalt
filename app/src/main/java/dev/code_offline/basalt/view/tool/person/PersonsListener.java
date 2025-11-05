@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.view.tool.persons;
+package dev.code_offline.basalt.view.tool.person;
 
 import dev.code_offline.basalt.model.person.Person;
 import dev.code_offline.basalt.model.person.Role;

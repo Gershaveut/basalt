@@ -1,4 +1,4 @@
-package dev.code_offline.basalt.view.tool.persons;
+package dev.code_offline.basalt.view.tool.person;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.Util;
@@ -23,7 +23,7 @@ import java.util.Objects;
 
 public class PersonsTool extends AbstractTool {
 	private final EventListenerList listeners = new EventListenerList();
-	
+
 	private final JTree tree = new JTree(new Object[0]);
 	private final JPopupMenu popupMenu = new JPopupMenu();
 	
@@ -169,7 +169,7 @@ public class PersonsTool extends AbstractTool {
 			if (hasAdmin)
 				separator1.setVisible(true);
 			
-			//open.setVisible(true); TODO: пока не работает
+			open.setVisible(true);
 			
 			if (Util.hasRole(clientPerson, Role.MODERATOR)) {
 				separator2.setVisible(true);
@@ -239,6 +239,10 @@ public class PersonsTool extends AbstractTool {
 		tree.setModel(new JTree(rootNode).getModel());
 		
 		setExpansionState(state);
+	}
+	
+	public JTree getTree() {
+		return tree;
 	}
 	
 	@Override

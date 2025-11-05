@@ -26,8 +26,9 @@ import dev.code_offline.basalt.view.tool.folder.FolderListener;
 import dev.code_offline.basalt.view.tool.folder.FolderTool;
 import dev.code_offline.basalt.view.tool.graph.GraphTool;
 import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorTool;
-import dev.code_offline.basalt.view.tool.persons.PersonsListener;
-import dev.code_offline.basalt.view.tool.persons.PersonsTool;
+import dev.code_offline.basalt.view.tool.person.PersonProfileTool;
+import dev.code_offline.basalt.view.tool.person.PersonsListener;
+import dev.code_offline.basalt.view.tool.person.PersonsTool;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
@@ -334,7 +335,24 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     
     @Override
     public void openProfile(long id) {
-    
+        TreePath treeNode = personsTool.getTree().getSelectionPath();
+        
+        if (treeNode != null) {
+            var selected = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
+            
+            if (selected instanceof Person person) {
+                database.getPerson(person.getId()).subscribe(person1 -> {
+                    var personProfile = new PersonProfileTool(person1);
+                
+                    var addToDock = tabDock.isEmpty();
+                
+                    tabDock.addDockable(personProfile.getDockable(), new Position());
+                
+                    if (addToDock)
+                        dock.addChildDock(tabDock, new Position(Position.CENTER));
+                });
+            }
+        }
     }
     
     @Override
