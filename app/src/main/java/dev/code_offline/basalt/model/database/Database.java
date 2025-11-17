@@ -5,6 +5,9 @@ import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
 import dev.code_offline.basalt.model.person.Role;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.client.reactive.JdkClientHttpConnector;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.socket.CloseStatus;
@@ -14,7 +17,15 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import reactor.core.publisher.Mono;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.swing.event.EventListenerList;
+import java.net.http.HttpClient;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -37,8 +48,9 @@ public class Database implements WebSocketHandler {
 			ip = ip + ":" + DEFAULT_PORT;
 		
 		this.webClient = WebClient.builder()
-				.baseUrl("http://" + ip)
+				.baseUrl("https://" + ip)
 				.filter(ExchangeFilterFunctions.basicAuthentication(username, password))
+				.clientConnector(new JdkClientHttpConnector(HttpClient.newBuilder().sslContext(createTrustAllSslContext()).build()))
 				.build();
 	
 		try {
@@ -68,6 +80,36 @@ public class Database implements WebSocketHandler {
 			session.get().close();
 		} catch (Exception ignored) {
 		}
+	}
+	
+	private SSLContext createTrustAllSslContext() {
+		var trustAllCerts = new TrustManager[]{
+				new X509TrustManager() {
+					@Override
+					public void checkClientTrusted(X509Certificate[] chain, String authType) {
+					}
+					
+					@Override
+					public void checkServerTrusted(X509Certificate[] chain, String authType) {
+					}
+					
+					@Override
+					public X509Certificate[] getAcceptedIssuers() {
+						return new X509Certificate[0];
+					}
+				}
+		};
+		
+		SSLContext sslContext;
+		
+		try {
+			sslContext = SSLContext.getInstance("TLS");
+			sslContext.init(null, trustAllCerts, new SecureRandom());
+		} catch (Exception exception) {
+			throw new RuntimeException(exception);
+		}
+		
+		return sslContext;
 	}
 	
 	private <T> Mono<List<T>> getEntities(Class<T> type, String uri) {

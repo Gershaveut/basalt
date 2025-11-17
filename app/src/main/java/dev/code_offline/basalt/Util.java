@@ -29,8 +29,8 @@ public final class Util {
     
     public static final String APP_NAME = "basalt";
     
-    public static final byte NETWORK_VERSION = 2;
-    public static final double APP_VERSION = 0.3;
+    public static final byte NETWORK_VERSION = 3;
+    public static final double APP_VERSION = 0.4;
     
     public static Vector2 pointToVector(Point point) {
         return new Vector2(point.x, point.y);

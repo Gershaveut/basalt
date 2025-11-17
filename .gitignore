@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 *.json
 *.db
+*.p12
 
 ### IntelliJ IDEA ###
 .idea
