@@ -9,29 +9,47 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
+import java.io.BufferedReader;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.net.Socket;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class BasaltCertificateGenerator {
 	private static final String FILE_NAME = "basalt.p12";
 	
 	private static final String ALIAS = "basalt";
 	private static final char[] PASSWORD = "offline".toCharArray();
-	private static final GeneralName[] GENERAL_NAMES = {
+	private static final List<GeneralName> GENERAL_NAMES = new ArrayList<>(List.of(
 			new GeneralName(GeneralName.dNSName, "localhost"),
 			new GeneralName(GeneralName.iPAddress, "127.0.0.1"),
-			new GeneralName(GeneralName.iPAddress, "0.0.0.0"),
 			new GeneralName(GeneralName.iPAddress, "::1")
-	};
+	));
 	
 	public static void generate() throws Exception {
 		if (Files.exists(Path.of(FILE_NAME)))
 			return;
+		
+		var myIp = URI.create("http://checkip.amazonaws.com").toURL();
+		var in = new BufferedReader(new InputStreamReader(myIp.openStream()));
+		
+		GENERAL_NAMES.add(new GeneralName(GeneralName.iPAddress, in.readLine()));
+		
+		in.close();
+		
+		try (var s = new Socket("8.8.8.8", 7601)) {
+			GENERAL_NAMES.add(new GeneralName(GeneralName.iPAddress, s.getLocalAddress().getHostAddress()));
+		}
 		
 		var keyGen = KeyPairGenerator.getInstance("RSA");
 		keyGen.initialize(4096, new SecureRandom());
@@ -49,7 +67,7 @@ public class BasaltCertificateGenerator {
 				keyPair.getPublic()
 		);
 		
-		certificateBuilder.addExtension(Extension.subjectAlternativeName, false, GeneralNames.getInstance(new DERSequence(GENERAL_NAMES)));
+		certificateBuilder.addExtension(Extension.subjectAlternativeName, false, GeneralNames.getInstance(new DERSequence(GENERAL_NAMES.toArray(new GeneralName[0]))));
 	
 		var signer = new JcaContentSignerBuilder("SHA256WithRSA").build(keyPair.getPrivate());
 		var certificate = new JcaX509CertificateConverter().getCertificate(certificateBuilder.build(signer));

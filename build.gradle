@@ -3,7 +3,7 @@ subprojects {
     apply plugin: 'application'
 
     group = 'dev.code_offline'
-    version = '0.3'
+    version = '0.4'
 
     repositories {
         mavenCentral()
