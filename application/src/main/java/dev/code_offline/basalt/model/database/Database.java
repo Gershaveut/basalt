@@ -8,22 +8,25 @@ import dev.code_offline.basalt_share.Util;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.lang.Nullable;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.WebSocketMessage;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
+import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.WebSocketSession;
+import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SignalType;
 import reactor.netty.http.client.HttpClient;
 
-import javax.net.ssl.SSLException;
+import javax.net.ssl.*;
 import javax.swing.event.EventListenerList;
+import java.net.URI;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class Database implements WebSocketHandler {
@@ -35,7 +38,8 @@ public class Database implements WebSocketHandler {
 	
 	private final EventListenerList listeners = new EventListenerList();
 	private final WebClient webClient;
-	private final CompletableFuture<WebSocketSession> session;
+	
+	private @Nullable WebSocketSession session;
 	
 	public Database(String ip, String username, String password) throws ServerConnectException, NetworkVersionException, SSLException {
 		if (!ip.contains(":"))
@@ -45,11 +49,12 @@ public class Database implements WebSocketHandler {
 				.forClient()
 				.trustManager(InsecureTrustManagerFactory.INSTANCE)
 				.build();
+		var httpClient = HttpClient.create().secure(sslContextSpec -> sslContextSpec.sslContext(sslContext));
 		
 		this.webClient = WebClient.builder()
 				.baseUrl("https://" + ip)
 				.filter(ExchangeFilterFunctions.basicAuthentication(username, password))
-				.clientConnector(new ReactorClientHttpConnector(HttpClient.create().secure(sslContextSpec -> sslContextSpec.sslContext(sslContext))))
+				.clientConnector(new ReactorClientHttpConnector(httpClient))
 				.build();
 	
 		try {
@@ -63,11 +68,11 @@ public class Database implements WebSocketHandler {
 			}
 		} catch (NetworkVersionException exception) {
 			throw exception;
-		} catch (Exception ignored) {
-			throw new ServerConnectException();
+		} catch (Exception exception) {
+			throw new ServerConnectException(exception.getMessage());
 		}
 		
-		session = new StandardWebSocketClient().execute(this, "ws://" + ip + "/echo");
+		new ReactorNettyWebSocketClient(httpClient).execute(URI.create("wss://" + ip + "/echo"), this).doOnError(throwable -> notifyListeners(DatabaseListener::onLostConnection)).subscribe();
 	}
 	
 	public Database() throws ServerConnectException, NetworkVersionException, SSLException {
@@ -75,10 +80,8 @@ public class Database implements WebSocketHandler {
 	}
 	
 	public void close() {
-		try {
-			session.get().close();
-		} catch (Exception ignored) {
-		}
+		if (session != null)
+			session.close();
 	}
 	
 	private <T> Mono<List<T>> getEntities(Class<T> type, String uri) {
@@ -297,30 +300,12 @@ public class Database implements WebSocketHandler {
 	}
 	
 	@Override
-	public void afterConnectionEstablished(WebSocketSession session) {
-	
-	}
-	
-	@Override
-	public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) {
-		notifyListeners(DatabaseListener::sync);
-	}
-	
-	@Override
-	public void handleTransportError(WebSocketSession session, Throwable exception) {
-	
-	}
-	
-	@Override
-	public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
-		if (closeStatus.getCode() == CloseStatus.NO_CLOSE_FRAME.getCode()) {
-			notifyListeners(DatabaseListener::onLostConnection);
-		}
-	}
-	
-	@Override
-	public boolean supportsPartialMessages() {
-		return false;
+	public Mono<Void> handle(WebSocketSession session) {
+		this.session = session;
+		
+		return session.receive()
+				.doOnNext(webSocketMessage -> notifyListeners(DatabaseListener::sync))
+				.then();
 	}
 }
 

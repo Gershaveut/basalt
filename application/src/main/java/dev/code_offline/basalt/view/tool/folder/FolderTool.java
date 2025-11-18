@@ -141,6 +141,8 @@ public class FolderTool extends AbstractTool {
 		popupMenu.add(delete);
 		
 		Consumer<PopupMenuContext> setPopupMenuContext = (context) -> {
+			newFile.setVisible(false);
+			newFolder.setVisible(false);
 			separator1.setVisible(false);
             openFile.setVisible(false);
 			separator2.setVisible(false);
@@ -148,13 +150,18 @@ public class FolderTool extends AbstractTool {
             rename.setVisible(false);
             delete.setVisible(false);
 
+			if (ApplicationUtil.hasRole(clientPerson, Role.MEMBER)) {
+				newFile.setVisible(true);
+				newFolder.setVisible(true);
+			}
+			
             switch (context) {
                 case PopupMenuContext.Note -> {
 					openFile.setVisible(true);
-					
-					separator1.setVisible(true);
-					
+				
 					if (ApplicationUtil.accessNote(clientPerson, (NoteInfo) Objects.requireNonNull(getSelectedNode()))) {
+						separator1.setVisible(true);
+						
 						rename.setVisible(true);
 						delete.setVisible(true);
 						separator2.setVisible(true);
@@ -164,9 +171,11 @@ public class FolderTool extends AbstractTool {
 						author.setVisible(true);
                 }
                 case PopupMenuContext.Folder -> {
-					rename.setVisible(true);
-					delete.setVisible(true);
-					separator2.setVisible(true);
+					if (ApplicationUtil.hasRole(clientPerson, Role.MEMBER)) {
+						rename.setVisible(true);
+						delete.setVisible(true);
+						separator2.setVisible(true);
+					}
                 }
                 default -> {
                 }
@@ -245,10 +254,9 @@ public class FolderTool extends AbstractTool {
 		}
 		
 		setPopupMenuContext.accept(context);
-		
-		if (ApplicationUtil.hasRole(clientPerson, Role.MEMBER)) {
+	
+		if (ApplicationUtil.anyComponentsVisible(popupMenu))
 			popupMenu.show(tree, x, y);
-		}
 	}
 	
 	public void addFolderListener(FolderListener folderListener) {

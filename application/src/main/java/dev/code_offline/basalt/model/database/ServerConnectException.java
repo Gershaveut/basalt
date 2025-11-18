@@ -1,7 +1,11 @@
 package dev.code_offline.basalt.model.database;
 
 public class ServerConnectException extends Exception {
+	public ServerConnectException(String message) {
+		super(message);
+	}
+	
 	public ServerConnectException() {
-		super("Server connect error");
+		this("Server connect error");
 	}
 }

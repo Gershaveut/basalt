@@ -24,6 +24,8 @@ public class StartFrame extends JFrame {
 	
 	private final JList<RecentStart> recentList;
 	
+	private final JPopupMenu popupMenu;
+	
 	public StartFrame() {
 		this.setTitle(Util.APPLICATION_NAME);
 		this.setLayout(new BorderLayout());
@@ -53,7 +55,7 @@ public class StartFrame extends JFrame {
 		
 		recentList = new JList<>();
 		var recentPanel = new JPanel(new BorderLayout());
-		var popupMenu = new JPopupMenu();
+		popupMenu = new JPopupMenu();
 	
 		var openItem = new JMenuItem("Открыть");
 		var deleteItem = new JMenuItem("Удалить");
@@ -76,7 +78,7 @@ public class StartFrame extends JFrame {
 					} else if (SwingUtilities.isRightMouseButton(e)) {
 						recentList.setSelectedIndex(recentList.locationToIndex(e.getPoint()));
 						
-						popupMenu.show(recentPanel, e.getX(), e.getY());
+						showPopupMenu(recentPanel, e.getX(), e.getY());
 					}
 				}
 			}
@@ -86,7 +88,7 @@ public class StartFrame extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (ApplicationUtil.isContextKey(e) && !recentList.isSelectionEmpty()) {
-					popupMenu.show(recentPanel, 0, 0);
+					showPopupMenu(recentPanel, 0, 0);
 				} else if (ApplicationUtil.isDeleteKey(e)) {
 					deleteRecentStart();
 				}
@@ -103,6 +105,11 @@ public class StartFrame extends JFrame {
 		new StartController(new ApplicationRecentStarts(), this);
 		
 		this.setVisible(true);
+	}
+	
+	private void showPopupMenu(JPanel parent, int x, int y) {
+		if (recentList.getModel().getSize() > 0)
+			popupMenu.show(parent, x, y);
 	}
 	
 	public void updateRecents(List<RecentStart> recentStartList) {
