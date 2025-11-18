@@ -12,6 +12,7 @@ import dev.code_offline.basalt_server.BasaltApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.lang.Nullable;
 
+import javax.net.ssl.SSLException;
 import javax.swing.*;
 import java.util.List;
 
@@ -88,7 +89,7 @@ public class StartController implements StartListener {
 				addRecentStart(new RecentStart(ip, false));
 			} catch (NetworkVersionException exception) {
 				JOptionPane.showMessageDialog(startFrame, "Версии клиента и сервера не совпадают", "Ошибка", JOptionPane.ERROR_MESSAGE);
-			} catch (ServerConnectException ignored) {
+			} catch (Exception ignored) {
 				JOptionPane.showMessageDialog(startFrame, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
 			}
 		}

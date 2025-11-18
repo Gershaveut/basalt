@@ -5,8 +5,8 @@ import dev.code_offline.basalt.model.Folder;
 import dev.code_offline.basalt.model.note.Note;
 import dev.code_offline.basalt.model.person.Person;
 import dev.code_offline.basalt.model.person.Role;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.client.reactive.JdkClientHttpConnector;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,16 +16,11 @@ import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLException;
 import javax.swing.event.EventListenerList;
-import java.net.http.HttpClient;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -43,14 +38,19 @@ public class Database implements WebSocketHandler {
 	private final WebClient webClient;
 	private final CompletableFuture<WebSocketSession> session;
 	
-	public Database(String ip, String username, String password) throws ServerConnectException, NetworkVersionException {
+	public Database(String ip, String username, String password) throws ServerConnectException, NetworkVersionException, SSLException {
 		if (!ip.contains(":"))
 			ip = ip + ":" + DEFAULT_PORT;
+		
+		var sslContext = SslContextBuilder
+				.forClient()
+				.trustManager(InsecureTrustManagerFactory.INSTANCE)
+				.build();
 		
 		this.webClient = WebClient.builder()
 				.baseUrl("https://" + ip)
 				.filter(ExchangeFilterFunctions.basicAuthentication(username, password))
-				.clientConnector(new JdkClientHttpConnector(HttpClient.newBuilder().sslContext(createTrustAllSslContext()).build()))
+				.clientConnector(new ReactorClientHttpConnector(HttpClient.create().secure(sslContextSpec -> sslContextSpec.sslContext(sslContext))))
 				.build();
 	
 		try {
@@ -71,7 +71,7 @@ public class Database implements WebSocketHandler {
 		session = new StandardWebSocketClient().execute(this, "ws://" + ip + "/echo");
 	}
 	
-	public Database() throws ServerConnectException, NetworkVersionException {
+	public Database() throws ServerConnectException, NetworkVersionException, SSLException {
 		this("localhost:" + DEFAULT_PORT, "admin", "12345");
 	}
 	
@@ -80,36 +80,6 @@ public class Database implements WebSocketHandler {
 			session.get().close();
 		} catch (Exception ignored) {
 		}
-	}
-	
-	private SSLContext createTrustAllSslContext() {
-		var trustAllCerts = new TrustManager[]{
-				new X509TrustManager() {
-					@Override
-					public void checkClientTrusted(X509Certificate[] chain, String authType) {
-					}
-					
-					@Override
-					public void checkServerTrusted(X509Certificate[] chain, String authType) {
-					}
-					
-					@Override
-					public X509Certificate[] getAcceptedIssuers() {
-						return new X509Certificate[0];
-					}
-				}
-		};
-		
-		SSLContext sslContext;
-		
-		try {
-			sslContext = SSLContext.getInstance("TLS");
-			sslContext.init(null, trustAllCerts, new SecureRandom());
-		} catch (Exception exception) {
-			throw new RuntimeException(exception);
-		}
-		
-		return sslContext;
 	}
 	
 	private <T> Mono<List<T>> getEntities(Class<T> type, String uri) {
