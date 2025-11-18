@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '3.5.7'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'io.github.fvarrui.javapackager.plugin' version '1.7.6'
+}
+
+archivesBaseName = 'basalt'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.dyn4j:dyn4j:5.0.2'
+    implementation 'net.sf.doolin:javadocking:1.4.2'
+    implementation 'org.commonmark:commonmark:0.27.0'
+    implementation 'com.formdev:flatlaf:3.6.2'
+
+    implementation 'org.springframework.boot:spring-boot-starter-webflux:3.5.6'
+
+    implementation project(':server')
+    implementation project(':share')
+}
+
+application {
+    mainClass = 'dev.code_offline.basalt.Application';
+}
+
+javapackager {
+    mainClass = 'dev.code_offline.basalt.Application'
+    customizedJre = false
+    bundleJre = true
+    platform = 'auto'
+
+    name = archivesBaseName
+    organizationName = 'code-offline'
+
+    linuxConfig {
+        generateDeb = false
+        generateRpm = false
+    }
+
+    winConfig {
+        generateMsi = false
+    }
+
+    macConfig {
+        generatePkg = false
+    }
+}

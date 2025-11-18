@@ -18,8 +18,9 @@ repositories {
 }
 
 dependencies {
+	implementation project(':share')
 }
 
 application {
-	mainClass = 'dev.code_offline.basalt_server.BasaltApplication'
+	mainClass = 'dev.code_offline.basalt_server.SpringApplication'
 }

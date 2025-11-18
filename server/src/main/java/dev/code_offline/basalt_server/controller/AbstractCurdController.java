@@ -2,7 +2,7 @@ package dev.code_offline.basalt_server.controller;
 
 import dev.code_offline.basalt_server.model.Person;
 import dev.code_offline.basalt_server.model.Role;
-import dev.code_offline.basalt_server.websocket.BasaltSocketHandler;
+import dev.code_offline.basalt_server.websocket.SpringApplicationSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ import java.util.List;
 @Secured({"ROLE_GUEST"})
 public abstract class AbstractCurdController<T, ID> {
 	@Autowired
-	BasaltSocketHandler basaltSocketHandler;
+	SpringApplicationSocketHandler springApplicationSocketHandler;
 	@Autowired
 	RoleHierarchy roleHierarchy;
 	
@@ -63,7 +63,7 @@ public abstract class AbstractCurdController<T, ID> {
 	}
 	
 	protected void sync() {
-		basaltSocketHandler.sync();
+		springApplicationSocketHandler.sync();
 	}
 	
 	protected abstract CrudRepository<T, ID> getRepository();

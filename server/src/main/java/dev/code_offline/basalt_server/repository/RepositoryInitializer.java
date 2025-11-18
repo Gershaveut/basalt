@@ -1,6 +1,5 @@
 package dev.code_offline.basalt_server.repository;
 
-import dev.code_offline.basalt_server.controller.PersonController;
 import dev.code_offline.basalt_server.model.Person;
 import dev.code_offline.basalt_server.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;

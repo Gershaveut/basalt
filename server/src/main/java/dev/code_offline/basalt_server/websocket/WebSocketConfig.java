@@ -11,6 +11,6 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(@NonNull WebSocketHandlerRegistry registry) {
-        registry.addHandler(new BasaltSocketHandler(), "/echo");
+        registry.addHandler(new SpringApplicationSocketHandler(), "/echo");
     }
 }
