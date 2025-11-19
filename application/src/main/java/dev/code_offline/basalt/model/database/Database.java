@@ -8,20 +8,18 @@ import dev.code_offline.basalt_share.Util;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.lang.Nullable;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SignalType;
 import reactor.netty.http.client.HttpClient;
 
-import javax.net.ssl.*;
+import javax.net.ssl.SSLException;
 import javax.swing.event.EventListenerList;
 import java.net.URI;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +37,7 @@ public class Database implements WebSocketHandler {
 	private final EventListenerList listeners = new EventListenerList();
 	private final WebClient webClient;
 	
-	private @Nullable WebSocketSession session;
+	private final Disposable session;
 	
 	public Database(String ip, String username, String password) throws ServerConnectException, NetworkVersionException, SSLException {
 		if (!ip.contains(":"))
@@ -72,16 +70,24 @@ public class Database implements WebSocketHandler {
 			throw new ServerConnectException(exception.getMessage());
 		}
 		
-		new ReactorNettyWebSocketClient(httpClient).execute(URI.create("wss://" + ip + "/echo"), this).doOnError(throwable -> notifyListeners(DatabaseListener::onLostConnection)).subscribe();
+		session = new ReactorNettyWebSocketClient(httpClient).execute(URI.create("wss://" + ip + "/echo"), this)
+				.subscribe();
 	}
 	
 	public Database() throws ServerConnectException, NetworkVersionException, SSLException {
 		this("localhost:" + DEFAULT_PORT, "admin", "12345");
 	}
 	
+	@Override
+	public Mono<Void> handle(WebSocketSession session) {
+		return session.receive()
+				.doOnNext(webSocketMessage -> notifyListeners(DatabaseListener::sync))
+				.doOnTerminate(() -> notifyListeners(DatabaseListener::onLostConnection))
+				.then();
+	}
+	
 	public void close() {
-		if (session != null)
-			session.close();
+		session.dispose();
 	}
 	
 	private <T> Mono<List<T>> getEntities(Class<T> type, String uri) {
@@ -297,15 +303,6 @@ public class Database implements WebSocketHandler {
 	
 	private void notifyListeners(Consumer<DatabaseListener> action) {
 		Arrays.stream(listeners.getListeners(DatabaseListener.class)).toList().forEach(action);
-	}
-	
-	@Override
-	public Mono<Void> handle(WebSocketSession session) {
-		this.session = session;
-		
-		return session.receive()
-				.doOnNext(webSocketMessage -> notifyListeners(DatabaseListener::sync))
-				.then();
 	}
 }
 
