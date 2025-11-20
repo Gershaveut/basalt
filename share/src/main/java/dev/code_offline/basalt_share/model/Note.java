@@ -1,11 +1,12 @@
-package dev.code_offline.basalt_server.model;
+package dev.code_offline.basalt_share.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.lang.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Note {
@@ -17,6 +18,8 @@ public class Note {
     private @NotNull long person;
     private @NotNull String text;
     private String path;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Long> links = new ArrayList<>();
 	
 	public Note() {
 	}
@@ -27,8 +30,12 @@ public class Note {
         this.text = text;
         this.path = path;
     }
-	
-	public long getId() {
+    
+    public Note(String name, String path) {
+        this(name, 0, "", path);
+    }
+    
+    public long getId() {
         return id;
     }
     
@@ -62,5 +69,13 @@ public class Note {
     
     public void setPath(@Nullable String path) {
         this.path = path;
+    }
+    
+    public List<Long> getLinks() {
+        return links;
+    }
+    
+    public void setLinks(List<Long> links) {
+        this.links = links;
     }
 }

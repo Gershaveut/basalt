@@ -1,8 +1,8 @@
 package dev.code_offline.basalt_server.controller;
 
-import dev.code_offline.basalt_server.model.Note;
-import dev.code_offline.basalt_server.model.Person;
-import dev.code_offline.basalt_server.model.Role;
+import dev.code_offline.basalt_share.model.Note;
+import dev.code_offline.basalt_share.model.Person;
+import dev.code_offline.basalt_share.model.Role;
 import dev.code_offline.basalt_server.repository.NoteRepository;
 import dev.code_offline.basalt_server.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.function.EntityResponse;
 
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 @RestController
 @Secured({"ROLE_MEMBER"})
@@ -26,7 +30,13 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 	
 	@Override
 	public ResponseEntity<Note> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody Note entity) {
-		return super.addEntity(currentPerson, new Note(entity.getName(), currentPerson.getId(), entity.getText(), entity.getPath()));
+		var response = super.addEntity(currentPerson, new Note(entity.getName(), currentPerson.getId(), entity.getText(), entity.getPath()));
+		var body = response.getBody();
+		
+		if (body != null)
+			return updateNoteLinks(body.getId());
+		
+		return response;
 	}
 
 	@Override
@@ -47,12 +57,25 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 	
 	@PatchMapping("/{id}/rename")
 	public ResponseEntity<Note> rename(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String newName) {
-		return updateNote(currentPerson, id, note -> note.setName(newName));
+		var response = updateNote(currentPerson, id, note -> note.setName(newName));
+		var body = response.getBody();
+		
+		if (body != null) {
+			noteRepository.findAll().forEach(note -> updateNoteLinks(note.getId()));
+		}
+		
+		return response;
 	}
 	
 	@PatchMapping("/{id}/edit")
 	public ResponseEntity<Note> edit(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String newText) {
-		return updateNote(currentPerson, id, note -> note.setText(newText));
+		var response = updateNote(currentPerson, id, note -> note.setText(newText));
+		var body = response.getBody();
+		
+		if (body != null)
+			return updateNoteLinks(body.getId());
+		
+		return response;
 	}
 	
 	@PatchMapping("/{id}/move")
@@ -84,6 +107,51 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+	}
+	
+	private ResponseEntity<Note> updateNoteLinks(Long id) {
+		var noteData = noteRepository.findById(id);
+	
+		if (noteData.isPresent()) {
+			var note = noteData.get();
+			
+			var links = new ArrayList<Long>();
+			
+			var patternId = Pattern.compile("\\{(\\d*?)}");
+			var patternName = Pattern.compile("\\[\\[(.*?)]]");
+			
+			var matcherId = patternId.matcher(note.getText());
+			var matcherName = patternName.matcher(note.getText());
+			
+			while (matcherId.find()) {
+				try {
+					var number = Long.parseLong(matcherId.group(1).trim());
+					
+					if (number != note.getId() && links.stream().noneMatch(l -> l == number))
+						links.add(number);
+				} catch (Exception ignored) {
+				}
+			}
+			
+			while (matcherName.find()) {
+				try {
+					var name = matcherName.group(1).trim();
+					
+					var number = noteRepository.findByName(name).getId();
+					
+					if (number != note.getId() && links.stream().noneMatch(l -> l == number))
+						links.add(number);
+				} catch (Exception ignored) {
+				}
+			}
+			
+			note.setLinks(links);
+			noteRepository.save(note);
+			
+			return new ResponseEntity<>(note, HttpStatus.OK);
+		}
+		
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
 	private boolean accessNote(Person currnetPerson, Note note) {

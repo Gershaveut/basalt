@@ -1,7 +1,14 @@
 package dev.code_offline.basalt_server.repository;
 
-import dev.code_offline.basalt_server.model.Note;
+import dev.code_offline.basalt_share.model.Note;
+import dev.code_offline.basalt_share.model.Person;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
+
 public interface NoteRepository extends CrudRepository<Note, Long> {
+	Note findByName(String name);
+	@Query(value = "SELECT note_id FROM note_links WHERE links = ?1", nativeQuery = true)
+	List<Long> findAllIdByLink(Long id);
 }

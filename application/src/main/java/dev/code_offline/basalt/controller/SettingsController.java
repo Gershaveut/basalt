@@ -1,7 +1,7 @@
 package dev.code_offline.basalt.controller;
 
 import dev.code_offline.basalt.model.database.Database;
-import dev.code_offline.basalt.model.note.Note;
+import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt.model.settings.ApplicationSettings;
 import dev.code_offline.basalt.model.settings.SettingsModel;
 import dev.code_offline.basalt.view.ApplicationFrame;

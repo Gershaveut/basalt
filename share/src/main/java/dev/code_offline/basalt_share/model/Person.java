@@ -1,5 +1,6 @@
-package dev.code_offline.basalt_server.model;
+package dev.code_offline.basalt_share.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,8 +33,13 @@ public class Person implements UserDetails {
         this.role = role;
         this.description = description;
     }
-	
-	public long getId() {
+    
+    
+    public Person(String username, String password, Role role) {
+       this(username, password, role, null);
+    }
+    
+    public long getId() {
         return id;
     }
    
@@ -71,9 +77,15 @@ public class Person implements UserDetails {
     public void setDescription(@Nullable String description) {
         this.description = description;
     }
+  
+    @Override
+    public String toString() {
+        return username;
+    }
     
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(role.grantedAuthority);
+        return List.of(role.getGrantedAuthority());
     }
 }

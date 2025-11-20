@@ -2,8 +2,8 @@ package dev.code_offline.basalt.view.tool.person;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.ApplicationUtil;
-import dev.code_offline.basalt.model.person.Person;
-import dev.code_offline.basalt.model.person.Role;
+import dev.code_offline.basalt_share.model.Person;
+import dev.code_offline.basalt_share.model.Role;
 import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
 import org.springframework.lang.Nullable;

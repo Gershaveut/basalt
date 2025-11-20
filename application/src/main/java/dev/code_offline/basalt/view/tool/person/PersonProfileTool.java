@@ -1,7 +1,7 @@
 package dev.code_offline.basalt.view.tool.person;
 
 import com.javadocking.dockable.DockingMode;
-import dev.code_offline.basalt.model.person.Person;
+import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
 

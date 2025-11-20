@@ -2,8 +2,8 @@ package dev.code_offline.basalt.view.tool.markdown;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.ApplicationUtil;
-import dev.code_offline.basalt.model.note.Note;
-import dev.code_offline.basalt.model.person.Person;
+import dev.code_offline.basalt_share.model.Note;
+import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt.view.ApplicationFrame;
 import dev.code_offline.basalt.view.DebugModeListener;
 import dev.code_offline.basalt.view.Icons;

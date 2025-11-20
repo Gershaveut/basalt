@@ -1,4 +1,4 @@
-package dev.code_offline.basalt_server.model;
+package dev.code_offline.basalt_share.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
@@ -20,6 +20,13 @@ public class Folder {
 		path = SEPARATOR + path;
 		
 		this.path = path;
+	}
+	
+	public Folder(String path, @Nullable Folder parent) {
+		this(path);
+		
+		if (parent != null)
+			setParent(parent.getPath());
 	}
 	
 	public static Folder of(String path) {
@@ -60,5 +67,10 @@ public class Folder {
 	@JsonIgnore
 	public void setParent(String parent) {
 		path = parent + SEPARATOR + getName();
+	}
+	
+	@Override
+	public String toString() {
+		return getName();
 	}
 }

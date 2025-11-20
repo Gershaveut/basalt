@@ -2,10 +2,10 @@ package dev.code_offline.basalt.view.tool.folder;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.ApplicationUtil;
-import dev.code_offline.basalt.model.Folder;
+import dev.code_offline.basalt_share.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
-import dev.code_offline.basalt.model.person.Person;
-import dev.code_offline.basalt.model.person.Role;
+import dev.code_offline.basalt_share.model.Person;
+import dev.code_offline.basalt_share.model.Role;
 import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
 import org.springframework.lang.Nullable;
@@ -307,10 +307,11 @@ public class FolderTool extends AbstractTool {
 		});
 		
 		var state = getExpansionState();
-		
-		tree.setModel(new JTree(rootNode).getModel());
-		
-		setExpansionState(state);
+	
+		SwingUtilities.invokeLater(() -> {
+			tree.setModel(new JTree(rootNode).getModel());
+			setExpansionState(state);
+		});
 	}
 	
 	private void createFolder(Folder folder, ArrayList<DefaultMutableTreeNode> folderNodes, DefaultMutableTreeNode root) {

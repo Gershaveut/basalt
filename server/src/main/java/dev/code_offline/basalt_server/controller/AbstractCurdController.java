@@ -1,7 +1,7 @@
 package dev.code_offline.basalt_server.controller;
 
-import dev.code_offline.basalt_server.model.Person;
-import dev.code_offline.basalt_server.model.Role;
+import dev.code_offline.basalt_share.model.Person;
+import dev.code_offline.basalt_share.model.Role;
 import dev.code_offline.basalt_server.websocket.SpringApplicationSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
@@ -59,7 +59,7 @@ public abstract class AbstractCurdController<T, ID> {
 	}
 	
 	protected boolean hasRole(Person person, Role role) {
-		return roleHierarchy.getReachableGrantedAuthorities(person.getAuthorities()).contains(role.grantedAuthority);
+		return roleHierarchy.getReachableGrantedAuthorities(person.getAuthorities()).contains(role.getGrantedAuthority());
 	}
 	
 	protected void sync() {

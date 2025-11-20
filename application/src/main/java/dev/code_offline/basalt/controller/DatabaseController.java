@@ -7,16 +7,16 @@ import com.javadocking.dock.Position;
 import com.javadocking.dock.TabDock;
 import com.javadocking.dockable.Dockable;
 import dev.code_offline.basalt.ApplicationUtil;
-import dev.code_offline.basalt.model.Folder;
+import dev.code_offline.basalt_share.model.Folder;
 import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.model.database.DatabaseListener;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.model.graph.Node;
-import dev.code_offline.basalt.model.note.Note;
+import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt.model.note.NoteNode;
-import dev.code_offline.basalt.model.person.Person;
-import dev.code_offline.basalt.model.person.Role;
+import dev.code_offline.basalt_share.model.Person;
+import dev.code_offline.basalt_share.model.Role;
 import dev.code_offline.basalt.view.ApplicationFrame;
 import dev.code_offline.basalt.view.menubar.MenuBar;
 import dev.code_offline.basalt.view.menubar.MenuBarListener;
@@ -181,42 +181,6 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     @Override
     public void sync() {
         database.getNotes().subscribe(notes -> {
-            notes.forEach(note -> {
-                var links = new ArrayList<Long>();
-                
-                var patternId = Pattern.compile("\\[(\\d*?)]");
-                var patternName = Pattern.compile("\\[\\[(.*?)]]");
-                
-                var matcherId = patternId.matcher(note.getText());
-                var matcherName = patternName.matcher(note.getText());
-                
-                while (matcherId.find()) {
-                    try {
-                        var number = Long.parseLong(matcherId.group(1).trim());
-                        
-                        if (number != note.getId() && links.stream().noneMatch(l -> l == number))
-                            links.add(number);
-                    } catch (Exception ignored) {
-                    }
-                }
-                
-                while (matcherName.find()) {
-                    try {
-                        var name = matcherName.group(1).trim();
-                        
-                        notes.stream().filter(n -> n.getName().matches(name)).forEach(findNote -> {
-                            var number = findNote.getId();
-                            
-                            if (number != note.getId() && links.stream().noneMatch(l -> l == number))
-                                links.add(number);
-                        });
-                    } catch (Exception ignored){
-                    }
-                }
-                
-                note.setLinks(links);
-            });
-            
             var notesInfo = notes.stream().map(n -> new NoteInfo(n, database)).toList();
             var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
           

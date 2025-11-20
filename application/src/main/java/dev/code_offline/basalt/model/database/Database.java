@@ -1,9 +1,9 @@
 package dev.code_offline.basalt.model.database;
 
-import dev.code_offline.basalt.model.Folder;
-import dev.code_offline.basalt.model.note.Note;
-import dev.code_offline.basalt.model.person.Person;
-import dev.code_offline.basalt.model.person.Role;
+import dev.code_offline.basalt_share.model.Folder;
+import dev.code_offline.basalt_share.model.Note;
+import dev.code_offline.basalt_share.model.Person;
+import dev.code_offline.basalt_share.model.Role;
 import dev.code_offline.basalt_share.Util;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -23,8 +23,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class Database implements WebSocketHandler {

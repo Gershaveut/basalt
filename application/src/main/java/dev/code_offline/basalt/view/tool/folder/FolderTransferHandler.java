@@ -1,6 +1,6 @@
 package dev.code_offline.basalt.view.tool.folder;
 
-import dev.code_offline.basalt.model.Folder;
+import dev.code_offline.basalt_share.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
 import org.springframework.lang.Nullable;
 
