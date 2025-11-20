@@ -222,12 +222,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                 
                 markdownEditor.addMarkdownListener(text -> database.editNote(note.getId(), text));
                 
-                var addToDock = tabDock.isEmpty();
-                
-                tabDock.addDockable(markdownEditor.getDockable(), new Position());
-                
-                if (addToDock)
-                    dock.addChildDock(tabDock, new Position(Position.CENTER));
+                openDock(markdownEditor.getDockable());
             });
         });
     }
@@ -299,24 +294,18 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     
     @Override
     public void openProfile(long id) {
-        TreePath treeNode = personsTool.getTree().getSelectionPath();
-        
-        if (treeNode != null) {
-            var selected = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
+        database.getPerson(id).subscribe(person -> {
+            var personProfile = new PersonProfileTool(person);
             
-            if (selected instanceof Person person) {
-                database.getPerson(person.getId()).subscribe(person1 -> {
-                    var personProfile = new PersonProfileTool(person1);
-                
-                    var addToDock = tabDock.isEmpty();
-                
-                    tabDock.addDockable(personProfile.getDockable(), new Position());
-                
-                    if (addToDock)
-                        dock.addChildDock(tabDock, new Position(Position.CENTER));
-                });
-            }
-        }
+            openDock(personProfile.getDockable());
+        });
+    }
+    
+    private void openDock(Dockable dockable) {
+        if (tabDock.isEmpty())
+            dock.addChildDock(tabDock, new Position(Position.CENTER));
+        
+        tabDock.addDockable(dockable, new Position());
     }
     
     @Override

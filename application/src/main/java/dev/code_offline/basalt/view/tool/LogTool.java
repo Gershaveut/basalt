@@ -1,6 +1,8 @@
 package dev.code_offline.basalt.view.tool;
 
 import com.javadocking.dockable.DockingMode;
+import dev.code_offline.basalt.Application;
+import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt.view.Icons;
 import org.springframework.lang.Nullable;
 
@@ -15,6 +17,8 @@ public class LogTool extends AbstractTool {
 	
 	public LogTool() {
 		this.setLayout(new BorderLayout());
+		
+		this.setPreferredSize(ApplicationUtil.BOX_WINDOW_DIMENSION_TOOL);
 		
 		logArena = new JTextArea();
 		logScroll = new JScrollPane(logArena);

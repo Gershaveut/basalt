@@ -1,6 +1,7 @@
 package dev.code_offline.basalt.view.tool.graph;
 
 import com.javadocking.dockable.DockingMode;
+import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt.model.graph.Graph;
 import dev.code_offline.basalt.view.ApplicationFrame;
 import dev.code_offline.basalt.view.DebugModeListener;
@@ -19,6 +20,8 @@ public class GraphTool extends AbstractTool implements DebugModeListener {
     
     public GraphTool(Graph graph, ApplicationFrame applicationFrame) {
         this.setLayout(new BorderLayout());
+        
+        this.setPreferredSize(ApplicationUtil.BOX_WINDOW_DIMENSION_TOOL);
 
         graphCanvas = new GraphCanvas(graph);
         this.add(graphCanvas, BorderLayout.CENTER);

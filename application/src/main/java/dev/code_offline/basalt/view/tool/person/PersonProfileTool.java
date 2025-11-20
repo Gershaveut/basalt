@@ -1,6 +1,7 @@
 package dev.code_offline.basalt.view.tool.person;
 
 import com.javadocking.dockable.DockingMode;
+import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
@@ -14,6 +15,8 @@ public class PersonProfileTool extends AbstractTool {
 	
 	public PersonProfileTool(Person person) {
 		this.setLayout(new BorderLayout());
+		
+		this.setPreferredSize(ApplicationUtil.BOX_WINDOW_DIMENSION_TOOL);
 		
 		this.person = person;
 		

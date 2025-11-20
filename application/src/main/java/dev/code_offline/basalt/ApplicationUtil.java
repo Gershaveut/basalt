@@ -19,6 +19,8 @@ import java.util.function.Supplier;
 
 
 public final class ApplicationUtil {
+    public static final Dimension BOX_WINDOW_DIMENSION_TOOL = new Dimension(500, 500);
+    
     public static Vector2 pointToVector(Point point) {
         return new Vector2(point.x, point.y);
     }

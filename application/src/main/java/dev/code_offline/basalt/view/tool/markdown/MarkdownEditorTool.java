@@ -33,7 +33,9 @@ public class MarkdownEditorTool extends AbstractTool implements DebugModeListene
 	private final Note note;
 	
 	public MarkdownEditorTool(Note note, ApplicationFrame applicationFrame, Person clientPerson) {
-		setLayout(new BorderLayout());
+		this.setLayout(new BorderLayout());
+		
+		this.setPreferredSize(ApplicationUtil.BOX_WINDOW_DIMENSION_TOOL);
 		
 		this.note = note;
 		
