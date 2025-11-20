@@ -6,6 +6,7 @@ import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class PersonProfileTool extends AbstractTool {
@@ -17,13 +18,19 @@ public class PersonProfileTool extends AbstractTool {
 		this.person = person;
 		
 		var infoPanel = Box.createVerticalBox();
-		var usernameLabel = new JLabel(person.getUsername());
+		var usernameLabel = new JLabel("Имя пользователя: " + person.getUsername());
 		var roleLabel = new JLabel("Роль: " + person.getRole().name);
-		var descriptionLabel = new JLabel("Описание: " + person.getDescription());
+		var descriptionLabel = new JLabel("Описание:");
+		var descriptionTextArea = new JTextArea(person.getDescription());
+		
+		descriptionTextArea.setEditable(false);
 		
 		infoPanel.add(usernameLabel);
 		infoPanel.add(roleLabel);
 		infoPanel.add(descriptionLabel);
+		infoPanel.add(new JScrollPane(descriptionTextArea));
+		
+		infoPanel.setBorder(new EmptyBorder(0, 15, 15, 15));
 		
 		this.add(infoPanel, BorderLayout.CENTER);
 	}
