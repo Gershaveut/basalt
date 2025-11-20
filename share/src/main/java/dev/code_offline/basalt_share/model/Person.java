@@ -22,9 +22,9 @@ public class Person implements UserDetails {
     private @NotNull String username;
     private @NotNull String password;
     private @NotNull Role role;
-    private String description;
+    private @Nullable String description;
 	
-	public Person() {
+	private Person() {
 	}
 	
 	public Person(String username, String password, Role role, @Nullable String description) {

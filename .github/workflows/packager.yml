@@ -31,8 +31,8 @@ jobs:
         run: |
           wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
           chmod +x appimagetool
-          mkdir -p /home/runner/work/basalt/basalt/app/build/assets/ 
-          mv appimagetool /home/runner/work/basalt/basalt/app/build/assets/
+          mkdir -p /home/runner/work/basalt/basalt/application/build/assets/ 
+          mv appimagetool /home/runner/work/basalt/basalt/application/build/assets/
 
       - name: Run Java Packager
         run: ./gradlew package

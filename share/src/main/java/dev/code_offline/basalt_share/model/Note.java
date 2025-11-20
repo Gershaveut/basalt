@@ -17,11 +17,11 @@ public class Note {
     private @NotNull String name;
     private @NotNull long person;
     private @NotNull String text;
-    private String path;
+    private @Nullable String path;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Long> links = new ArrayList<>();
 	
-	public Note() {
+	private Note() {
 	}
 	
 	public Note(String name, long person, String text, @Nullable String path) {
