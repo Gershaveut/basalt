@@ -79,4 +79,8 @@ public final class ApplicationUtil {
     public static boolean anyComponentsVisible(JComponent component) {
         return Arrays.stream(component.getComponents()).anyMatch(Component::isVisible);
     }
+    
+    public static void showErrorDialog(Component parent, String message) {
+        JOptionPane.showMessageDialog(parent, message, "Ошибка", JOptionPane.ERROR_MESSAGE);
+    }
 }

@@ -25,7 +25,10 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 
 	@PatchMapping("/{id}/move")
 	public ResponseEntity<Folder> move(@PathVariable String id, @RequestBody String path) {
-		if (id.equals(path))
+		var newFolder = Folder.of(id);
+		newFolder.setParent(path);
+		
+		if (id.equals(path) || folderRepository.existsById(newFolder.getPath()))
 			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 		
 		var response = updateFolder(id, folder -> folder.setParent(path));
@@ -36,6 +39,12 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 	
 	@PatchMapping("/{id}/rename")
 	public ResponseEntity<Folder> rename(@PathVariable String id, @RequestBody String newName) {
+		var newFolder = Folder.of(id);
+		newFolder.setName(newName);
+		
+		if (folderRepository.existsById(newFolder.getPath()))
+			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+		
 		var response = updateFolder(id, folder -> folder.setName(newName));
 		sync();
 		return response;

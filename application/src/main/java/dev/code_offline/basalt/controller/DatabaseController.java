@@ -29,6 +29,8 @@ import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorTool;
 import dev.code_offline.basalt.view.tool.person.PersonProfileTool;
 import dev.code_offline.basalt.view.tool.person.PersonsListener;
 import dev.code_offline.basalt.view.tool.person.PersonsTool;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
@@ -36,7 +38,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
+import java.util.function.Function;
 
 public class DatabaseController implements DatabaseListener, FolderListener, PersonsListener {
 	public final Database database;
@@ -51,7 +53,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     private final TabDock tabDock;
     private final CompositeDock dock;
 
-    private final String basaltFrameTitle;
+    private final String applicationFrameTitle;
     
     public DatabaseController(ApplicationFrame applicationFrame, GraphTool graphTool, FolderTool folderTool, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController, PersonsTool personsTool) {
         this.startFrame = startFrame;
@@ -64,7 +66,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
 		this.database = database;
 		this.startController = startController;
 		
-        this.basaltFrameTitle = applicationFrame.getTitle();
+        this.applicationFrameTitle = applicationFrame.getTitle();
 		
 		var tree = folderTool.getTree();
 
@@ -185,7 +187,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
             var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
           
             database.getClientPerson().subscribe(clientPerson -> {
-                applicationFrame.setTitle(basaltFrameTitle + " - " + clientPerson.getRole().name);
+                applicationFrame.setTitle(applicationFrameTitle + " - " + clientPerson.getRole().name);
                 
                 database.getFolders().subscribe(folders -> {
                     folderTool.setModel(notesInfo, folders, clientPerson);
@@ -235,7 +237,11 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
         
         database.addNote(new Note("Новая записка", path));
     }
-
+    
+    private void showErrorDialog(String message) {
+        ApplicationUtil.showErrorDialog(applicationFrame, message);
+    }
+    
     @Override
     public void openFile(long id) {
         openNote(id);
@@ -263,33 +269,76 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
         if (id.equals(path))
             return;
         
-        database.moveFolder(id, path);
+        database.moveFolder(id, path, httpStatusCode -> {
+            if (httpStatusCode == HttpStatus.CONFLICT) {
+                showErrorDialog("Неправильное место размещения папки!");
+                return true;
+            }
+            
+            return false;
+        });
     }
     
     @Override
     public void author(long id, String author) {
+        Function<HttpStatusCode, Boolean> onError = (httpStatusCode) -> {
+            if (httpStatusCode == HttpStatus.NOT_FOUND) {
+                showErrorDialog("Пользователь не найден!");
+                
+                return true;
+            }
+            
+            return false;
+        };
+        
         try {
-            database.authorNote(id, Long.parseLong(author));
+            database.authorNote(id, Long.parseLong(author), onError);
         } catch (Exception ignored) {
-            database.getPerson(author).subscribe(person -> {
-                database.authorNote(id, person.getId());
-            });
+            var person = database.getPerson(author).block();
+            long peronId = -1;
+            
+            if (person != null)
+                peronId = person.getId();
+                
+            database.authorNote(id, peronId, onError);
         }
     }
     
     @Override
     public void renameNote(long id, String newName) {
-        database.renameNote(id, newName);
+        database.renameNote(id, newName, httpStatusCode -> {
+            if (httpStatusCode == HttpStatus.CONFLICT) {
+                showErrorDialog("Имя записки уже занято!");
+                return true;
+            }
+            
+            return false;
+		});
     }
-
+   
     @Override
     public void renameFolder(String path, String newName) {
-        database.renameFolder(path, newName);
+        database.renameFolder(path, newName, httpStatusCode -> {
+            if (httpStatusCode == HttpStatus.CONFLICT) {
+                showErrorDialog("Имя папки уже занято!");
+                return true;
+            }
+            
+            return false;
+        });
     }
     
     @Override
     public void createPerson(Person person) {
-        database.addPerson(person);
+        database.addPerson(person, httpStatusCode -> {
+            if (httpStatusCode == HttpStatus.CONFLICT) {
+                showErrorDialog("Пользователь с таким именем уже существует!");
+                
+                return true;
+            }
+            
+            return false;
+        });
     }
     
     @Override

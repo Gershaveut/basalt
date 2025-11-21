@@ -97,6 +97,9 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 	@Secured({"ROLE_MODERATOR"})
 	@PatchMapping("/{id}/author")
 	public ResponseEntity<Note> author(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody Long newAuthor) {
+		if (!personRepository.existsById(newAuthor))
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		
 		return updateNote(currentPerson, id, note -> note.setPerson(newAuthor));
 	}
 	

@@ -37,6 +37,9 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	
 	@PatchMapping("/rename")
 	public ResponseEntity<Person> rename(@AuthenticationPrincipal Person currentPerson, @RequestBody String newName) {
+		if (personRepository.findByUsername(newName) != null)
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		
 		var person = personRepository.findById(currentPerson.getId()).orElseThrow();
 		
 		person.setUsername(newName);

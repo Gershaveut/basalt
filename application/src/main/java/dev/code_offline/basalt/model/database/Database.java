@@ -7,9 +7,12 @@ import dev.code_offline.basalt_share.model.Role;
 import dev.code_offline.basalt_share.Util;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
@@ -23,7 +26,9 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Database implements WebSocketHandler {
 	private static final String NOTES = "/notes";
@@ -103,15 +108,20 @@ public class Database implements WebSocketHandler {
 				.bodyToMono(type);
 	}
 	
-	private <T> void addEntity(String uri, T entity) {
+	private <T> void addEntity(String uri, T entity, Function<HttpStatusCode, Boolean> onError) {
 		webClient.post()
 				.uri(uri)
 				.bodyValue(entity)
 				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()
 				.subscribe();
 	}
-
+	
+	private <T> void addEntity(String uri, T entity) {
+		addEntity(uri, entity, httpStatusCode -> false);
+	}
+	
 	private void deleteEntity(String uri, String id) {
 		 webClient.delete()
 				.uri(uri + "/" + id)
@@ -162,8 +172,8 @@ public class Database implements WebSocketHandler {
 		addEntity(NOTES, note);
 	}
 	
-	public void addPerson(Person person) {
-		addEntity(PERSONS + "/register", person);
+	public void addPerson(Person person, Function<HttpStatusCode, Boolean> onError) {
+		addEntity(PERSONS + "/register", person, onError);
 	}
 	
 	public void addFolder(Folder folder) {
@@ -200,11 +210,12 @@ public class Database implements WebSocketHandler {
 		deleteEntity(FOLDERS, path);
 	}
 
-	public void renameClientPerson(String newName) {
+	public void renameClientPerson(String newName, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
 				.uri(PERSONS + "/rename")
 				.bodyValue(newName)
 				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()
 				.subscribe();
 	}
@@ -237,11 +248,12 @@ public class Database implements WebSocketHandler {
 				.subscribe();
 	}
 	
-	public void renameNote(long id, String newName) {
+	public void renameNote(long id, String newName, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
 				.uri(NOTES + "/" + id + "/rename")
 				.bodyValue(newName)
 				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()
 				.subscribe();
 	}
@@ -264,31 +276,44 @@ public class Database implements WebSocketHandler {
 				.subscribe();
 	}
 	
-	public void authorNote(long id, long newAuthor) {
+	public void authorNote(long id, long newAuthor, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
 				.uri(NOTES + "/" + id + "/author")
 				.bodyValue(newAuthor)
 				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()
 				.subscribe();
 	}
 	
-	public void moveFolder(String id, String path) {
+	public void moveFolder(String id, String path, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
 				.uri(FOLDERS + "/" + id + "/move")
 				.bodyValue(path)
 				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()
 				.subscribe();
 	}
 	
-	public void renameFolder(String id, String newName) {
+	public void renameFolder(String id, String newName, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
 				.uri(FOLDERS + "/" + id + "/rename")
 				.bodyValue(newName)
 				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()
 				.subscribe();
+	}
+	
+	private Function<ClientResponse, Mono<? extends Throwable>> handleError(Function<HttpStatusCode, Boolean> onError) {
+		return clientResponse -> {
+			if (onError.apply(clientResponse.statusCode())) {
+				return Mono.empty();
+			} else {
+				return Mono.error(new WebClientResponseException(clientResponse.statusCode().value(), "", null, null, null));
+			}
+		};
 	}
 	
 	public void addDatabaseListener(DatabaseListener clientListener) {

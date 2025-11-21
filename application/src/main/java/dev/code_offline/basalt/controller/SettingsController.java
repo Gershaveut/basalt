@@ -1,5 +1,6 @@
 package dev.code_offline.basalt.controller;
 
+import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt.model.settings.ApplicationSettings;
@@ -10,6 +11,7 @@ import dev.code_offline.basalt.view.settings.SettingsListener;
 import dev.code_offline.basalt.view.tool.graph.GraphCanvas;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 public class SettingsController implements SettingsListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(SettingsController.class);
@@ -24,7 +26,15 @@ public class SettingsController implements SettingsListener {
             applicationSettings = new ApplicationSettings(person);
             
             applicationSettings.getUsername().addSettingListener(value -> {
-                database.renameClientPerson(value.toString());
+                database.renameClientPerson(value.toString(), httpStatusCode -> {
+                    if (httpStatusCode == HttpStatus.CONFLICT) {
+                        ApplicationUtil.showErrorDialog(settingsFrame, "Имя пользователя уже занято!");
+                        
+                        return true;
+                    }
+                    
+                    return false;
+                });
             });
             
             applicationSettings.getPassword().addSettingListener(value -> {
