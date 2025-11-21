@@ -180,8 +180,12 @@ public class SettingsFrame extends JFrame {
                     
                     var field = new JTextField();
                     
+                    if (setting.isHideValue())
+                        field = new JPasswordField();
+                    
                     field.setMaximumSize(new Dimension(200, settingBox.getPreferredSize().height));
                     
+                    var finalField = field;
                     field.getDocument().addDocumentListener(new DocumentListener() {
                         @Override
                         public void insertUpdate(DocumentEvent e) {
@@ -199,7 +203,7 @@ public class SettingsFrame extends JFrame {
                         }
                         
                         private void onTextUpdate() {
-                            notifyListeners(settingsListener -> settingsListener.setValue(setting.getName(), field.getText()));
+                            notifyListeners(settingsListener -> settingsListener.setValue(setting.getName(), finalField.getText()));
                         }
                     });
                     

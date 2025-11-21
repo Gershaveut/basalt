@@ -17,6 +17,8 @@ public class Setting implements Cloneable {
     private @Nullable Object value;
     @JsonIgnore
     private final boolean actionSetting;
+    @JsonIgnore
+    private final boolean hideValue;
     
     private final EventListenerList listeners = new EventListenerList();
 
@@ -25,17 +27,18 @@ public class Setting implements Cloneable {
         this(name, null, value);
     }
     
-    public Setting(String name, @Nullable String description, Object defaultValue, boolean actionSetting) {
+    public Setting(String name, @Nullable String description, Object defaultValue, boolean actionSetting, boolean hideValue) {
         this.name = name;
         this.description = description;
         this.defaultValue = defaultValue;
         this.actionSetting = actionSetting;
+        this.hideValue = hideValue;
         
         this.value = this.defaultValue;
     }
     
     public Setting(String name, @Nullable String description, Object defaultValue) {
-        this(name, description, defaultValue, false);
+        this(name, description, defaultValue, false, false);
     }
 
     public String getName() {
@@ -53,7 +56,11 @@ public class Setting implements Cloneable {
     public boolean isActionSetting() {
         return actionSetting;
     }
-
+    
+    public boolean isHideValue() {
+        return hideValue;
+    }
+    
     public @Nullable Object getValue() {
         return value;
     }

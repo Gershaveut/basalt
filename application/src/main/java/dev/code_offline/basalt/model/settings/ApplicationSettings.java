@@ -47,9 +47,9 @@ public class ApplicationSettings {
 		if (defaultDescription == null)
 			defaultDescription = "";
 		
-		username = new Setting("Имя пользователя", null, clientPerson.getUsername(), true);
-		password = new Setting("Пароль", null, clientPerson.getPassword(), true);
-		description = new Setting("Описание", null, defaultDescription, true);
+		username = new Setting("Имя пользователя", null, clientPerson.getUsername(), true, false);
+		password = new Setting("Пароль", null, "", true, true);
+		description = new Setting("Описание", null, defaultDescription, true, false);
 		
 		var graphCategory = new SettingsCategory("Граф");
 		
