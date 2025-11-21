@@ -31,7 +31,7 @@ public class Note {
         this.path = path;
     }
     
-    public Note(String name, String path) {
+    public Note(String name, @Nullable String path) {
         this(name, 0, "", path);
     }
     

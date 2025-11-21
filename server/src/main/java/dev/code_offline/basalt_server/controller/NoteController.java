@@ -30,7 +30,15 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 	
 	@Override
 	public ResponseEntity<Note> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody Note entity) {
-		var response = super.addEntity(currentPerson, new Note(entity.getName(), currentPerson.getId(), entity.getText(), entity.getPath()));
+		var name = entity.getName();
+		var number = 0;
+		
+		while (noteRepository.findByName(name) != null) {
+			++number;
+			name = entity.getName() + " " + number;
+		}
+		
+		var response = super.addEntity(currentPerson, new Note(name, currentPerson.getId(), entity.getText(), entity.getPath()));
 		var body = response.getBody();
 		
 		if (body != null)
@@ -57,6 +65,9 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 	
 	@PatchMapping("/{id}/rename")
 	public ResponseEntity<Note> rename(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String newName) {
+		if (noteRepository.findByName(newName) != null)
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		
 		var response = updateNote(currentPerson, id, note -> note.setName(newName));
 		var body = response.getBody();
 		
