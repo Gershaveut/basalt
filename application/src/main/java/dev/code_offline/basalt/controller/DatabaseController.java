@@ -68,25 +68,6 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
 		
         this.applicationFrameTitle = applicationFrame.getTitle();
 		
-		var tree = folderTool.getTree();
-
-        tree.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
-                    openSelectedNote();
-                }
-            }
-        });
-        tree.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    openSelectedNote();
-                }
-            }
-        });
-
         folderTool.addFolderListener(this);
         personsTool.addPersonsListener(this);
 
@@ -104,11 +85,6 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
         sync();
 
         menuBar.addMenuBarListener(new MenuBarListener() {
-            @Override
-            public void newFile() {
-                newFileCreate(null);
-            }
-            
             @Override
             public void closeProject() {
                 close();
@@ -140,8 +116,12 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                 });
                 
                 dockables.forEach(dockable -> {
-                    if (((AbstractTool) dockable).getDockable() instanceof MarkdownEditorTool markdownEditorTool)
-                        markdownEditorTool.save();
+                    if (dockable instanceof AbstractTool abstractTool) {
+                        var toolDockable = abstractTool.getDockable();
+                        if (toolDockable instanceof MarkdownEditorTool editor) {
+                            editor.save();
+                        }
+                    }
                 });
             }
             
@@ -228,15 +208,6 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
             });
         });
     }
-
-    private void newFileCreate(@Nullable Folder folder) {
-        String path = null;
-        
-        if (folder != null)
-            path = folder.getPath();
-        
-        database.addNote(new Note("Новая записка", path));
-    }
     
     private void showErrorDialog(String message) {
         ApplicationUtil.showErrorDialog(applicationFrame, message);
@@ -249,7 +220,12 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
 
     @Override
     public void newFile(@Nullable Folder parent) {
-        newFileCreate(parent);
+        String path = null;
+        
+        if (parent != null)
+            path = parent.getPath();
+            
+        database.addNote(new Note("Новая записка", path));
     }
 
     @Override

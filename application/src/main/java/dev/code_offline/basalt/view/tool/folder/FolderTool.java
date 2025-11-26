@@ -53,12 +53,22 @@ public class FolderTool extends AbstractTool {
 		var rename = new JMenuItem("Переименовать");
 		var delete = new JMenuItem("Удалить");
 		
+		registerAccelerator(newFile, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
+		registerAccelerator(newFolder, KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+		
+		registerAccelerator(openFile, KeyStroke.getKeyStroke("ENTER"));
+		
+		registerAccelerator(author, KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.ALT_DOWN_MASK));
+		registerAccelerator(rename, KeyStroke.getKeyStroke("F2"));
+		registerAccelerator(delete, KeyStroke.getKeyStroke("DELETE"));
+		
 		openFile.addActionListener(e -> {
-			assert getSelectedNode() != null;
-			var selectedNote = (NoteInfo) getSelectedNode();
-			
-			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-				listener.openFile(selectedNote.getId());
+			if (getSelectedNode() != null) {
+				var selectedNote = (NoteInfo) getSelectedNode();
+				
+				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+					listener.openFile(selectedNote.getId());
+				}
 			}
 		});
 		newFile.addActionListener(e -> {
@@ -91,42 +101,54 @@ public class FolderTool extends AbstractTool {
 			}
 		});
 		author.addActionListener(e -> {
-			assert getSelectedNode() != null;
-			NoteInfo note = (NoteInfo) getSelectedNode();
-			
-			var input = JOptionPane.showInputDialog(parentFrame, "Назначить автора", note.getName(), JOptionPane.PLAIN_MESSAGE);
-			
-			if (input != null && !input.isEmpty()) {
-				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-					listener.author(note.getId(), input);
-				}
-			}
-		});
-		rename.addActionListener(e -> {
-			assert getSelectedNode() != null;
-            String name;
-
-            if (getSelectedNode() instanceof NoteInfo note) {
-                name = note.getName();
-            } else {
-                name = ((Folder) getSelectedNode()).getName();
-            }
-			
-			var input = JOptionPane.showInputDialog(parentFrame, "Переименовать", name, JOptionPane.PLAIN_MESSAGE);
-
-			if (input != null && !input.isEmpty()) {
-				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-					if (getSelectedNode() instanceof NoteInfo note) {
-						listener.renameNote(note.getId(), input);
-					} else {
-						var folder = (Folder) getSelectedNode();
-						
-						listener.renameFolder(folder.getPath(), input);
+			if (getSelectedNode() != null) {
+				NoteInfo note = (NoteInfo) getSelectedNode();
+				
+				var input = JOptionPane.showInputDialog(parentFrame, "Назначить автора", note.getName(), JOptionPane.PLAIN_MESSAGE);
+				
+				if (input != null && !input.isEmpty()) {
+					for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+						listener.author(note.getId(), input);
 					}
 				}
 			}
 		});
-		delete.addActionListener(e -> deleteSelection());
+		rename.addActionListener(e -> {
+			if (getSelectedNode() != null) {
+				String name;
+				
+				if (getSelectedNode() instanceof NoteInfo note) {
+					name = note.getName();
+				} else {
+					name = ((Folder) getSelectedNode()).getName();
+				}
+				
+				var input = JOptionPane.showInputDialog(parentFrame, "Переименовать", name, JOptionPane.PLAIN_MESSAGE);
+				
+				if (input != null && !input.isEmpty()) {
+					for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+						if (getSelectedNode() instanceof NoteInfo note) {
+							listener.renameNote(note.getId(), input);
+						} else {
+							var folder = (Folder) getSelectedNode();
+							
+							listener.renameFolder(folder.getPath(), input);
+						}
+					}
+				}
+			}
+		});
+		delete.addActionListener(e -> {
+			if (getSelectedNode() != null) {
+				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+					if (getSelectedNode() instanceof NoteInfo note) {
+						listener.deleteNote(note.getId());
+					} else {
+						listener.deleteFolder(((Folder) getSelectedNode()).getPath());
+					}
+				}
+			}
+		});
 		
 		var separator1 = new JSeparator();
 		var separator2 = new JSeparator();
@@ -201,13 +223,19 @@ public class FolderTool extends AbstractTool {
 				}
 			}
 		});
+		tree.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+					openFile.doClick();
+				}
+			}
+		});
 		tree.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (ApplicationUtil.isContextKey(e)) {
 					showPopupMenu(setPopupMenuContext, 0, 0);
-				} else if (ApplicationUtil.isDeleteKey(e) && getSelectedNode() != null) {
-					deleteSelection();
 				}
 			}
 		});
@@ -230,18 +258,6 @@ public class FolderTool extends AbstractTool {
 			return null;
 		
 		return ((DefaultMutableTreeNode) selectedTreePath.getParentPath().getLastPathComponent()).getUserObject();
-	}
-	
-	private void deleteSelection() {
-		assert getSelectedNode() != null;
-		
-		for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-			if (getSelectedNode() instanceof NoteInfo note) {
-				listener.deleteNote(note.getId());
-			} else {
-				listener.deleteFolder(((Folder) getSelectedNode()).getPath());
-			}
-		}
 	}
 	
 	private void showPopupMenu(Consumer<PopupMenuContext> setPopupMenuContext, int x, int y) {
@@ -329,7 +345,10 @@ public class FolderTool extends AbstractTool {
 		
 		parentNode.add(folderNode);
 		folderNodes.add(folderNode);
-		
+	}
+	
+	private void registerAccelerator(JMenuItem menuItem, KeyStroke keyStroke) {
+		ApplicationUtil.registerAccelerator(menuItem, tree, keyStroke);
 	}
 	
 	public JTree getTree() {

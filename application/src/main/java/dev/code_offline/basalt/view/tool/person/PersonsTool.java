@@ -46,6 +46,11 @@ public class PersonsTool extends AbstractTool {
 		open = new JMenuItem("Открыть профиль");
 		role = new JMenuItem("Назначить роль");
 		delete = new JMenuItem("Удалить");
+
+		registerAccelerator(createPerson, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
+		registerAccelerator(open, KeyStroke.getKeyStroke("ENTER"));
+		registerAccelerator(role, KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.ALT_DOWN_MASK));
+		registerAccelerator(delete, KeyStroke.getKeyStroke("DELETE"));
 		
 		separator1 = new JSeparator();
 		separator2 = new JSeparator();
@@ -248,6 +253,9 @@ public class PersonsTool extends AbstractTool {
 		setExpansionState(state);
 	}
 	
+	private void registerAccelerator(JMenuItem menuItem, KeyStroke keyStroke) {
+		ApplicationUtil.registerAccelerator(menuItem, tree, keyStroke);
+	}
 	public JTree getTree() {
 		return tree;
 	}

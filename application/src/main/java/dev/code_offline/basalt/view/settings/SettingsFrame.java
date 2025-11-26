@@ -1,5 +1,6 @@
 package dev.code_offline.basalt.view.settings;
 
+import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt.model.settings.SettingsModel;
 import org.springframework.lang.Nullable;
 
@@ -186,25 +187,8 @@ public class SettingsFrame extends JFrame {
                     field.setMaximumSize(new Dimension(200, settingBox.getPreferredSize().height));
                     
                     var finalField = field;
-                    field.getDocument().addDocumentListener(new DocumentListener() {
-                        @Override
-                        public void insertUpdate(DocumentEvent e) {
-                            onTextUpdate();
-                        }
-                        
-                        @Override
-                        public void removeUpdate(DocumentEvent e) {
-                            onTextUpdate();
-                        }
-                        
-                        @Override
-                        public void changedUpdate(DocumentEvent e) {
-                            onTextUpdate();
-                        }
-                        
-                        private void onTextUpdate() {
-                            notifyListeners(settingsListener -> settingsListener.setValue(setting.getName(), finalField.getText()));
-                        }
+                    ApplicationUtil.addDocumentListener(field.getDocument(), () -> {
+                        notifyListeners(settingsListener -> settingsListener.setValue(setting.getName(), finalField.getText()));
                     });
                     
                     switch (value) {

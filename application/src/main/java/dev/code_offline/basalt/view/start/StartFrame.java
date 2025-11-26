@@ -59,9 +59,14 @@ public class StartFrame extends JFrame {
 	
 		var openItem = new JMenuItem("Открыть");
 		var deleteItem = new JMenuItem("Удалить");
-	
+
+		ApplicationUtil.registerAccelerator(openItem, recentList, KeyStroke.getKeyStroke("ENTER"));
+		ApplicationUtil.registerAccelerator(deleteItem, recentList, KeyStroke.getKeyStroke("DELETE"));
+		
 		openItem.addActionListener(e -> openRecentDatabase());
-		deleteItem.addActionListener(e -> deleteRecentStart());
+		deleteItem.addActionListener(e -> {
+			notifyListeners(startListener -> startListener.deleteRecentStart(recentList.getSelectedValue()));
+		});
 		
 		popupMenu.add(openItem);
 		popupMenu.add(new JSeparator());
@@ -89,8 +94,6 @@ public class StartFrame extends JFrame {
 			public void keyPressed(KeyEvent e) {
 				if (ApplicationUtil.isContextKey(e) && !recentList.isSelectionEmpty()) {
 					showPopupMenu(recentPanel, 0, 0);
-				} else if (ApplicationUtil.isDeleteKey(e)) {
-					deleteRecentStart();
 				}
 			}
 		});
@@ -116,10 +119,6 @@ public class StartFrame extends JFrame {
 		var model = new DefaultListModel<RecentStart>();
 		recentStartList.forEach(model::addElement);
 		recentList.setModel(model);
-	}
-	
-	private void deleteRecentStart() {
-		notifyListeners(startListener -> startListener.deleteRecentStart(recentList.getSelectedValue()));
 	}
 	
 	private void openRecentDatabase() {

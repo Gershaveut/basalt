@@ -8,10 +8,12 @@ import dev.code_offline.basalt.model.recent.RecentStart;
 import dev.code_offline.basalt.view.ApplicationFrame;
 import dev.code_offline.basalt.view.start.StartFrame;
 import dev.code_offline.basalt.view.start.StartListener;
+import dev.code_offline.basalt.view.start.UnknownException;
 import dev.code_offline.basalt_server.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.lang.Nullable;
 
+import javax.net.ssl.SSLException;
 import javax.swing.*;
 import java.util.List;
 
@@ -56,12 +58,12 @@ public class StartController implements StartListener {
 				openApplicationFrame(new Database());
 				
 				addRecentStart(new RecentStart(path, true));
-			} catch (ServerConnectException | NetworkVersionException exception) {
+			} catch (ServerConnectException | NetworkVersionException | SSLException exception) {
 				startFrame.setVisible(true);
 				JOptionPane.showMessageDialog(startFrame, "Неизвестная ошибка", "Ошибка", JOptionPane.ERROR_MESSAGE);
-				throw exception;
+				throw new UnknownException(exception);
 			}
-		} catch (Exception ignored) {
+		} catch (UnknownException ignored) {
 			if (context != null)
 				context.close();
 			
@@ -86,9 +88,9 @@ public class StartController implements StartListener {
 				openApplicationFrame(new Database(ip, username.getText(), password.getText()));
 				
 				addRecentStart(new RecentStart(ip, false));
-			} catch (NetworkVersionException exception) {
+			} catch (NetworkVersionException ignored) {
 				JOptionPane.showMessageDialog(startFrame, "Версии клиента и сервера не совпадают", "Ошибка", JOptionPane.ERROR_MESSAGE);
-			} catch (Exception ignored) {
+			} catch (ServerConnectException | SSLException ignored) {
 				JOptionPane.showMessageDialog(startFrame, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
 			}
 		}

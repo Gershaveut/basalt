@@ -15,7 +15,6 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class MarkdownEditorTool extends AbstractTool implements DebugModeListener {
@@ -112,13 +111,12 @@ public class MarkdownEditorTool extends AbstractTool implements DebugModeListene
 		
 		editButton.doClick();
 		
-		inputArea.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				updatePreview();
-				setSaveIndicator(true);
-			}
+		ApplicationUtil.addDocumentListener(inputArea.getDocument(), () -> {
+			updatePreview();
+			setSaveIndicator(true);
 		});
+	
+		ApplicationUtil.registerActionMap(inputArea, this.getID(), KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK), this::save);
 		
 		updatePreview();
 		
