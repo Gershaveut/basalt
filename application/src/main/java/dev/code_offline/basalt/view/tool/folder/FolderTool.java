@@ -2,12 +2,12 @@ package dev.code_offline.basalt.view.tool.folder;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.ApplicationUtil;
-import dev.code_offline.basalt_share.model.Folder;
 import dev.code_offline.basalt.model.note.NoteInfo;
-import dev.code_offline.basalt_share.model.Person;
-import dev.code_offline.basalt_share.model.Role;
 import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
+import dev.code_offline.basalt_share.model.Folder;
+import dev.code_offline.basalt_share.model.Person;
+import dev.code_offline.basalt_share.model.Role;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
@@ -23,7 +23,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 
 public class FolderTool extends AbstractTool {
@@ -31,6 +30,14 @@ public class FolderTool extends AbstractTool {
 	
 	private final JTree tree = new JTree(new Object[0]);
 	private final JPopupMenu popupMenu = new JPopupMenu();
+	private final JMenuItem newFile;
+	private final JMenuItem newFolder;
+	private final JMenuItem openFile;
+	private final JMenuItem author;
+	private final JMenuItem rename;
+	private final JMenuItem delete;
+	private final JSeparator separator1;
+	private final JSeparator separator2;
 	
 	private @Nullable TreePath selectedTreePath;
 	private @Nullable Person clientPerson;
@@ -44,23 +51,14 @@ public class FolderTool extends AbstractTool {
 		
 		tree.setTransferHandler(new FolderTransferHandler(listeners));
 		
-		var newFile = new JMenuItem("Новый файл");
-		var newFolder = new JMenuItem("Новая папка");
+		newFile = new JMenuItem("Новый файл");
+		newFolder = new JMenuItem("Новая папка");
 		
-		var openFile = new JMenuItem("Открыть файл");
+		openFile = new JMenuItem("Открыть файл");
 		
-		var author = new JMenuItem("Назначить автора");
-		var rename = new JMenuItem("Переименовать");
-		var delete = new JMenuItem("Удалить");
-		
-		registerAccelerator(newFile, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
-		registerAccelerator(newFolder, KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
-		
-		registerAccelerator(openFile, KeyStroke.getKeyStroke("ENTER"));
-		
-		registerAccelerator(author, KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.ALT_DOWN_MASK));
-		registerAccelerator(rename, KeyStroke.getKeyStroke("F2"));
-		registerAccelerator(delete, KeyStroke.getKeyStroke("DELETE"));
+		author = new JMenuItem("Назначить автора");
+		rename = new JMenuItem("Переименовать");
+		delete = new JMenuItem("Удалить");
 		
 		openFile.addActionListener(e -> {
 			if (getSelectedNode() != null) {
@@ -150,8 +148,8 @@ public class FolderTool extends AbstractTool {
 			}
 		});
 		
-		var separator1 = new JSeparator();
-		var separator2 = new JSeparator();
+		separator1 = new JSeparator();
+		separator2 = new JSeparator();
 		
 		popupMenu.add(newFile);
 		popupMenu.add(newFolder);
@@ -162,48 +160,15 @@ public class FolderTool extends AbstractTool {
 		popupMenu.add(rename);
 		popupMenu.add(delete);
 		
-		Consumer<PopupMenuContext> setPopupMenuContext = (context) -> {
-			newFile.setVisible(false);
-			newFolder.setVisible(false);
-			separator1.setVisible(false);
-            openFile.setVisible(false);
-			separator2.setVisible(false);
-			author.setVisible(false);
-            rename.setVisible(false);
-            delete.setVisible(false);
-
-			if (ApplicationUtil.hasRole(clientPerson, Role.MEMBER)) {
-				newFile.setVisible(true);
-				newFolder.setVisible(true);
-			}
-			
-            switch (context) {
-                case PopupMenuContext.Note -> {
-					openFile.setVisible(true);
-				
-					if (ApplicationUtil.accessNote(clientPerson, (NoteInfo) Objects.requireNonNull(getSelectedNode()))) {
-						separator1.setVisible(true);
-						
-						rename.setVisible(true);
-						delete.setVisible(true);
-						separator2.setVisible(true);
-					}
-					
-					if (ApplicationUtil.hasRole(clientPerson, Role.MODERATOR))
-						author.setVisible(true);
-                }
-                case PopupMenuContext.Folder -> {
-					if (ApplicationUtil.hasRole(clientPerson, Role.MEMBER)) {
-						rename.setVisible(true);
-						delete.setVisible(true);
-						separator2.setVisible(true);
-					}
-                }
-                default -> {
-                }
-            }
-		};
-	
+		registerAccelerator(newFile, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
+		registerAccelerator(newFolder, KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+		
+		registerAccelerator(openFile, KeyStroke.getKeyStroke("ENTER"));
+		
+		registerAccelerator(author, KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.ALT_DOWN_MASK));
+		registerAccelerator(rename, KeyStroke.getKeyStroke("F2"));
+		registerAccelerator(delete, KeyStroke.getKeyStroke("DELETE"));
+		
 		tree.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -219,7 +184,7 @@ public class FolderTool extends AbstractTool {
 						tree.setSelectionRow(selRow);
 					}
 					
-					showPopupMenu(setPopupMenuContext, e.getX(), e.getY());
+					showPopupMenu(e.getX(), e.getY());
 				}
 			}
 		});
@@ -235,7 +200,7 @@ public class FolderTool extends AbstractTool {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (ApplicationUtil.isContextKey(e)) {
-					showPopupMenu(setPopupMenuContext, 0, 0);
+					showPopupMenu(0, 0);
 				}
 			}
 		});
@@ -260,19 +225,61 @@ public class FolderTool extends AbstractTool {
 		return ((DefaultMutableTreeNode) selectedTreePath.getParentPath().getLastPathComponent()).getUserObject();
 	}
 	
-	private void showPopupMenu(Consumer<PopupMenuContext> setPopupMenuContext, int x, int y) {
+	private void showPopupMenu(int x, int y) {
+		updateMenuContext();
+		
+		if (ApplicationUtil.anyComponentsVisible(popupMenu))
+			popupMenu.show(tree, x, y);
+	}
+	
+	private void updateMenuContext() {
 		var context = PopupMenuContext.Empty;
-			
+		
 		if (getSelectedNode() instanceof NoteInfo) {
 			context = PopupMenuContext.Note;
 		} else if (getSelectedNode() instanceof Folder) {
 			context = PopupMenuContext.Folder;
 		}
 		
-		setPopupMenuContext.accept(context);
-	
-		if (ApplicationUtil.anyComponentsVisible(popupMenu))
-			popupMenu.show(tree, x, y);
+		newFile.setVisible(false);
+		newFolder.setVisible(false);
+		separator1.setVisible(false);
+		openFile.setVisible(false);
+		separator2.setVisible(false);
+		author.setVisible(false);
+		rename.setVisible(false);
+		delete.setVisible(false);
+		
+		if (ApplicationUtil.hasRole(clientPerson, Role.MEMBER)) {
+			newFile.setVisible(true);
+			newFolder.setVisible(true);
+		}
+		
+		switch (context) {
+			case PopupMenuContext.Note -> {
+				openFile.setVisible(true);
+				
+				if (ApplicationUtil.accessNote(clientPerson, (NoteInfo) Objects.requireNonNull(getSelectedNode()))) {
+					separator1.setVisible(true);
+					
+					rename.setVisible(true);
+					delete.setVisible(true);
+					separator2.setVisible(true);
+				}
+				
+				if (ApplicationUtil.hasRole(clientPerson, Role.MODERATOR))
+					author.setVisible(true);
+			}
+			case PopupMenuContext.Folder -> {
+				if (ApplicationUtil.hasRole(clientPerson, Role.MEMBER)) {
+					rename.setVisible(true);
+					delete.setVisible(true);
+					separator2.setVisible(true);
+				}
+			}
+			default -> {
+			}
+		}
 	}
 	
 	public void addFolderListener(FolderListener folderListener) {
@@ -348,7 +355,7 @@ public class FolderTool extends AbstractTool {
 	}
 	
 	private void registerAccelerator(JMenuItem menuItem, KeyStroke keyStroke) {
-		ApplicationUtil.registerAccelerator(menuItem, tree, keyStroke);
+		ApplicationUtil.registerAccelerator(menuItem, tree, keyStroke, this::updateMenuContext);
 	}
 	
 	public JTree getTree() {

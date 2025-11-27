@@ -1,8 +1,8 @@
 package dev.code_offline.basalt.model.settings;
 
 import dev.code_offline.basalt.ApplicationUtil;
-import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_share.Util;
+import dev.code_offline.basalt_share.model.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

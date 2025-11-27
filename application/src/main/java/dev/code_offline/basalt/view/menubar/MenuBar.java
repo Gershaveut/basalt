@@ -3,11 +3,9 @@ package dev.code_offline.basalt.view.menubar;
 import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt.view.AboutFrame;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
-import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -55,7 +53,7 @@ public class MenuBar extends JMenuBar {
     private JMenuItem menuItem(String name, Runnable action, KeyStroke keyStroke) {
         var menuItem = menuItem(name, action);
         
-        ApplicationUtil.registerAccelerator(menuItem, this, keyStroke);
+        ApplicationUtil.registerAccelerator(menuItem, this, keyStroke, null);
         
         return menuItem;
     }

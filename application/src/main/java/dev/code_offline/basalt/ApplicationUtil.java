@@ -2,8 +2,8 @@ package dev.code_offline.basalt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt.model.note.NoteInfo;
+import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_share.model.Role;
 import org.dyn4j.geometry.Vector2;
@@ -88,10 +88,13 @@ public final class ApplicationUtil {
         JOptionPane.showMessageDialog(parent, message, "Ошибка", JOptionPane.ERROR_MESSAGE);
     }
     
-    public static void registerAccelerator(JMenuItem menuItem, JComponent component, KeyStroke keyStroke) {
+    public static void registerAccelerator(JMenuItem menuItem, JComponent component, KeyStroke keyStroke, @Nullable Runnable updateMenuContext) {
         menuItem.setAccelerator(keyStroke);
         
         registerActionMap(component, "menuAction_" + menuItem.getText(), keyStroke, () -> {
+            if (updateMenuContext != null)
+                updateMenuContext.run();
+            
             if (menuItem.isEnabled() && menuItem.isVisible())
                 menuItem.doClick();
         });

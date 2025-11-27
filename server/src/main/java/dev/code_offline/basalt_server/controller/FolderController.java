@@ -1,9 +1,9 @@
 package dev.code_offline.basalt_server.controller;
 
-import dev.code_offline.basalt_share.model.Folder;
-import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_server.repository.FolderRepository;
 import dev.code_offline.basalt_server.repository.NoteRepository;
+import dev.code_offline.basalt_share.model.Folder;
+import dev.code_offline.basalt_share.model.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;

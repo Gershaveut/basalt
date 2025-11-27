@@ -2,9 +2,9 @@ package dev.code_offline.basalt.view.tool.person;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.ApplicationUtil;
-import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
+import dev.code_offline.basalt_share.model.Person;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

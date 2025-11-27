@@ -1,7 +1,7 @@
 package dev.code_offline.basalt_server.service;
 
-import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_server.repository.PersonRepository;
+import dev.code_offline.basalt_share.model.Person;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

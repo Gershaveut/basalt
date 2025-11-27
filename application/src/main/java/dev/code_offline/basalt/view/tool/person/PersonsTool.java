@@ -2,10 +2,10 @@ package dev.code_offline.basalt.view.tool.person;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.ApplicationUtil;
-import dev.code_offline.basalt_share.model.Person;
-import dev.code_offline.basalt_share.model.Role;
 import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
+import dev.code_offline.basalt_share.model.Person;
+import dev.code_offline.basalt_share.model.Role;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
@@ -46,14 +46,14 @@ public class PersonsTool extends AbstractTool {
 		open = new JMenuItem("Открыть профиль");
 		role = new JMenuItem("Назначить роль");
 		delete = new JMenuItem("Удалить");
-
+		
+		separator1 = new JSeparator();
+		separator2 = new JSeparator();
+		
 		registerAccelerator(createPerson, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
 		registerAccelerator(open, KeyStroke.getKeyStroke("ENTER"));
 		registerAccelerator(role, KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.ALT_DOWN_MASK));
 		registerAccelerator(delete, KeyStroke.getKeyStroke("DELETE"));
-		
-		separator1 = new JSeparator();
-		separator2 = new JSeparator();
 		
 		popupMenu.add(createPerson);
 		popupMenu.add(separator1);
@@ -165,6 +165,13 @@ public class PersonsTool extends AbstractTool {
 	}
 	
 	private void showPopupMenu(int x, int y) {
+		updateMenuContext();
+		
+		if (ApplicationUtil.anyComponentsVisible(popupMenu))
+			popupMenu.show(tree, x, y);
+	}
+	
+	private void updateMenuContext() {
 		var hasAdmin = ApplicationUtil.hasRole(clientPerson, Role.ADMIN);
 		
 		createPerson.setVisible(false);
@@ -189,9 +196,6 @@ public class PersonsTool extends AbstractTool {
 				delete.setVisible(true);
 			}
 		}
-		
-		if (ApplicationUtil.anyComponentsVisible(popupMenu))
-			popupMenu.show(tree, x, y);
 	}
 	
 	public void addPersonsListener(PersonsListener personsListener) {
@@ -254,8 +258,9 @@ public class PersonsTool extends AbstractTool {
 	}
 	
 	private void registerAccelerator(JMenuItem menuItem, KeyStroke keyStroke) {
-		ApplicationUtil.registerAccelerator(menuItem, tree, keyStroke);
+		ApplicationUtil.registerAccelerator(menuItem, tree, keyStroke, this::updateMenuContext);
 	}
+	
 	public JTree getTree() {
 		return tree;
 	}

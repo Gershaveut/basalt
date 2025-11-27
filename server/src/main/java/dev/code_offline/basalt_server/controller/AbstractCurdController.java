@@ -1,8 +1,8 @@
 package dev.code_offline.basalt_server.controller;
 
+import dev.code_offline.basalt_server.websocket.SpringApplicationSocketHandler;
 import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_share.model.Role;
-import dev.code_offline.basalt_server.websocket.SpringApplicationSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;

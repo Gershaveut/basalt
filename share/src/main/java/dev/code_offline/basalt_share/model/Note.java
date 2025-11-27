@@ -1,6 +1,5 @@
 package dev.code_offline.basalt_share.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.lang.Nullable;

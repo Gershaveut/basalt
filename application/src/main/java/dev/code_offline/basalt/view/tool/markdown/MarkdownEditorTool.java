@@ -2,12 +2,12 @@ package dev.code_offline.basalt.view.tool.markdown;
 
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.ApplicationUtil;
-import dev.code_offline.basalt_share.model.Note;
-import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt.view.ApplicationFrame;
 import dev.code_offline.basalt.view.DebugModeListener;
 import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
+import dev.code_offline.basalt_share.model.Note;
+import dev.code_offline.basalt_share.model.Person;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;

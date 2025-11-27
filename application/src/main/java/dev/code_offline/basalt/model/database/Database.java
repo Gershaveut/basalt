@@ -1,10 +1,10 @@
 package dev.code_offline.basalt.model.database;
 
+import dev.code_offline.basalt_share.Util;
 import dev.code_offline.basalt_share.model.Folder;
 import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_share.model.Role;
-import dev.code_offline.basalt_share.Util;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.springframework.http.HttpStatusCode;
@@ -26,7 +26,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 

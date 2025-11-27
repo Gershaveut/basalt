@@ -23,23 +23,23 @@ import java.util.Random;
 public class GraphCanvas extends JComponent implements ComponentListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphCanvas.class);
     
-    private final double NANO_TO_BASE = 1.0e9;
+    private final static double NANO_TO_BASE = 1.0e9;
 
-    public final int NODE_SIZE = 25;
+    public final static int NODE_SIZE = 25;
 
     // настройки физики
-    public final Vector2 GRAVITY = new Vector2();
-    public final MassType NODE_MASS = MassType.NORMAL;
-    public final double DAMPING = 0.5;
-    public final double REST_DISTANCE = 150;
-    public final double SPRING_FREQUENCY = 8;
+    public final static Vector2 GRAVITY = new Vector2();
+    public final static MassType NODE_MASS = MassType.NORMAL;
+    public final static double DAMPING = 0.5;
+    public final static double REST_DISTANCE = 150;
+    public final static double SPRING_FREQUENCY = 8;
     
-    private final int MOVE_GRAPH = MouseEvent.BUTTON3;
-    private final int MOVE_NODE = MouseEvent.BUTTON1;
+    private final static int MOVE_GRAPH = MouseEvent.BUTTON3;
+    private final static int MOVE_NODE = MouseEvent.BUTTON1;
     
-    private final double SCALE_MAX = 5;
-    private final double SCALE_MIN = 0.3;
-    private final double SCALE_POW = 1.1;
+    private final static double SCALE_MAX = 5;
+    private final static double SCALE_MIN = 0.3;
+    private final static double SCALE_POW = 1.1;
     
     public boolean debug;
 

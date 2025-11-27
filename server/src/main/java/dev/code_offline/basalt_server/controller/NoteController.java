@@ -1,10 +1,10 @@
 package dev.code_offline.basalt_server.controller;
 
+import dev.code_offline.basalt_server.repository.NoteRepository;
+import dev.code_offline.basalt_server.repository.PersonRepository;
 import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_share.model.Role;
-import dev.code_offline.basalt_server.repository.NoteRepository;
-import dev.code_offline.basalt_server.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
@@ -12,10 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.function.EntityResponse;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 

@@ -2,13 +2,13 @@ package dev.code_offline.basalt.controller;
 
 import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt.model.database.Database;
-import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt.model.settings.ApplicationSettings;
 import dev.code_offline.basalt.model.settings.SettingsModel;
 import dev.code_offline.basalt.view.ApplicationFrame;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt.view.settings.SettingsListener;
 import dev.code_offline.basalt.view.tool.graph.GraphCanvas;
+import dev.code_offline.basalt_share.model.Note;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

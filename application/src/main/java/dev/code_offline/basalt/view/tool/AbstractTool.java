@@ -10,7 +10,7 @@ import org.springframework.lang.Nullable;
 import javax.swing.*;
 
 public abstract class AbstractTool extends JPanel {
-    public static int ICON_SIZE = 15;
+    public static final int ICON_SIZE = 15;
     
     private Dockable dockable;
     private DefaultDockable delegate;

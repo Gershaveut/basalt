@@ -60,8 +60,8 @@ public class StartFrame extends JFrame {
 		var openItem = new JMenuItem("Открыть");
 		var deleteItem = new JMenuItem("Удалить");
 
-		ApplicationUtil.registerAccelerator(openItem, recentList, KeyStroke.getKeyStroke("ENTER"));
-		ApplicationUtil.registerAccelerator(deleteItem, recentList, KeyStroke.getKeyStroke("DELETE"));
+		ApplicationUtil.registerAccelerator(openItem, recentList, KeyStroke.getKeyStroke("ENTER"), null);
+		ApplicationUtil.registerAccelerator(deleteItem, recentList, KeyStroke.getKeyStroke("DELETE"), null);
 		
 		openItem.addActionListener(e -> openRecentDatabase());
 		deleteItem.addActionListener(e -> {

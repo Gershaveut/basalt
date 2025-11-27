@@ -1,7 +1,6 @@
 package dev.code_offline.basalt_server.repository;
 
 import dev.code_offline.basalt_share.model.Note;
-import dev.code_offline.basalt_share.model.Person;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
