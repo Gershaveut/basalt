@@ -31,6 +31,8 @@ public class MarkdownEditorTool extends AbstractTool implements DebugModeListene
 	
 	private final Note note;
 	
+	private boolean saved;
+	
 	public MarkdownEditorTool(Note note, ApplicationFrame applicationFrame, Person clientPerson) {
 		this.setLayout(new BorderLayout());
 		
@@ -138,6 +140,8 @@ public class MarkdownEditorTool extends AbstractTool implements DebugModeListene
 			newTitle = newTitle + "*";
 		
 		getDelegate().setTitle(newTitle);
+		
+		saved = !visibly;
 	}
 	
 	private void updatePreview() {
@@ -148,11 +152,13 @@ public class MarkdownEditorTool extends AbstractTool implements DebugModeListene
 	}
 	
 	public void save() {
-		for (MarkdownListener listener : listeners.getListeners(MarkdownListener.class)) {
-			listener.onSave(getText());
-		}
+		if (!saved) {
+			for (MarkdownListener listener : listeners.getListeners(MarkdownListener.class)) {
+				listener.onSave(getText());
+			}
 		
-		setSaveIndicator(false);
+			setSaveIndicator(false);
+		}
 	}
 	
 	public String getText() {
