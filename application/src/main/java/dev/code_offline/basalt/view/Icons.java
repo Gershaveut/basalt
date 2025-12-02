@@ -23,7 +23,7 @@ public enum Icons {
     PERSON("person"),
     ARTICLE_PERSON("article_person");
 
-    private static final Color COLOR = Color.BLACK;
+    private static final Color COLOR = Color.GRAY;
 
     private final String path;
 

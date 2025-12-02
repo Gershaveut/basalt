@@ -1,6 +1,7 @@
 package dev.code_offline.basalt.view;
 
 import dev.code_offline.basalt_share.Util;
+import org.apache.commons.text.WordUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -29,7 +30,7 @@ public class AboutFrame extends JFrame {
        
         textPanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
-        textPanel.add(new JLabel(Util.APPLICATION_NAME));
+        textPanel.add(new JLabel(WordUtils.capitalize(Util.APPLICATION_NAME)));
         textPanel.add(new JLabel("Code-offline"));
         textPanel.add(Box.createVerticalStrut(15));
         textPanel.add(new JLabel("Версия программы: " + Util.APPLICATION_VERSION));

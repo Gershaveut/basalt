@@ -22,7 +22,7 @@ public class PersonProfileTool extends AbstractTool {
 		
 		var infoPanel = Box.createVerticalBox();
 		var usernameLabel = new JLabel("Имя пользователя: " + person.getUsername());
-		var roleLabel = new JLabel("Роль: " + person.getRole().name);
+		var roleLabel = new JLabel("Роль: " + person.getRole());
 		var descriptionLabel = new JLabel("Описание:");
 		var descriptionTextArea = new JTextArea(person.getDescription());
 		

@@ -6,6 +6,7 @@ import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_share.model.Role;
+import org.apache.commons.text.WordUtils;
 import org.dyn4j.geometry.Vector2;
 import org.springframework.lang.Nullable;
 
@@ -134,5 +135,13 @@ public final class ApplicationUtil {
                 listener.run();
             }
         });
+    }
+    
+    public static String toDisplayName(String name) {
+        return WordUtils.capitalize(name.toLowerCase().replace("_", " "));
+    }
+    
+    public static String fromDisplayName(String displayName) {
+        return displayName.toUpperCase().replace(" ", "_");
     }
 }

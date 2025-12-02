@@ -182,7 +182,7 @@ public class SettingsFrame extends JFrame {
                     if (setting.isHideValue())
                         field = new JPasswordField();
                     
-                    field.setMaximumSize(new Dimension(200, settingBox.getPreferredSize().height));
+                    field.setMaximumSize(new Dimension(200, 30));
                     
                     var finalField = field;
                     ApplicationUtil.addDocumentListener(field.getDocument(), () -> {
@@ -204,6 +204,18 @@ public class SettingsFrame extends JFrame {
                             });
 
                             settingBox.add(checkbox);
+                            break;
+                        case Enum<?> e:
+                            var comboBox = new JComboBox<>(e.getDeclaringClass().getEnumConstants());
+                            
+                            comboBox.setMaximumSize(new Dimension(200, 30));
+                            
+                            comboBox.setSelectedItem(e);
+                            comboBox.addItemListener(event -> {
+                                notifyListeners(settingsListener -> settingsListener.setValue(setting.getName(), event.getItem()));
+                            });
+                            
+                            settingBox.add(comboBox);
                             break;
                         default:
                             throw new IllegalStateException("Unexpected value: " + setting.getDefaultValue());

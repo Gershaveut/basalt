@@ -1,6 +1,7 @@
 package dev.code_offline.basalt.view.menubar;
 
 import dev.code_offline.basalt.ApplicationUtil;
+import dev.code_offline.basalt.model.settings.Theme;
 import dev.code_offline.basalt.view.AboutFrame;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
 
@@ -18,6 +19,7 @@ public class MenuBar extends JMenuBar {
 
     public MenuBar() {
         var fileMenu = new JMenu("Файл");
+        var viewMenu = new JMenu("Вид");
         var helpMenu = new JMenu("Помощь");
 
         fileMenu.add(menuItem("Закрыть проект", () -> notifyListeners(MenuBarListener::closeProject)));
@@ -28,9 +30,18 @@ public class MenuBar extends JMenuBar {
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Выход", this::exit));
 
+        var themeMenu = new JMenu("Тема");
+        
+        for (Theme theme : Theme.values()) {
+            themeMenu.add(menuItem(theme.toString(), theme::applyTheme));
+        }
+        
+        viewMenu.add(themeMenu);
+        
         helpMenu.add(menuItem("О программе", this::about));
 
         add(fileMenu);
+        add(viewMenu);
         add(helpMenu);
     }
 

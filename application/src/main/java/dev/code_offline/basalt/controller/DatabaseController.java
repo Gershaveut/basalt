@@ -170,7 +170,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
             var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
           
             database.getClientPerson().subscribe(clientPerson -> {
-                applicationFrame.setTitle(applicationFrameTitle + " - " + clientPerson.getRole().name);
+                applicationFrame.setTitle(applicationFrameTitle + " - " + clientPerson.getRole());
                 
                 database.getFolders().subscribe(folders -> {
                     folderTool.setModel(notesInfo, folders, clientPerson);

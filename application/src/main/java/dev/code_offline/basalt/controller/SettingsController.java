@@ -4,6 +4,7 @@ import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.model.settings.ApplicationSettings;
 import dev.code_offline.basalt.model.settings.SettingsModel;
+import dev.code_offline.basalt.model.settings.Theme;
 import dev.code_offline.basalt.view.ApplicationFrame;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt.view.settings.SettingsListener;
@@ -24,6 +25,12 @@ public class SettingsController implements SettingsListener {
         
         database.getClientPerson().subscribe(person -> {
             applicationSettings = new ApplicationSettings(person);
+            
+            applicationSettings.getTheme().addSettingListener(value -> {
+                var theme = Theme.valueOf(ApplicationUtil.fromDisplayName(value.toString()));
+               
+                theme.applyTheme();
+            });
             
             applicationSettings.getUsername().addSettingListener(value -> {
                 database.renameClientPerson(value.toString(), httpStatusCode -> {

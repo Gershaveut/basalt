@@ -19,9 +19,10 @@ public class ApplicationSettings {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationSettings.class);
 	
 	private static final String FILE_NAME = Util.savePrefix("settings.json");
-	
 	private SettingsModel settingsModel;
-
+	
+	private final Setting theme;
+	
 	private final Setting username;
 	private final Setting password;
 	private final Setting description;
@@ -40,6 +41,10 @@ public class ApplicationSettings {
 		var accountTab = new SettingsTab("Аккаунт");
 		var miscTab = new SettingsTab("Разное");
 	
+		var appearanceCategory = new SettingsCategory("Внешний вид");
+		
+		theme = new Setting("Тема", null, Theme.WHITE);
+		
 		var accountCategory = new SettingsCategory("Аккаунт");
 		
 		var defaultDescription = clientPerson.getDescription();
@@ -61,6 +66,9 @@ public class ApplicationSettings {
 		debugMode = new Setting("Режим отладки", "После отключения отладки требуется перезагрузка!", false);
 		debugGenerateDatabase = new Setting("Генерация базы данных", null, false);
 	
+		appearanceCategory.add(theme);
+		generalTab.add(appearanceCategory);
+		
 		accountCategory.add(username);
 		accountCategory.add(password);
 		accountCategory.add(description);
@@ -74,7 +82,7 @@ public class ApplicationSettings {
 		debugCategory.add(debugMode);
 		miscTab.add(debugCategory);
 		
-		//settingsTabs.add(generalTab); TODO: пустой таб
+		settingsTabs.add(generalTab);
 		settingsTabs.add(accountTab);
 		settingsTabs.add(toolTab);
 		settingsTabs.add(miscTab);
@@ -135,6 +143,10 @@ public class ApplicationSettings {
 	
 	public SettingsModel getSettingsModel() {
 		return settingsModel;
+	}
+	
+	public Setting getTheme() {
+		return theme;
 	}
 	
 	public Setting getUsername() {
