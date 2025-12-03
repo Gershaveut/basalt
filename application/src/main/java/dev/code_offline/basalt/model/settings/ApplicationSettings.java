@@ -103,7 +103,13 @@ public class ApplicationSettings {
 					Setting findSetting = settingsModel.getSettings().stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElse(null);
 					
 					if (findSetting != null && !findSetting.isActionSetting()) {
-						findSetting.setValue(setting.getValue());
+						var value = setting.getValue();
+						
+						if (value != null && findSetting.getDefaultValue() instanceof Enum<?> anEnum) { // починка enum в настройках
+							value = Enum.valueOf(anEnum.getDeclaringClass(), value.toString());
+						}
+						
+						findSetting.setValue(value);
 						findSetting.notifyListeners();
 					}
 				});

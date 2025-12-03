@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class SettingsFrame extends JFrame {
@@ -206,11 +207,12 @@ public class SettingsFrame extends JFrame {
                             settingBox.add(checkbox);
                             break;
                         case Enum<?> e:
-                            var comboBox = new JComboBox<>(e.getDeclaringClass().getEnumConstants());
+                            var constants = e.getClass().getEnumConstants();
+                            var comboBox = new JComboBox<>(constants);
                             
                             comboBox.setMaximumSize(new Dimension(200, 30));
                             
-                            comboBox.setSelectedItem(e);
+                            comboBox.setSelectedIndex(Arrays.stream(constants).filter(constant -> Objects.equals(constant.toString(), e.toString())).findFirst().orElseThrow().ordinal());
                             comboBox.addItemListener(event -> {
                                 notifyListeners(settingsListener -> settingsListener.setValue(setting.getName(), event.getItem()));
                             });
