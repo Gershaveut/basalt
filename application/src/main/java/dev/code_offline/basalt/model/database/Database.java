@@ -45,18 +45,14 @@ public class Database implements WebSocketHandler {
 		if (!ip.contains(":"))
 			ip = ip + ":" + DEFAULT_PORT;
 		
-		var sslContext = SslContextBuilder
-				.forClient()
-				.trustManager(InsecureTrustManagerFactory.INSTANCE)
-				.build();
-		var httpClient = HttpClient.create().secure(sslContextSpec -> sslContextSpec.sslContext(sslContext));
+		var httpClient = getHttpClient();
 		
 		this.webClient = WebClient.builder()
 				.baseUrl("https://" + ip)
 				.filter(ExchangeFilterFunctions.basicAuthentication(username, password))
 				.clientConnector(new ReactorClientHttpConnector(httpClient))
 				.build();
-	
+		
 		try {
 			var version = Objects.requireNonNull(webClient.get()
 					.retrieve()
@@ -74,6 +70,35 @@ public class Database implements WebSocketHandler {
 		
 		session = new ReactorNettyWebSocketClient(httpClient).execute(URI.create("wss://" + ip + "/echo"), this)
 				.subscribe();
+	}
+	
+	public static Boolean tryConnect(String ip) {
+		try {
+			if (!ip.contains(":"))
+				ip = ip + ":" + DEFAULT_PORT;
+			
+			var webClient = WebClient.builder()
+					.baseUrl("https://" + ip)
+					.clientConnector(new ReactorClientHttpConnector(getHttpClient()))
+					.build();
+			
+			webClient.head()
+					.retrieve()
+					.bodyToMono(Void.class)
+					.block();
+		} catch (Exception ignored) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private static HttpClient getHttpClient() throws SSLException {
+		var sslContext = SslContextBuilder
+				.forClient()
+				.trustManager(InsecureTrustManagerFactory.INSTANCE)
+				.build();
+		return HttpClient.create().secure(sslContextSpec -> sslContextSpec.sslContext(sslContext));
 	}
 	
 	public Database() throws ServerConnectException, NetworkVersionException, SSLException {

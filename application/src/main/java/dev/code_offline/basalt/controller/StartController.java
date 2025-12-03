@@ -74,6 +74,11 @@ public class StartController implements StartListener {
 	
 	@Override
 	public void connectDatabase(String ip) {
+		if (!Database.tryConnect(ip)) {
+			JOptionPane.showMessageDialog(startFrame, "Не удалось подключиться", "Ошибка", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
 		JTextField username = new JTextField();
 		JTextField password = new JPasswordField();
 		Object[] message = {
