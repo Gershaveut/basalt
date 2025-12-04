@@ -1,5 +1,4 @@
 plugins {
-    id 'java'
     id 'application'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
@@ -7,16 +6,6 @@ plugins {
 }
 
 archivesBaseName = 'basalt'
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     implementation 'org.dyn4j:dyn4j:5.0.2'
@@ -26,14 +15,15 @@ dependencies {
     implementation 'com.formdev:flatlaf-intellij-themes:3.6.2'
     implementation 'org.apache.commons:commons-text:1.14.0'
 
-    implementation 'org.springframework.boot:spring-boot-starter-webflux:3.5.6'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.data:spring-data-commons'
 
-    implementation project(':server')
     implementation project(':share')
+    implementation project(':server')
 }
 
 application {
-    mainClass = 'dev.code_offline.basalt.Application';
+    mainClass = 'dev.code_offline.basalt.Application'
 }
 
 javapackager {
