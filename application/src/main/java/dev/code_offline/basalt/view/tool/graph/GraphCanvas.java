@@ -7,7 +7,6 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.joint.DistanceJoint;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
-import org.dyn4j.geometry.Rotation;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.World;
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ import org.springframework.lang.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -32,7 +30,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     public final static int NODE_SIZE = 25;
 
     // настройки физики
-    public final static Vector2 GRAVITY = new Vector2();
+    public final static Vector2 GRAVITY = World.ZERO_GRAVITY;
     public final static MassType NODE_MASS = MassType.NORMAL;
     public final static double DAMPING = 0.5;
     public final static double REST_DISTANCE = 150;
@@ -107,8 +105,11 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                         
                         Vector2 nodePos = draggedNode.getBody().getWorldCenter();
                         Vector2 force = targetPos.subtract(nodePos);
+                       
+                        var body = draggedNode.getBody();
                         
-                        draggedNode.getBody().translate(force);
+                        body.translate(force);
+                        body.setAtRest(false);
                     }
                 });
                 
@@ -130,8 +131,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             }
         };
         
-        world.setGravity(GRAVITY);
-
         paintThreadRun = () -> {
             paintThreadLive = true;
             
@@ -156,6 +155,8 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                 }
             }
         };
+        
+        world.setGravity(GRAVITY);
         
         if (!graph.getNodes().isEmpty())
             initializeNodes();
@@ -283,7 +284,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                 tryLink(node, toLinkList, body, spawnedNodes);
             }
 			
-			body.addFixture(Geometry.createCircle((double) NODE_SIZE / 2));
+			body.addFixture(Geometry.createCircle((double) (NODE_SIZE / 2) * 5));
 			body.setMass(NODE_MASS);
 			
 			body.setLinearDamping(DAMPING);
