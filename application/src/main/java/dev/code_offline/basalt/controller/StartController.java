@@ -52,7 +52,11 @@ public class StartController implements StartListener {
 		startFrame.setVisible(false);
 		
 		try {
-			context = SpringApplication.startServer(List.of("--spring.datasource.url=jdbc:h2:file:" + path).toArray(new String[1]));
+			try {
+				context = SpringApplication.startServer(List.of("--spring.datasource.url=jdbc:h2:file:" + path).toArray(new String[1]));
+			} catch (Exception exception) {
+				throw new UnknownException(exception);
+			}
 			
 			try {
 				openApplicationFrame(new Database());
