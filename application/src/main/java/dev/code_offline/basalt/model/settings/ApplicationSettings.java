@@ -78,7 +78,7 @@ public class ApplicationSettings {
 		graphCategory.add(physicMaxFps);
 		toolTab.add(graphCategory);
 		
-		debugCategory.add(debugGenerateDatabase);
+		//debugCategory.add(debugGenerateDatabase);
 		debugCategory.add(debugMode);
 		miscTab.add(debugCategory);
 		

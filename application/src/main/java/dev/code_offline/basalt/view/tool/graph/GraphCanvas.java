@@ -28,6 +28,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     private final static double NANO_TO_BASE = 1.0e9;
 
     public final static int NODE_SIZE = 25;
+    public final static int SPAWN_ZONE = 1000;
 
     // настройки физики
     public final static Vector2 GRAVITY = World.ZERO_GRAVITY;
@@ -38,6 +39,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     
     private final static int MOVE_GRAPH = MouseEvent.BUTTON3;
     private final static int MOVE_NODE = MouseEvent.BUTTON1;
+    private final static int CENTER_GRAPH = MouseEvent.BUTTON2;
     
     private final static double SCALE_MAX = 5;
     private final static double SCALE_MIN = 0.3;
@@ -101,7 +103,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                         if (targetPos == null)
                             return;
                         else
-                            targetPos = targetPos.subtract(new Vector2((double) NODE_SIZE / 2, (double) NODE_SIZE / 2));
+                            targetPos = targetPos.subtract((double) NODE_SIZE / 2, (double) NODE_SIZE / 2);
                         
                         Vector2 nodePos = draggedNode.getBody().getWorldCenter();
                         Vector2 force = targetPos.subtract(nodePos);
@@ -313,6 +315,8 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                 }
             });
         });
+        
+        world.step(3000);
     }
     
     private void tryLink(Node node, ArrayList<Pair<Long, Long>> toLinkList, Body body, ArrayList<Node> spawnedNodes) {
@@ -323,7 +327,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             
             linkTo(body, spawnedNodes.stream().filter(node1 -> node1.getId() == toLinkId).findFirst().orElseThrow());
         } else {
-           body.translate(random.nextInt(500), random.nextInt(500));
+           body.translate(random.nextInt(SPAWN_ZONE * 2) - SPAWN_ZONE, random.nextInt(SPAWN_ZONE * 2) - SPAWN_ZONE);
         }
     }
     
@@ -347,6 +351,10 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
         g2d.translate((int) offset.x, (int) offset.y);
         g2d.scale(scale, scale);
 
+        if (debug) {
+            g2d.drawOval(0, 0, 10, 10);
+        }
+        
         graph.getNodes().forEach(node -> {
             int x = (int) node.getBody().getWorldCenter().x;
             int y = (int) node.getBody().getWorldCenter().y;
@@ -398,7 +406,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
 
     public @Nullable Node getFocusatedNode() {
         for (Node node : graph.getNodes()) {
-            if (node.getBody().getWorldCenter().distance(getMouseWorldPosition()) <= NODE_SIZE) {
+            if (node.getBody().getWorldCenter().add((double) NODE_SIZE / 2, (double) NODE_SIZE / 2).distance(getMouseWorldPosition()) <= (double) NODE_SIZE / 2) {
                 return node;
             }
         }
@@ -421,24 +429,10 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     }
     
     private void centerGraph() {
-        if (!graph.getNodes().isEmpty()) {
-            var arrayX = graph.getNodes().stream().mapToDouble(n -> n.getBody().getWorldCenter().x).toArray();
-            var arrayY = graph.getNodes().stream().mapToDouble(n -> n.getBody().getWorldCenter().y).toArray();
-            
-            double minX = Arrays.stream(arrayX).min().orElseThrow();
-            double maxX = Arrays.stream(arrayX).max().orElseThrow();
-            
-            double minY = Arrays.stream(arrayY).min().orElseThrow();
-            double maxY = Arrays.stream(arrayY).max().orElseThrow();
-            
-            double graphWidth = maxX - minX;
-            double graphHeight = maxY - minY;
-            
-            var x = ((this.getWidth() / this.getScale() - graphWidth) / 2 - minX);
-            var y = ((this.getHeight() / this.getScale() - graphHeight) / 2 - minY);
-            
-            this.setOffset(x, y);
-        }
+        var x = this.getWidth() / 2;
+        var y = this.getHeight() / 2;
+        
+        this.setOffset(x, y);
     }
     
     @Override
@@ -452,6 +446,8 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
                 return;
             
             draggedNode = focusNode;
+        } else if (e.getButton() == CENTER_GRAPH) {
+            centerGraph();
         }
     }
     
