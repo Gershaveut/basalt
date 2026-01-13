@@ -146,7 +146,7 @@ public class StartFrame extends JFrame {
 	private void chooseDatabaseFile(boolean create) {
 		var fileChooser = new JFileChooser();
 		
-		fileChooser.setFileFilter(new FileNameExtensionFilter("База данных (.db)", "db"));
+		fileChooser.setFileFilter(new FileNameExtensionFilter(String.format("Базальт (%s)", Util.APPLICATION_FORMAT), Util.APPLICATION_FORMAT.substring(1)));
 		
 		int result;
 		

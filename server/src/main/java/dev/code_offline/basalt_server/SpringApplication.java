@@ -1,6 +1,7 @@
 package dev.code_offline.basalt_server;
 
 import dev.code_offline.basalt_share.Util;
+import org.h2.store.fs.FilePath;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration;
@@ -23,6 +24,8 @@ public class SpringApplication {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		
+		FilePath.register(new ApplicationFilePathWrapper());
 		
 		var application = new org.springframework.boot.SpringApplication(SpringApplication.class);
 		

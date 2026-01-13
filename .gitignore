@@ -6,6 +6,7 @@ build/
 *.json
 *.db
 *.p12
+*.basalt
 
 ### IntelliJ IDEA ###
 .idea

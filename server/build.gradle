@@ -13,7 +13,7 @@ dependencies {
 
     implementation 'org.bouncycastle:bcpkix-jdk18on:1.82'
 
-    runtimeOnly 'com.h2database:h2:2.4.240'
+    implementation 'com.h2database:h2:2.4.240'
 
     implementation project(':share')
 }

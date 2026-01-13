@@ -12,6 +12,7 @@ public final class Util {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Util.class);
 	
 	public static final String APPLICATION_NAME = "basalt";
+	public static final String APPLICATION_FORMAT = ".basalt";
 	
 	public static final byte NETWORK_VERSION = 3;
 	public static final double APPLICATION_VERSION = 0.4;
