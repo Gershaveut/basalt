@@ -31,7 +31,7 @@ public class AboutFrame extends JFrame {
         textPanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         
         textPanel.add(new JLabel(WordUtils.capitalize(Util.APPLICATION_NAME)));
-        textPanel.add(new JLabel("Code-offline"));
+        textPanel.add(new JLabel("code-offline"));
         textPanel.add(Box.createVerticalStrut(15));
         textPanel.add(new JLabel("Версия программы: " + Util.APPLICATION_VERSION));
         textPanel.add(new JLabel("Версия клиента: " + Util.NETWORK_VERSION));

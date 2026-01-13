@@ -5,6 +5,7 @@ import dev.code_offline.basalt.controller.StartController;
 import dev.code_offline.basalt.model.recent.ApplicationRecentStarts;
 import dev.code_offline.basalt.model.recent.RecentStart;
 import dev.code_offline.basalt_share.Util;
+import org.apache.commons.text.WordUtils;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -27,7 +28,7 @@ public class StartFrame extends JFrame {
 	private final JPopupMenu popupMenu;
 	
 	public StartFrame() {
-		this.setTitle(Util.APPLICATION_NAME);
+		this.setTitle(WordUtils.capitalize(Util.APPLICATION_NAME));
 		this.setLayout(new BorderLayout());
 		this.setSize(500, 500);
 		this.setLocationRelativeTo(null);

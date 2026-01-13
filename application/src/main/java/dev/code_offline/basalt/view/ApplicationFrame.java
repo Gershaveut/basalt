@@ -18,6 +18,7 @@ import dev.code_offline.basalt.view.tool.folder.FolderTool;
 import dev.code_offline.basalt.view.tool.graph.GraphTool;
 import dev.code_offline.basalt.view.tool.person.PersonsTool;
 import dev.code_offline.basalt_share.Util;
+import org.apache.commons.text.WordUtils;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -35,7 +36,7 @@ public class ApplicationFrame extends JFrame {
     public ApplicationFrame(Database database, StartFrame startFrame, StartController startController) throws HeadlessException {
         this.database = database;
 
-        this.setTitle(Util.APPLICATION_NAME);
+        this.setTitle(WordUtils.capitalize(Util.APPLICATION_NAME));
         this.setLayout(new BorderLayout());
         this.setSize(600, 600);
         this.setLocationRelativeTo(null);
