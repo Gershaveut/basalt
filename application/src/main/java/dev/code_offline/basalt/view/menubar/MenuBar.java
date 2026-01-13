@@ -15,9 +15,11 @@ public class MenuBar extends JMenuBar {
     private final EventListenerList listeners = new EventListenerList();
 
     private final AboutFrame aboutFrame = new AboutFrame();
-    private final SettingsFrame settingsFrame = new SettingsFrame();
+    private final SettingsFrame settingsFrame;
 
-    public MenuBar() {
+    public MenuBar(SettingsFrame settingsFrame) {
+		this.settingsFrame = settingsFrame;
+		
         var fileMenu = new JMenu("Файл");
         var viewMenu = new JMenu("Вид");
         var helpMenu = new JMenu("Помощь");

@@ -6,6 +6,7 @@ import dev.code_offline.basalt.model.database.ServerConnectException;
 import dev.code_offline.basalt.model.recent.ApplicationRecentStarts;
 import dev.code_offline.basalt.model.recent.RecentStart;
 import dev.code_offline.basalt.view.ApplicationFrame;
+import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt.view.start.StartFrame;
 import dev.code_offline.basalt.view.start.StartListener;
 import dev.code_offline.basalt.view.start.UnknownException;

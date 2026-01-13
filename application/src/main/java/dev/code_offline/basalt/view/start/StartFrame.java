@@ -1,11 +1,14 @@
 package dev.code_offline.basalt.view.start;
 
 import dev.code_offline.basalt.ApplicationUtil;
+import dev.code_offline.basalt.controller.SettingsController;
 import dev.code_offline.basalt.controller.StartController;
 import dev.code_offline.basalt.model.recent.ApplicationRecentStarts;
 import dev.code_offline.basalt.model.recent.RecentStart;
+import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt_share.Util;
 import org.apache.commons.text.WordUtils;
+import org.hibernate.sql.results.graph.instantiation.internal.DynamicInstantiationAssemblerListImpl;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -23,6 +26,9 @@ import java.util.function.Consumer;
 public class StartFrame extends JFrame {
 	private final EventListenerList listeners = new EventListenerList();
 	
+	public final SettingsFrame settingsFrame = new SettingsFrame();
+	public final SettingsController settingsController = new SettingsController(settingsFrame);
+	
 	private final JList<RecentStart> recentList;
 	
 	private final JPopupMenu popupMenu;
@@ -39,6 +45,7 @@ public class StartFrame extends JFrame {
 		var createDatabaseButton = new JButton("Создать");
 		var openDatabaseButton = new JButton("Открыть");
 		var connectDatabaseButton = new JButton("Подключиться");
+		var settingsButton = new JButton("Настройки");
 		
 		createDatabaseButton.addActionListener(e -> chooseDatabaseFile(true));
 		openDatabaseButton.addActionListener(e -> chooseDatabaseFile(false));
@@ -49,10 +56,14 @@ public class StartFrame extends JFrame {
 				notifyListeners(startListener -> startListener.connectDatabase(ip));
 			}
 		});
+		settingsButton.addActionListener(e -> {
+			settingsFrame.setVisible(true);
+		});
 		
 		buttonPanel.add(createDatabaseButton);
 		buttonPanel.add(openDatabaseButton);
 		buttonPanel.add(connectDatabaseButton);
+		buttonPanel.add(settingsButton);
 		
 		recentList = new JList<>();
 		var recentPanel = new JPanel(new BorderLayout());

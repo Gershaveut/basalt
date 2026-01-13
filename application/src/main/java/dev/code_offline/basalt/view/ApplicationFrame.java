@@ -43,7 +43,7 @@ public class ApplicationFrame extends JFrame {
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.toFront();
         
-        var menuBar = new MenuBar();
+        var menuBar = new MenuBar(startFrame.settingsFrame);
 
         var graph = new Graph();
         var graphTool = new GraphTool(graph, this);
@@ -106,7 +106,7 @@ public class ApplicationFrame extends JFrame {
         add(toolPanel, BorderLayout.WEST);
         
         new DatabaseController(this, graphTool, folderTool, rightTabDock, rightSplitDock, database, menuBar, startFrame, startController, personsTool);
-        new SettingsController(menuBar.getSettingsFrame(), this, graphTool.graphCanvas, database);
+        startFrame.settingsController.loadApplicationSettings(this, graphTool.graphCanvas, database);
 
         this.setJMenuBar(menuBar);
         this.setVisible(true);

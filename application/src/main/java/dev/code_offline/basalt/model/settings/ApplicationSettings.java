@@ -33,7 +33,7 @@ public class ApplicationSettings {
 	private final Setting debugMode;
 	private final Setting debugGenerateDatabase;
 	
-	public ApplicationSettings(Person clientPerson) {
+	public ApplicationSettings() {
 		var settingsTabs = new ArrayList<SettingsTab>();
 		
 		var generalTab = new SettingsTab("Основные", "Основные настройки программы");
@@ -47,14 +47,9 @@ public class ApplicationSettings {
 		
 		var accountCategory = new SettingsCategory("Аккаунт");
 		
-		var defaultDescription = clientPerson.getDescription();
-		
-		if (defaultDescription == null)
-			defaultDescription = "";
-		
-		username = new Setting("Имя пользователя", null, clientPerson.getUsername(), true, false);
+		username = new Setting("Имя пользователя", null, "", true, false);
 		password = new Setting("Пароль", null, "", true, true);
-		description = new Setting("Описание", null, defaultDescription, true, false);
+		description = new Setting("Описание", null, "", true, false);
 		
 		var graphCategory = new SettingsCategory("Граф");
 		
