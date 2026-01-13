@@ -33,7 +33,7 @@ public class StartFrame extends JFrame {
 	
 	private final JPopupMenu popupMenu;
 	
-	public StartFrame() {
+	public StartFrame(String[] args) {
 		this.setTitle(WordUtils.capitalize(Util.APPLICATION_NAME));
 		this.setLayout(new BorderLayout());
 		this.setSize(500, 500);
@@ -120,6 +120,12 @@ public class StartFrame extends JFrame {
 		new StartController(new ApplicationRecentStarts(), this);
 		
 		this.setVisible(true);
+	
+		SwingUtilities.invokeLater(() -> {
+			if (args.length > 0) {
+				notifyListeners(startListener -> startListener.openDatabase(args[0]));
+			}
+		});
 	}
 	
 	private void showPopupMenu(JPanel parent, int x, int y) {

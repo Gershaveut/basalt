@@ -1,3 +1,5 @@
+import io.github.fvarrui.javapackager.model.FileAssociation
+
 plugins {
     id 'application'
     id 'org.springframework.boot' version '3.5.7'
@@ -35,6 +37,14 @@ javapackager {
     name = archivesBaseName
     organizationName = 'code-offline'
 
+    fileAssociations = [
+           new FileAssociation().tap {
+               mimeType = 'application/x-basalt'
+               extension = 'basalt'
+               description = 'basalt'
+           }
+    ]
+    
     linuxConfig {
         generateDeb = false
         generateRpm = false
