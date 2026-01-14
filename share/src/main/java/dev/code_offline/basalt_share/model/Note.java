@@ -70,6 +70,16 @@ public class Note {
         this.path = path;
     }
     
+    public String getAbsolutePath() {
+        var path = "";
+        
+        if (this.path != null) {
+            path = this.path;
+        }
+        
+        return path + "/" + name;
+    }
+    
     public List<Long> getLinks() {
         return links;
     }

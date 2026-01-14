@@ -25,26 +25,38 @@ import dev.code_offline.basalt.view.tool.markdown.MarkdownEditorTool;
 import dev.code_offline.basalt.view.tool.person.PersonProfileTool;
 import dev.code_offline.basalt.view.tool.person.PersonsListener;
 import dev.code_offline.basalt.view.tool.person.PersonsTool;
+import dev.code_offline.basalt_share.Util;
 import dev.code_offline.basalt_share.model.Folder;
 import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_share.model.Role;
+import jdk.jfr.TransitionTo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class DatabaseController implements DatabaseListener, FolderListener, PersonsListener {
-	public final Database database;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseController.class);
+	
+    public final Database database;
 	
 	private final StartFrame startFrame;
     private final ApplicationFrame applicationFrame;
@@ -127,7 +139,62 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                     }
                 });
             }
-            
+
+            @Override
+            public void importProject() {
+                
+            }
+
+            @Override
+            public void exportProject() {
+                var fileChooser = new JFileChooser();
+
+                fileChooser.setFileFilter(new FileNameExtensionFilter("Базальт проект (.zip)", "zip"));
+
+                var result = fileChooser.showSaveDialog(applicationFrame);
+                
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        var fos = new FileOutputStream(fileChooser.getSelectedFile());
+                        var zipOut = new ZipOutputStream(fos);
+                        
+                        database.getFolders().subscribe(folders -> {
+                            folders.forEach(folder -> {
+                                try {
+                                    var zipEntry = new ZipEntry(folder.getPath().substring(1).replace('@', '/') + '/');
+                                    zipOut.putNextEntry(zipEntry);
+                                    zipOut.closeEntry();
+                                } catch (Exception e) {
+                                    LOGGER.error("Zip folder error", e);
+                                }
+                            });
+                            
+                            database.getNotes().subscribe(notes -> {
+                                notes.forEach(note -> {
+                                    try {
+                                        var zipEntry = new ZipEntry(note.getAbsolutePath().substring(1).replace('@', '/') + ".md");
+                                        zipOut.putNextEntry(zipEntry);
+
+                                        zipOut.write(note.getText().getBytes());
+                                    } catch (Exception e) {
+                                        LOGGER.error("Zip file error", e);
+                                    }
+                                });
+
+                                try {
+                                    zipOut.close();
+                                    fos.close();
+                                } catch (Exception e) {
+                                    LOGGER.error("Export error", e);
+                                }
+                            });
+                        });
+                    } catch (Exception e) {
+                        LOGGER.error("Export error", e);
+                    }
+                }
+            }
+
             @Override
             public void exit() {
                 close(true);

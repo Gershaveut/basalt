@@ -24,11 +24,14 @@ public class MenuBar extends JMenuBar {
         var viewMenu = new JMenu("Вид");
         var helpMenu = new JMenu("Помощь");
 
-        fileMenu.add(menuItem("Закрыть проект", () -> notifyListeners(MenuBarListener::closeProject)));
+        fileMenu.add(menuItem("Закрыть проект", this::closeProject));
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Настройки", this::settings, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.ALT_DOWN_MASK | KeyEvent.CTRL_DOWN_MASK)));
         fileMenu.addSeparator();
-        fileMenu.add(menuItem("Сохранить всё", () -> notifyListeners(MenuBarListener::save), KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.SHIFT_DOWN_MASK | KeyEvent.CTRL_DOWN_MASK)));
+        fileMenu.add(menuItem("Сохранить всё", this::save, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.SHIFT_DOWN_MASK | KeyEvent.CTRL_DOWN_MASK)));
+        fileMenu.addSeparator();
+        //fileMenu.add(menuItem("Импорт", this::importProject));
+        fileMenu.add(menuItem("Экспорт", this::exportProject));
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Выход", this::exit));
 
@@ -45,6 +48,14 @@ public class MenuBar extends JMenuBar {
         add(fileMenu);
         add(viewMenu);
         add(helpMenu);
+    }
+
+    private void save() {
+        notifyListeners(MenuBarListener::save);
+    }
+
+    private void closeProject() {
+        notifyListeners(MenuBarListener::closeProject);
     }
 
     public void addMenuBarListener(MenuBarListener menuBarListener) {
@@ -87,7 +98,11 @@ public class MenuBar extends JMenuBar {
         settingsFrame.setVisible(true);
     }
 
-    public SettingsFrame getSettingsFrame() {
-        return settingsFrame;
+    private void importProject() {
+        notifyListeners(MenuBarListener::importProject);
+    }
+    
+    private void exportProject() {
+        notifyListeners(MenuBarListener::exportProject);
     }
 }
