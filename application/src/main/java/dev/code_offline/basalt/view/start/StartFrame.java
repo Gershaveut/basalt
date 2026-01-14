@@ -109,7 +109,10 @@ public class StartFrame extends JFrame {
 				}
 			}
 		});
-		
+
+		recentList.setDropMode(DropMode.USE_SELECTION);
+        recentList.setTransferHandler(new StartTransferHandler(listeners));
+
 		recentPanel.add(recentLabel, BorderLayout.NORTH);
 		recentPanel.add(new JScrollPane(recentList), BorderLayout.CENTER);
 		

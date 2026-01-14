@@ -6,16 +6,17 @@ import dev.code_offline.basalt.model.database.ServerConnectException;
 import dev.code_offline.basalt.model.recent.ApplicationRecentStarts;
 import dev.code_offline.basalt.model.recent.RecentStart;
 import dev.code_offline.basalt.view.ApplicationFrame;
-import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt.view.start.StartFrame;
 import dev.code_offline.basalt.view.start.StartListener;
 import dev.code_offline.basalt.view.start.UnknownException;
 import dev.code_offline.basalt_server.SpringApplication;
+import dev.code_offline.basalt_share.Util;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.lang.Nullable;
 
 import javax.net.ssl.SSLException;
 import javax.swing.*;
+import java.io.File;
 import java.util.List;
 
 public class StartController implements StartListener {
@@ -46,15 +47,18 @@ public class StartController implements StartListener {
 	
 	@Override
 	public void openDatabase(String path) {
-		if (path.contains(".")) {
-			path = path.substring(0, path.indexOf('.'));
-		}
+        var file = new File(path);
+        
+        if (!file.getName().endsWith(Util.APPLICATION_FORMAT)) {
+            JOptionPane.showMessageDialog(startFrame, "Неправильный формат файла", "Ошибка", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 		
 		startFrame.setVisible(false);
 		
 		try {
 			try {
-				context = SpringApplication.startServer(List.of("--spring.datasource.url=jdbc:h2:save:" + path).toArray(new String[1]));
+				context = SpringApplication.startServer(List.of("--spring.datasource.url=jdbc:h2:save:" + file.getPath().split("\\.")[0]).toArray(new String[1]));
 			} catch (Exception exception) {
 				throw new UnknownException(exception);
 			}
