@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,7 +78,7 @@ public class Note {
             path = this.path;
         }
         
-        return path + "/" + name;
+        return path + Folder.SEPARATOR + name;
     }
     
     public List<Long> getLinks() {

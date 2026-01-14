@@ -30,7 +30,7 @@ public class MenuBar extends JMenuBar {
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Сохранить всё", this::save, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.SHIFT_DOWN_MASK | KeyEvent.CTRL_DOWN_MASK)));
         fileMenu.addSeparator();
-        //fileMenu.add(menuItem("Импорт", this::importProject));
+        fileMenu.add(menuItem("Импорт", this::importProject));
         fileMenu.add(menuItem("Экспорт", this::exportProject));
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Выход", this::exit));

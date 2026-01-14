@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.lang.Nullable;
+import org.yaml.snakeyaml.events.Event;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -51,6 +52,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class DatabaseController implements DatabaseListener, FolderListener, PersonsListener {
@@ -69,6 +71,8 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     private final CompositeDock dock;
 
     private final String applicationFrameTitle;
+    
+    private final FileNameExtensionFilter zipFilter = new FileNameExtensionFilter("Базальт проект (.zip)", "zip");
     
     public DatabaseController(ApplicationFrame applicationFrame, GraphTool graphTool, FolderTool folderTool, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController, PersonsTool personsTool) {
         this.startFrame = startFrame;
@@ -142,14 +146,54 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
 
             @Override
             public void importProject() {
-                
+                var fileChooser = new JFileChooser();
+
+                fileChooser.setFileFilter(zipFilter);
+
+                var result = fileChooser.showOpenDialog(applicationFrame);
+
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        var zis = new ZipInputStream(new FileInputStream(fileChooser.getSelectedFile()));
+                        var zipEntry = zis.getNextEntry();
+                        
+                        while (zipEntry != null) {
+                            var zipName = zipEntry.getName();
+                            
+                            if (zipEntry.isDirectory()) {
+                                database.addFolder(new Folder(zipName.substring(0, zipName.length() - 1).replace("/", Folder.SEPARATOR)));
+                            } else {
+                                var content = new String(zis.readAllBytes());
+                                
+                                if (zipName.contains("/")) {
+                                    var lastSlashIndex = zipName.lastIndexOf('/') + 1;
+
+                                    var name = zipName.substring(lastSlashIndex);
+                                    var path = "@" + zipName.substring(0, lastSlashIndex - 1).replace("/", Folder.SEPARATOR);
+
+                                    if (name.endsWith(".md"))
+                                        database.addNote(new Note(name.split("\\.")[0], 0, content, path));
+                                } else {
+                                    database.addNote(new Note(zipName.split("\\.")[0], 0, content, null));
+                                }
+                            }
+                            
+                            zipEntry = zis.getNextEntry();
+                        }
+                        
+                        zis.closeEntry();
+                        zis.close();
+                    } catch (Exception e) {
+                        LOGGER.error("Import error", e);
+                    }
+                }
             }
 
             @Override
             public void exportProject() {
                 var fileChooser = new JFileChooser();
 
-                fileChooser.setFileFilter(new FileNameExtensionFilter("Базальт проект (.zip)", "zip"));
+                fileChooser.setFileFilter(zipFilter);
 
                 var result = fileChooser.showSaveDialog(applicationFrame);
                 
@@ -161,7 +205,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                         database.getFolders().subscribe(folders -> {
                             folders.forEach(folder -> {
                                 try {
-                                    var zipEntry = new ZipEntry(folder.getPath().substring(1).replace('@', '/') + '/');
+                                    var zipEntry = new ZipEntry(folder.getPath().substring(1).replace(Folder.SEPARATOR, "/") + '/');
                                     zipOut.putNextEntry(zipEntry);
                                     zipOut.closeEntry();
                                 } catch (Exception e) {
@@ -172,7 +216,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                             database.getNotes().subscribe(notes -> {
                                 notes.forEach(note -> {
                                     try {
-                                        var zipEntry = new ZipEntry(note.getAbsolutePath().substring(1).replace('@', '/') + ".md");
+                                        var zipEntry = new ZipEntry(note.getAbsolutePath().substring(1).replace(Folder.SEPARATOR, "/") + ".md");
                                         zipOut.putNextEntry(zipEntry);
 
                                         zipOut.write(note.getText().getBytes());
