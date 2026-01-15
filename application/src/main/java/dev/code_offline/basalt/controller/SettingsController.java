@@ -64,6 +64,10 @@ public class SettingsController implements SettingsListener {
 			applicationSettings.getPhysicMaxFps().addSettingListener(value -> {
 				graphCanvas.setPhysicMaxFps(Integer.parseInt(value.toString()));
 			});
+            applicationSettings.getSpawnZone().addSettingListener(value -> {
+                graphCanvas.setSpawnZone(Integer.parseInt(value.toString()));
+                graphCanvas.updateGraph();
+            });
 			
 			applicationSettings.getDebugMode().addSettingListener(value -> {
 				if ((Boolean) value) {

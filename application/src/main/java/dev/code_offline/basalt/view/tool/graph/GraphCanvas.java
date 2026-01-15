@@ -18,7 +18,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 @SuppressWarnings("BusyWait")
@@ -28,7 +27,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     private final static double NANO_TO_BASE = 1.0e9;
 
     public final static int NODE_SIZE = 25;
-    public final static int SPAWN_ZONE = 1000;
 
     // настройки физики
     public final static Vector2 GRAVITY = World.ZERO_GRAVITY;
@@ -55,6 +53,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     private final Vector2 offset = new Vector2();
 
     private double scale = 1.0;
+    private int spawnZone = 600;
 
     private boolean physicThreadLive; // нужно что-бы дать знать когда потоку на покой
     private final Runnable physicThreadRun;
@@ -327,7 +326,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             
             linkTo(body, spawnedNodes.stream().filter(node1 -> node1.getId() == toLinkId).findFirst().orElseThrow());
         } else {
-           body.translate(random.nextInt(SPAWN_ZONE * 2) - SPAWN_ZONE, random.nextInt(SPAWN_ZONE * 2) - SPAWN_ZONE);
+           body.translate(random.nextInt(spawnZone * 2) - spawnZone, random.nextInt(spawnZone * 2) - spawnZone);
         }
     }
     
@@ -420,12 +419,20 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
 
     public void setGraph(Graph graph) {
         this.graph = graph;
-       
+
+        updateGraph();
+    }
+
+    public void updateGraph() {
         dispose();
         world.removeAllBodies();
-        
+
         initializeNodes();
         restart();
+    }
+
+    public void setSpawnZone(int spawnZone) {
+        this.spawnZone = spawnZone;
     }
     
     private void centerGraph() {

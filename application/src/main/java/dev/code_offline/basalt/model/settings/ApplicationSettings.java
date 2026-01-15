@@ -2,7 +2,6 @@ package dev.code_offline.basalt.model.settings;
 
 import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt_share.Util;
-import dev.code_offline.basalt_share.model.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +28,7 @@ public class ApplicationSettings {
 	
 	private final Setting maxFps;
 	private final Setting physicMaxFps;
+    private final Setting spawnZone;
 	
 	private final Setting debugMode;
 	private final Setting debugGenerateDatabase;
@@ -55,7 +55,8 @@ public class ApplicationSettings {
 		
 		maxFps = new Setting("Частота кадров", null, "60");
 		physicMaxFps = new Setting("Частота обновления физики", null, "120");
-		
+		spawnZone = new Setting("Область появления нод", null, "600");
+        
 		var debugCategory = new SettingsCategory("Отладка", "Используйте на свой страх и риск!");
 		
 		debugMode = new Setting("Режим отладки", "После отключения отладки требуется перезагрузка!", false);
@@ -71,6 +72,7 @@ public class ApplicationSettings {
 		
 		graphCategory.add(maxFps);
 		graphCategory.add(physicMaxFps);
+        graphCategory.add(spawnZone);
 		toolTab.add(graphCategory);
 		
 		//debugCategory.add(debugGenerateDatabase);
@@ -165,7 +167,11 @@ public class ApplicationSettings {
 	public Setting getPhysicMaxFps() {
 		return physicMaxFps;
 	}
-	
+
+    public Setting getSpawnZone() {
+        return spawnZone;
+    }
+    
 	public Setting getMaxFps() {
 		return maxFps;
 	}
