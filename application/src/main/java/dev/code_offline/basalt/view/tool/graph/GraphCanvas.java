@@ -316,7 +316,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             });
         });
         
-        world.step(3000);
+        world.update(50);
     }
     
     private void tryLink(Node node, ArrayList<Pair<Long, Long>> toLinkList, Body body, ArrayList<Node> spawnedNodes) {

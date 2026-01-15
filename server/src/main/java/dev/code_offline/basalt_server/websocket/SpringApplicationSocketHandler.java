@@ -35,13 +35,13 @@ public class SpringApplicationSocketHandler extends TextWebSocketHandler {
 		session.close();
 	}
 	
-	public void sync() {
-		sessions.forEach(session -> {
-			try {
-				session.sendMessage(new TextMessage("sync"));
-			} catch (IOException e) {
-				LOGGER.error("Sync error", e);
-			}
-		});
+	public synchronized void sync() {
+        sessions.forEach(session -> {
+            try {
+                session.sendMessage(new TextMessage("sync"));
+            } catch (IOException e) {
+                LOGGER.error("Sync error", e);
+            }
+        });
 	}
 }

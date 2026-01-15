@@ -275,7 +275,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     }
     
     @Override
-    public void sync() {
+    public synchronized void sync() {
         database.getNotes().subscribe(notes -> {
             var notesInfo = notes.stream().map(n -> new NoteInfo(n, database)).toList();
             var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
