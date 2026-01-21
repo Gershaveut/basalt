@@ -4,6 +4,7 @@ import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt_share.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ApplicationSettings {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationSettings.class);
@@ -87,44 +89,57 @@ public class ApplicationSettings {
 		settingsModel = new SettingsModel(settingsTabs);
 	}
 	
-	public void loadSettings() throws Exception {
-		var created = new File(FILE_NAME).createNewFile();
-		
-		if (!created) {
-			var json = ApplicationUtil.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), Setting[].class);
-			
-			if (json != null) {
-				var settings = Arrays.stream(json).toList();
-				
-				settings.forEach(setting -> {
-					Setting findSetting = settingsModel.getSettings().stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElse(null);
-					
-					if (findSetting != null && !findSetting.isActionSetting()) {
-						var value = setting.getValue();
+	public void loadSettings() {
+        Setting[] json = null;
+        List<Setting> findSettings;
+                    
+        try {
+            var ignored = new File(FILE_NAME).createNewFile();
+            json = ApplicationUtil.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), Setting[].class);
+        } catch (IOException exception) {
+            LOGGER.error("Error load settings", exception);
+        }
+
+        if (json != null) {
+            findSettings = Arrays.stream(json).toList();
+        } else {
+            findSettings = null;
+            saveSettings(null);
+        }
+
+        var settings = settingsModel.getSettings();
+                
+        settings.forEach(setting -> {
+            if (!setting.isActionSetting()) {
+                var value = setting.getDefaultValue();
 						
-						if (value != null && findSetting.getDefaultValue() instanceof Enum<?> anEnum) { // починка enum в настройках
-							value = Enum.valueOf(anEnum.getDeclaringClass(), value.toString());
-						}
+                if (findSettings != null) {
+                    value = findSettings.stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElse(null).getValue();
+                }
+                        
+                if (value != null && setting.getDefaultValue() instanceof Enum<?> anEnum) { // починка enum в настройках
+                    value = Enum.valueOf(anEnum.getDeclaringClass(), value.toString().toUpperCase());
+                }
 						
-						findSetting.setValue(value);
-						findSetting.notifyListeners();
-					}
-				});
-			}
-		}
+                setting.setValue(value);
+                setting.notifyListeners();
+            }
+        });
 	}
 	
-	public void saveSettings(SettingsModel revertSettingsModel) {
+	public void saveSettings(@Nullable SettingsModel revertSettingsModel) {
 		var changed = false;
+	
+        if (revertSettingsModel != null) {
+            for (Setting setting : settingsModel.getSettings()) {
+                if (revertSettingsModel.getSettings().stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElseThrow().getValue() != setting.getValue()) {
+                    setting.notifyListeners();
+                    changed = true;
+                }
+            }
+        }
 		
-		for (Setting setting : settingsModel.getSettings()) {
-			if (revertSettingsModel.getSettings().stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElseThrow().getValue() != setting.getValue()) {
-				setting.notifyListeners();
-				changed = true;
-			}
-		}
-		
-		if (changed) {
+		if (revertSettingsModel == null || changed) {
 			LOGGER.info("Save settings...");
 			
 			try {

@@ -97,12 +97,9 @@ public class SettingsController implements SettingsListener {
 	}
 	
 	private void loadSettings() {
-		try {
-			LOGGER.info("Loading settings...");
-			applicationSettings.loadSettings();
-		} catch (Exception exception) {
-			LOGGER.error("Error loading settings", exception);
-		}
+        LOGGER.info("Loading settings...");
+        
+        applicationSettings.loadSettings();
 		
 		settingsFrame.setModel(applicationSettings.getSettingsModel());
 	}

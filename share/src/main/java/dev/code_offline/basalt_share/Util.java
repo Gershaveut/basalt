@@ -1,5 +1,6 @@
 package dev.code_offline.basalt_share;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,36 +18,28 @@ public final class Util {
 	public static final byte NETWORK_VERSION = 3;
 	public static final double APPLICATION_VERSION = 0.4;
 	
-	public static String savePrefix(String path) {
+    public static String savePrefix(String path) {
 		var appName = APPLICATION_NAME;
-		var os = System.getProperty("os.name").toLowerCase();
-		var home = System.getProperty("user.home");
+		var home = SystemUtils.USER_HOME;
 		Path configPath;
-		
-		switch (os) {
-			case "win":
-				var appData = System.getenv("APPDATA");
-				
-				if (appData == null)
-					appData = Paths.get(home, "AppData", "Roaming").toString();
-				
-				configPath = Paths.get(appData, appName);
-				
-				break;
-			case "mac":
-				configPath = Paths.get(home, "Library", "Application Support", appName);
-				
-				break;
-			default:
-				var dataHome = System.getenv("XDG_DATA_HOME");
-				
-				if (dataHome == null || dataHome.isEmpty())
-					dataHome = Paths.get(home, ".local", "share").toString();
-				
-				configPath = Paths.get(dataHome, appName);
-				
-				break;
-		}
+	    
+        if (SystemUtils.IS_OS_WINDOWS) {
+            var appData = System.getenv("APPDATA");
+            
+            if (appData == null)
+                appData = Paths.get(home, "AppData", "Roaming").toString();
+
+            configPath = Paths.get(appData, appName);
+        } else if (SystemUtils.IS_OS_MAC) {
+            configPath = Paths.get(home, "Library", "Application Support", appName);
+        } else {
+            var dataHome = System.getenv("XDG_DATA_HOME");
+
+            if (dataHome == null || dataHome.isEmpty())
+                dataHome = Paths.get(home, ".local", "share").toString();
+
+            configPath = Paths.get(dataHome, appName);
+        }
 		
 		try {
 			Files.createDirectories(configPath);
