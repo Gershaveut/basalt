@@ -114,7 +114,10 @@ public class ApplicationSettings {
                 var value = setting.getDefaultValue();
 						
                 if (findSettings != null) {
-                    value = findSettings.stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElse(null).getValue();
+					var findSetting = findSettings.stream().filter(set -> set.getName().equals(setting.getName())).findFirst().orElse(null);
+                    
+					if (findSetting != null)
+						value = findSetting.getValue();
                 }
                         
                 if (value != null && setting.getDefaultValue() instanceof Enum<?> anEnum) { // починка enum в настройках
