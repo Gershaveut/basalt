@@ -7,7 +7,8 @@ plugins {
     id 'io.github.fvarrui.javapackager.plugin' version '1.7.6'
 }
 
-base.archivesName = 'basalt'
+var applicationName = 'basalt'
+base.archivesName = applicationName
 
 dependencies {
     implementation 'org.dyn4j:dyn4j:5.0.2'
@@ -33,7 +34,7 @@ javapackager {
     bundleJre = true
     platform = 'auto'
 
-    name = base.archivesName
+    name = applicationName
     organizationName = 'code-offline'
 
     fileAssociations = [
