@@ -1,7 +1,9 @@
 package dev.code_offline.basalt.view.settings;
 
 import dev.code_offline.basalt.ApplicationUtil;
+import dev.code_offline.basalt.model.recent.RecentStart;
 import dev.code_offline.basalt.model.settings.SettingsModel;
+import dev.code_offline.basalt.model.settings.SettingsTab;
 import org.springframework.lang.Nullable;
 
 import javax.swing.*;
@@ -10,7 +12,9 @@ import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -20,7 +24,7 @@ public class SettingsFrame extends JFrame {
     private @Nullable SettingsModel model;
     private @Nullable SettingsModel revertSettingsModel;
 
-    private final JPanel settingsMenu;
+    private final JList<SettingsTab> settingsMenu;
     private final JPanel settingsTab;
 
     private final CardLayout settingsTabLayout;
@@ -39,15 +43,15 @@ public class SettingsFrame extends JFrame {
         
         settingsTabLayout = new CardLayout();
 
-        settingsMenu = new JPanel();
+        settingsMenu = new JList<>();
         settingsTab = new JPanel(settingsTabLayout);
-        
-        settingsMenu.setLayout(new BoxLayout(settingsMenu, BoxLayout.Y_AXIS));
 
-        var scrollMenu = new JScrollPane(settingsMenu);
-        scrollMenu.setBorder(null);
-        scrollMenu.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        splitPanel.setLeftComponent(scrollMenu);
+        settingsMenu.addListSelectionListener(_ -> {
+            if (!settingsMenu.isSelectionEmpty())
+                settingsTabLayout.show(settingsTab, settingsMenu.getSelectedValue().getName());
+        });
+        
+        splitPanel.setLeftComponent(settingsMenu);
         splitPanel.setRightComponent(settingsTab);
 
         var okButton = new JButton("ОК");
@@ -131,6 +135,8 @@ public class SettingsFrame extends JFrame {
 
         var tabBorder = new EmptyBorder(0, 15, 0, 0);
 
+        var modelList = new DefaultListModel<SettingsTab>();
+        
         model.getSettingsTabs().forEach(tab -> {
             var menuButton = new JButton(tab.getName());
             var tabPanel = Box.createVerticalBox();
@@ -230,7 +236,6 @@ public class SettingsFrame extends JFrame {
             });
 
             menuButton.addActionListener(e -> {
-                settingsTabLayout.show(settingsTab, tab.getName());
             });
 
             var scrollTab = new JScrollPane(tabPanel);
@@ -238,7 +243,10 @@ public class SettingsFrame extends JFrame {
             scrollTab.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             settingsTab.add(scrollTab, tab.getName());
             settingsMenu.add(menuButton);
+            modelList.addElement(tab);
         });
+
+        settingsMenu.setModel(modelList);
     }
 
     public void addSettingsListener(SettingsListener settingsListener) {

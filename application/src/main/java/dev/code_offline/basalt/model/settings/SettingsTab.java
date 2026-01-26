@@ -36,6 +36,11 @@ public class SettingsTab implements Cloneable {
     }
 
     @Override
+    public String toString() {
+        return name;
+    }
+    
+    @Override
     public SettingsTab clone() {
         try {
             SettingsTab cloned = (SettingsTab) super.clone();
