@@ -1,7 +1,6 @@
 package dev.code_offline.basalt.view.settings;
 
 import dev.code_offline.basalt.ApplicationUtil;
-import dev.code_offline.basalt.model.recent.RecentStart;
 import dev.code_offline.basalt.model.settings.SettingsModel;
 import dev.code_offline.basalt.model.settings.SettingsTab;
 import org.springframework.lang.Nullable;
@@ -12,9 +11,7 @@ import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -50,6 +47,7 @@ public class SettingsFrame extends JFrame {
             if (!settingsMenu.isSelectionEmpty())
                 settingsTabLayout.show(settingsTab, settingsMenu.getSelectedValue().getName());
         });
+        SwingUtilities.invokeLater(() -> settingsMenu.setSelectedIndex(0));
         
         splitPanel.setLeftComponent(settingsMenu);
         splitPanel.setRightComponent(settingsTab);
