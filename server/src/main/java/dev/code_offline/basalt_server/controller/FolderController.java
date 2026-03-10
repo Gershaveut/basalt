@@ -29,7 +29,7 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		newFolder.setParent(path);
 		
 		if (id.equals(path) || folderRepository.existsById(newFolder.getPath()))
-			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		
 		var response = updateFolder(id, folder -> folder.setParent(path));
 		
@@ -43,7 +43,7 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		newFolder.setName(newName);
 		
 		if (folderRepository.existsById(newFolder.getPath()))
-			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		
 		var response = updateFolder(id, folder -> folder.setName(newName));
 		sync();
@@ -80,7 +80,7 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		var targetData = folderRepository.findById(id);
 		
 		if (targetData.isEmpty())
-			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		
 		var target = targetData.get();
 		

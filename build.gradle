@@ -15,6 +15,6 @@ subprojects {
     }
 
     dependencies {
-        implementation platform("org.springframework.boot:spring-boot-dependencies:4.0.0")
+        implementation platform("org.springframework.boot:spring-boot-dependencies:4.1.0-M2")
     }
 }

@@ -1,7 +1,5 @@
 package dev.code_offline.basalt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import dev.code_offline.basalt.model.note.NoteInfo;
 import dev.code_offline.basalt_share.model.Note;
 import dev.code_offline.basalt_share.model.Person;
@@ -9,6 +7,8 @@ import dev.code_offline.basalt_share.model.Role;
 import org.apache.commons.text.WordUtils;
 import org.dyn4j.geometry.Vector2;
 import org.springframework.lang.Nullable;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -54,7 +54,7 @@ public final class ApplicationUtil {
     
     public static ObjectMapper getMapper() {
         var mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.writer(SerializationFeature.INDENT_OUTPUT);
         
         return mapper;
     }

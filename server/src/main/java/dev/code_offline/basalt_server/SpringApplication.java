@@ -2,15 +2,12 @@ package dev.code_offline.basalt_server;
 
 import dev.code_offline.basalt_share.Util;
 import org.h2.store.fs.FilePath;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Properties;
 
-@EnableAutoConfiguration(exclude = RepositoryRestMvcAutoConfiguration.class)
 @EntityScan("dev.code_offline.basalt_share.model")
 @SpringBootApplication
 public class SpringApplication {
