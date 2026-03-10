@@ -53,6 +53,8 @@ public class ApplicationFrame extends JFrame {
         
         List<AbstractTool> abstractTools = new ArrayList<>();
 
+        DockingManager.setComponentFactory(new ApplicationSwComponentFactory());
+
         // создание модели
         var dockModel = new FloatDockModel();
         dockModel.addOwner("main_frame", this);
