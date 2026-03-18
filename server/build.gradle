@@ -4,6 +4,8 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
+base.archivesName = 'basalt-server'
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-rest'

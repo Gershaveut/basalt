@@ -36,7 +36,6 @@ javapackager {
     platform = 'auto'
 
     name = applicationName
-    organizationName = 'code-offline'
 
     fileAssociations = [
            new FileAssociation().tap {

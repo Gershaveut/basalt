@@ -17,7 +17,7 @@ public enum Icons {
     EDIT("edit"),
     PREVIEW("preview"),
     STACK("stack"),
-    ICON("linux/basalt"),
+    ICON("basalt"),
     SAVE("save"),
     TERMINAL("terminal"),
     PERSON("person"),
