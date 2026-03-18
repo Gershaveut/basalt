@@ -96,7 +96,7 @@ public class ApplicationSettings {
         try {
             var ignored = new File(FILE_NAME).createNewFile();
             json = ApplicationUtil.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), Setting[].class);
-        } catch (IOException exception) {
+        } catch (Exception exception) {
             LOGGER.error("Error load settings", exception);
         }
 
