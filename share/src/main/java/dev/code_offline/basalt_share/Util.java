@@ -15,8 +15,8 @@ public final class Util {
 	public static final String APPLICATION_NAME = "basalt";
 	public static final String APPLICATION_FORMAT = ".basalt";
 	
-	public static final byte NETWORK_VERSION = 3;
-	public static final double APPLICATION_VERSION = 0.4;
+	public static final byte NETWORK_VERSION = 4;
+	public static final double APPLICATION_VERSION = 0.5;
 	
     public static String savePrefix(String path) {
 		var appName = APPLICATION_NAME;
