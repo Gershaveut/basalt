@@ -17,7 +17,7 @@ public enum Icons {
     EDIT("edit"),
     PREVIEW("preview"),
     STACK("stack"),
-    APPLICATION("application"),
+    ICON("linux/basalt"),
     SAVE("save"),
     TERMINAL("terminal"),
     PERSON("person"),
@@ -68,6 +68,6 @@ public enum Icons {
     }
 
     public static String iconPrefix(String path) {
-        return ApplicationUtil.assetsPrefix("icon/" + path + ".png");
+        return ApplicationUtil.assetsPrefix(path + ".png");
     }
 }

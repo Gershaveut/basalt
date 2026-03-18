@@ -21,7 +21,7 @@ public class AboutFrame extends JFrame {
         var panel = new JPanel();
         var textPanel = Box.createVerticalBox();
        
-        var logo = new JLabel(new ImageIcon(Icons.APPLICATION.getRawIcon().getImage().getScaledInstance(LOGO_SIZE, (int) (LOGO_SIZE * 1.25), 0)));
+        var logo = new JLabel(new ImageIcon(Icons.ICON.getRawIcon().getImage().getScaledInstance(LOGO_SIZE, (int) (LOGO_SIZE * 1.25), 0)));
         
         logo.setVerticalAlignment(JLabel.TOP);
         
