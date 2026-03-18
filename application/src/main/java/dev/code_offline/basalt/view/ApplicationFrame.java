@@ -4,6 +4,8 @@ import com.javadocking.DockingManager;
 import com.javadocking.dock.Position;
 import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
+import com.javadocking.dockable.DockableState;
+import com.javadocking.dockable.action.DefaultDockableStateAction;
 import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.DatabaseController;
 import dev.code_offline.basalt.controller.StartController;
@@ -22,6 +24,7 @@ import org.apache.commons.text.WordUtils;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,6 +112,18 @@ public class ApplicationFrame extends JFrame {
         new DatabaseController(this, graphTool, folderTool, rightTabDock, rightSplitDock, database, menuBar, startFrame, startController, personsTool);
         startFrame.settingsController.loadApplicationSettings(this, graphTool.graphCanvas, database);
 
+        // закрытие лишних инструментов
+        var toClose = new ArrayList<>(abstractTools);
+
+        toClose.remove(graphTool);
+        toClose.remove(folderTool);
+
+        toClose.forEach(abstractTool -> {
+            var closeAction = new DefaultDockableStateAction(abstractTool.getDockable(), DockableState.CLOSED);
+
+            closeAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Close"));
+        });
+        
         this.setJMenuBar(menuBar);
         this.setVisible(true);
     }
