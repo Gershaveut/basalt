@@ -55,7 +55,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     private double scale = 1.0;
     private int spawnZone = 600;
 
-    private boolean physicThreadLive; // нужно что-бы дать знать когда потоку на покой
+    private volatile boolean physicThreadLive; // нужно что-бы дать знать когда потоку на покой
     private final Runnable physicThreadRun;
     private @Nullable Thread physicThread;
     private long last;
@@ -63,7 +63,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     private @Nullable Point lastMousePos;
     private @Nullable Node draggedNode;
     
-    private boolean paintThreadLive; // нужно что-бы дать знать когда потоку на покой
+    private volatile boolean paintThreadLive; // нужно что-бы дать знать когда потоку на покой
     private final Runnable paintThreadRun;
     private @Nullable Thread paintThread;
     

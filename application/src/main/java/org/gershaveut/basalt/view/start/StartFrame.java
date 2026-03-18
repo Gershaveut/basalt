@@ -125,7 +125,7 @@ public class StartFrame extends JFrame {
 	
 		SwingUtilities.invokeLater(() -> {
 			if (args.length > 0) {
-				notifyListeners(startListener -> startListener.openDatabase(args[0]));
+				notifyListeners(startListener -> startListener.openDatabase(String.join(" ", args)));
 			}
 		});
 	}
@@ -171,7 +171,14 @@ public class StartFrame extends JFrame {
 		}
 		
 		if (result == JFileChooser.APPROVE_OPTION) {
-			notifyListeners(startListener -> startListener.openDatabase(fileChooser.getSelectedFile().getPath()));
+			var selectedFile = fileChooser.getSelectedFile().getPath(); 
+			
+			if (create && !selectedFile.endsWith(Util.APPLICATION_FORMAT)) {
+				selectedFile += Util.APPLICATION_FORMAT;
+			}
+
+			var finalSelectedFile = selectedFile;
+			notifyListeners(startListener -> startListener.openDatabase(finalSelectedFile));
 		}
 	}
 	
