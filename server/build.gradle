@@ -19,5 +19,5 @@ dependencies {
 }
 
 application {
-    mainClass = 'dev.code_offline.basalt_server.SpringApplication'
+    mainClass = 'org.gershaveut.basalt_server.SpringApplication'
 }

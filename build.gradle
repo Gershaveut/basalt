@@ -1,7 +1,7 @@
 subprojects {
     apply plugin: 'java'
 
-    group = 'dev.code_offline'
+    group = 'org.gershaveut'
     version = '0.4'
 
     repositories {

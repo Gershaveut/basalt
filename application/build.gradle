@@ -26,11 +26,11 @@ dependencies {
 }
 
 application {
-    mainClass = 'dev.code_offline.basalt.Application'
+    mainClass = 'org.gershaveut.basalt.Application'
 }
 
 javapackager {
-    mainClass = 'dev.code_offline.basalt.Application'
+    mainClass = 'org.gershaveut.basalt.Application'
     customizedJre = false
     bundleJre = true
     platform = 'auto'
