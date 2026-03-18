@@ -2,7 +2,7 @@ subprojects {
     apply plugin: 'java'
 
     group = 'org.gershaveut'
-    version = '0.5'
+    version = '0.5.1'
 
     repositories {
         mavenCentral()
