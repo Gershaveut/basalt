@@ -1,7 +1,7 @@
 package dev.code_offline.basalt.model.graph;
 
 import org.dyn4j.dynamics.Body;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

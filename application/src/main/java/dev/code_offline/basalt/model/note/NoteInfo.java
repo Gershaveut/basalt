@@ -2,7 +2,7 @@ package dev.code_offline.basalt.model.note;
 
 import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt_share.model.Note;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

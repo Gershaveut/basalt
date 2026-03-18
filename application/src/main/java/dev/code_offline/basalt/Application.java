@@ -5,7 +5,7 @@ import dev.code_offline.basalt.view.start.StartFrame;
 import javax.swing.*;
 
 public class Application {
-	public static void main(String[] args) {
+	static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> new StartFrame(args));
 	}
 }

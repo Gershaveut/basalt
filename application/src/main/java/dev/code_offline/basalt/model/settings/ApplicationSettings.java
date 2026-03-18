@@ -2,9 +2,9 @@ package dev.code_offline.basalt.model.settings;
 
 import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt_share.Util;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.lang.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.File;

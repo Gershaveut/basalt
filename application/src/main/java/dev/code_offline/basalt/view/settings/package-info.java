@@ -1,4 +1,4 @@
-@NonNullApi
+@NullMarked
 package dev.code_offline.basalt.view.settings;
 
-import org.springframework.lang.NonNullApi;
+import org.jspecify.annotations.NullMarked;

@@ -5,15 +5,16 @@ import com.javadocking.dockable.Dockable;
 import com.javadocking.dockable.DockableState;
 import com.javadocking.dockable.StateActionDockable;
 import com.javadocking.dockable.action.DefaultDockableStateActionFactory;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Objects;
 
 public abstract class AbstractTool extends JPanel {
     public static final int ICON_SIZE = 15;
     
-    private Dockable dockable;
-    private DefaultDockable delegate;
+    private @Nullable Dockable dockable;
+    private @Nullable DefaultDockable delegate;
     
     private void ensure() {
         if (delegate == null) {
@@ -37,11 +38,11 @@ public abstract class AbstractTool extends JPanel {
     
     public Dockable getDockable() {
         ensure();
-        return dockable;
+        return Objects.requireNonNull(dockable);
     }
     
     protected DefaultDockable getDelegate() {
         ensure();
-        return delegate;
+        return Objects.requireNonNull(delegate);
     }
 }

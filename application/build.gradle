@@ -1,3 +1,4 @@
+//file:noinspection GroovyAssignabilityCheck
 import io.github.fvarrui.javapackager.model.FileAssociation
 
 plugins {

@@ -8,7 +8,7 @@ import dev.code_offline.basalt.view.tool.AbstractTool;
 import dev.code_offline.basalt_share.model.Folder;
 import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_share.model.Role;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;

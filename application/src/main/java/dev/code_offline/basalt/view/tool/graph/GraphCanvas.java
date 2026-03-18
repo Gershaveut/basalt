@@ -9,10 +9,10 @@ import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.World;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.Pair;
-import org.springframework.lang.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -177,7 +177,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
         var handler = new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-                LOGGER.error(t.getName() + " error", e);
+                LOGGER.error("{} error", t.getName(), e);
                 
                 restart();
             }

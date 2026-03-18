@@ -2,6 +2,7 @@ package dev.code_offline.basalt_server.service;
 
 import dev.code_offline.basalt_server.repository.PersonRepository;
 import dev.code_offline.basalt_share.model.Person;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,7 +17,7 @@ public class RepositoryUserDetailsService implements UserDetailsService {
 	}
 	
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	public @NonNull UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
 		Person person = personRepository.findByUsername(username);
 		
 		if (person == null) {

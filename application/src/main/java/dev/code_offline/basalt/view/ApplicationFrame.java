@@ -6,7 +6,6 @@ import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
 import com.javadocking.model.FloatDockModel;
 import dev.code_offline.basalt.controller.DatabaseController;
-import dev.code_offline.basalt.controller.SettingsController;
 import dev.code_offline.basalt.controller.StartController;
 import dev.code_offline.basalt.model.database.Database;
 import dev.code_offline.basalt.model.graph.Graph;

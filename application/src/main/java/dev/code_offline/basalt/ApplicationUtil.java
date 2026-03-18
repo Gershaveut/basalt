@@ -6,7 +6,7 @@ import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_share.model.Role;
 import org.apache.commons.text.WordUtils;
 import org.dyn4j.geometry.Vector2;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 

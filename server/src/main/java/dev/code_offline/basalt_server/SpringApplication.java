@@ -11,7 +11,7 @@ import java.util.Properties;
 @EntityScan("dev.code_offline.basalt_share.model")
 @SpringBootApplication
 public class SpringApplication {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         startServer(args);
     }
     

@@ -6,7 +6,7 @@ import dev.code_offline.basalt.view.Icons;
 import dev.code_offline.basalt.view.tool.AbstractTool;
 import dev.code_offline.basalt_share.model.Person;
 import dev.code_offline.basalt_share.model.Role;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -97,7 +97,7 @@ public class PersonsTool extends AbstractTool {
 			
 			if (option == JOptionPane.OK_OPTION) {
 				for (PersonsListener listener : listeners.getListeners(PersonsListener.class)) {
-					listener.rolePerson(person.getId(), (Role) role.getSelectedItem());
+					listener.rolePerson(person.getId(), (Role) Objects.requireNonNull(role.getSelectedItem()));
 				}
 			}
 		});

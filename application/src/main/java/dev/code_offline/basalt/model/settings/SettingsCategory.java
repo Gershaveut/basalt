@@ -1,6 +1,6 @@
 package dev.code_offline.basalt.model.settings;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

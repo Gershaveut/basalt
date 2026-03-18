@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +21,9 @@ public class Note {
     private List<Long> links = new ArrayList<>();
 	
 	private Note() {
-	}
+        this.name = "Null";
+        this.text = name;
+    }
 	
 	public Note(String name, long person, String text, @Nullable String path) {
         this.name = name;

@@ -25,7 +25,10 @@ public class Person implements UserDetails {
     private @Nullable String description;
 	
 	private Person() {
-	}
+        this.username = "Null";
+        this.password = username;
+        this.role = Role.GUEST;
+    }
 	
 	public Person(String username, String password, Role role, @Nullable String description) {
         this.username = username;

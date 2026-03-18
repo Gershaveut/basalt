@@ -8,7 +8,6 @@ import dev.code_offline.basalt.model.recent.RecentStart;
 import dev.code_offline.basalt.view.settings.SettingsFrame;
 import dev.code_offline.basalt_share.Util;
 import org.apache.commons.text.WordUtils;
-import org.hibernate.sql.results.graph.instantiation.internal.DynamicInstantiationAssemblerListImpl;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;

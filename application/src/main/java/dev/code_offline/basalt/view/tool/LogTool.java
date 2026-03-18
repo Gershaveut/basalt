@@ -3,7 +3,7 @@ package dev.code_offline.basalt.view.tool;
 import com.javadocking.dockable.DockingMode;
 import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt.view.Icons;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;

@@ -3,7 +3,7 @@ package dev.code_offline.basalt.view.settings;
 import dev.code_offline.basalt.ApplicationUtil;
 import dev.code_offline.basalt.model.settings.SettingsModel;
 import dev.code_offline.basalt.model.settings.SettingsTab;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
