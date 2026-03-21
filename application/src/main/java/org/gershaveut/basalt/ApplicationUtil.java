@@ -60,11 +60,15 @@ public final class ApplicationUtil {
         return mapper;
     }
     
+    public static boolean hasAccess(Role role, Role access) {
+        return role.ordinal() >= access.ordinal();
+    }
+    
     public static boolean hasRole(@Nullable Person person, Role role) {
         if (person == null)
             return false;
         
-        return person.getRole().ordinal() >= role.ordinal();
+        return hasAccess(person.getRole(), role);
     }
     
     public static boolean accessNote(@Nullable Person person, long noteAuthor) {

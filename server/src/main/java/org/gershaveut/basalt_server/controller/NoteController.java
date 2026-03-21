@@ -128,7 +128,7 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 
     @Secured({"ROLE_MODERATOR"})
     @PostMapping("/import")
-    public ResponseEntity<List<Note>> importProject(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<List<Note>> importProject(@AuthenticationPrincipal Person currentPerson, @RequestParam("file") MultipartFile file) throws IOException {
         var zis = new ZipInputStream(file.getInputStream());
         var zipEntry = zis.getNextEntry();
 
@@ -148,9 +148,9 @@ public class NoteController extends AbstractCurdController<Note, Long> {
                     var path = "@" + zipName.substring(0, lastSlashIndex - 1).replace("/", Folder.SEPARATOR);
 
                     if (name.endsWith(".md"))
-                        note = new Note(name.split("\\.")[0], 0, content, path);
+                        note = new Note(name.split("\\.")[0], currentPerson.getId(), content, path);
                 } else {
-                    note = new Note(zipName.split("\\.")[0], 0, content, null);
+                    note = new Note(zipName.split("\\.")[0], currentPerson.getId(), content, null);
                 }
 
                 if (note != null) {

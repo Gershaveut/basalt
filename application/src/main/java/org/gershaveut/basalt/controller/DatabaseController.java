@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.objenesis.instantiator.perc.PercInstantiator;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -65,6 +66,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     private final FolderTool folderTool;
     private final PersonsTool personsTool;
     private final StartController startController;
+    private final MenuBar menuBar;
 
     private final TabDock tabDock;
     private final CompositeDock dock;
@@ -83,6 +85,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
 		this.dock = dock;
 		this.database = database;
 		this.startController = startController;
+        this.menuBar = menuBar;
 		
         this.applicationFrameTitle = applicationFrame.getTitle();
 		
@@ -235,6 +238,8 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                    personsTool.setModel(persons, clientPerson);
                 });
                 graphTool.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
+                
+                menuBar.updateAccess(clientPerson);
             });
         });
     }
@@ -258,9 +263,9 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
 
     private void openNote(long id) {
         database.getNote(id).subscribe(note -> {
-            database.getClientPerson().subscribe(person -> {
+            database.getClientPerson().subscribe(clientPerson -> {
                 database.getNoteText(note.getId()).subscribe(text -> {
-                    var markdownEditor = new MarkdownEditorTool(note, text, applicationFrame, person);
+                    var markdownEditor = new MarkdownEditorTool(note, text, applicationFrame, clientPerson);
 
                     markdownEditor.addMarkdownListener(text1 -> database.editNote(note.getId(), text1));
 

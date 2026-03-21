@@ -4,6 +4,8 @@ import org.gershaveut.basalt.ApplicationUtil;
 import org.gershaveut.basalt.model.settings.Theme;
 import org.gershaveut.basalt.view.AboutFrame;
 import org.gershaveut.basalt.view.settings.SettingsFrame;
+import org.gershaveut.basalt_share.model.Person;
+import org.gershaveut.basalt_share.model.Role;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -16,6 +18,8 @@ public class MenuBar extends JMenuBar {
 
     private final AboutFrame aboutFrame = new AboutFrame();
     private final SettingsFrame settingsFrame;
+    
+    private final JMenuItem importProject;
 
     public MenuBar(SettingsFrame settingsFrame) {
 		this.settingsFrame = settingsFrame;
@@ -24,13 +28,15 @@ public class MenuBar extends JMenuBar {
         var viewMenu = new JMenu("Вид");
         var helpMenu = new JMenu("Помощь");
 
+        importProject = menuItem("Импорт", this::importProject);
+
         fileMenu.add(menuItem("Закрыть проект", this::closeProject));
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Настройки", this::settings, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.ALT_DOWN_MASK | KeyEvent.CTRL_DOWN_MASK)));
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Сохранить всё", this::save, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.SHIFT_DOWN_MASK | KeyEvent.CTRL_DOWN_MASK)));
         fileMenu.addSeparator();
-        fileMenu.add(menuItem("Импорт", this::importProject));
+        fileMenu.add(importProject);
         fileMenu.add(menuItem("Экспорт", this::exportProject));
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Выход", this::exit));
@@ -48,6 +54,10 @@ public class MenuBar extends JMenuBar {
         add(fileMenu);
         add(viewMenu);
         add(helpMenu);
+    }
+    
+    public void updateAccess(Person person) {
+        importProject.setEnabled(ApplicationUtil.hasRole(person, Role.MODERATOR));
     }
 
     private void save() {
