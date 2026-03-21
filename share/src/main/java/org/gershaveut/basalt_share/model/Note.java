@@ -1,5 +1,6 @@
 package org.gershaveut.basalt_share.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
@@ -15,14 +16,14 @@ public class Note {
     
     private @NotNull String name;
     private @NotNull long person;
-    private @NotNull String text;
+    private @NotNull @Lob String text;
     private @Nullable String path;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Long> links = new ArrayList<>();
 	
 	private Note() {
         this.name = "Null";
-        this.text = name;
+        this.text = "";
     }
 	
 	public Note(String name, long person, String text, @Nullable String path) {
@@ -55,7 +56,8 @@ public class Note {
     public void setPerson(long person) {
         this.person = person;
     }
-    
+   
+    @JsonIgnore
     public String getText() {
         return text;
     }

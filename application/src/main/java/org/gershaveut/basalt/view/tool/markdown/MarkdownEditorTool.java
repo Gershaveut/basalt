@@ -33,7 +33,7 @@ public class MarkdownEditorTool extends AbstractTool implements DebugModeListene
 	
 	private boolean saved;
 	
-	public MarkdownEditorTool(Note note, ApplicationFrame applicationFrame, Person clientPerson) {
+	public MarkdownEditorTool(Note note, String text, ApplicationFrame applicationFrame, Person clientPerson) {
 		this.setLayout(new BorderLayout());
 		
 		this.setPreferredSize(ApplicationUtil.BOX_WINDOW_DIMENSION_TOOL);
@@ -49,7 +49,7 @@ public class MarkdownEditorTool extends AbstractTool implements DebugModeListene
 		var previewPanel = new JPanel(new BorderLayout());
 		var bothPanel = new JPanel(new GridLayout(1, 2, 10, 0));
 		
-		inputArea = new JTextArea(note.getText());
+		inputArea = new JTextArea(text);
 		previewPane = new JEditorPane();
 		
 		var buttonGroup = new ButtonGroup();

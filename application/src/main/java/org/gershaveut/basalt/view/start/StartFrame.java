@@ -173,9 +173,8 @@ public class StartFrame extends JFrame {
 		if (result == JFileChooser.APPROVE_OPTION) {
 			var selectedFile = fileChooser.getSelectedFile().getPath(); 
 			
-			if (create && !selectedFile.endsWith(Util.APPLICATION_FORMAT)) {
-				selectedFile += Util.APPLICATION_FORMAT;
-			}
+			if (create)
+				selectedFile = ApplicationUtil.ensureEndsWith(selectedFile, Util.APPLICATION_FORMAT);
 
 			var finalSelectedFile = selectedFile;
 			notifyListeners(startListener -> startListener.openDatabase(finalSelectedFile));

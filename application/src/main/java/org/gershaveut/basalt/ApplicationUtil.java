@@ -1,6 +1,7 @@
 package org.gershaveut.basalt;
 
 import org.gershaveut.basalt.model.note.NoteInfo;
+import org.gershaveut.basalt_share.Util;
 import org.gershaveut.basalt_share.model.Note;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
@@ -143,5 +144,13 @@ public final class ApplicationUtil {
     
     public static String fromDisplayName(String displayName) {
         return displayName.toUpperCase().replace(" ", "_");
+    }
+
+    public static String ensureEndsWith(String name, String end) {
+        if (!name.endsWith(end)) {
+            return name + end;
+        }
+        
+        return name;
     }
 }

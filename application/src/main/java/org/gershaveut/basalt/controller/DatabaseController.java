@@ -44,8 +44,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -149,39 +152,10 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                 var result = fileChooser.showOpenDialog(applicationFrame);
 
                 if (result == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        var zis = new ZipInputStream(new FileInputStream(fileChooser.getSelectedFile()));
-                        var zipEntry = zis.getNextEntry();
-                        
-                        while (zipEntry != null) {
-                            var zipName = zipEntry.getName();
-                            
-                            if (zipEntry.isDirectory()) {
-                                database.addFolder(new Folder(zipName.substring(0, zipName.length() - 1).replace("/", Folder.SEPARATOR)));
-                            } else {
-                                var content = new String(zis.readAllBytes());
-                                
-                                if (zipName.contains("/")) {
-                                    var lastSlashIndex = zipName.lastIndexOf('/') + 1;
-
-                                    var name = zipName.substring(lastSlashIndex);
-                                    var path = "@" + zipName.substring(0, lastSlashIndex - 1).replace("/", Folder.SEPARATOR);
-
-                                    if (name.endsWith(".md"))
-                                        database.addNote(new Note(name.split("\\.")[0], 0, content, path));
-                                } else {
-                                    database.addNote(new Note(zipName.split("\\.")[0], 0, content, null));
-                                }
-                            }
-                            
-                            zipEntry = zis.getNextEntry();
-                        }
-                        
-                        zis.closeEntry();
-                        zis.close();
-                    } catch (Exception e) {
-                        LOGGER.error("Import error", e);
-                    }
+                    database.importProject(fileChooser.getSelectedFile(), _ -> {
+                        showErrorDialog("Ошибка при импортировании!");
+                        return true;
+                    });
                 }
             }
 
@@ -194,44 +168,19 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                 var result = fileChooser.showSaveDialog(applicationFrame);
                 
                 if (result == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        var fos = new FileOutputStream(fileChooser.getSelectedFile());
-                        var zipOut = new ZipOutputStream(fos);
-                        
-                        database.getFolders().subscribe(folders -> {
-                            folders.forEach(folder -> {
-                                try {
-                                    var zipEntry = new ZipEntry(folder.getPath().substring(1).replace(Folder.SEPARATOR, "/") + '/');
-                                    zipOut.putNextEntry(zipEntry);
-                                    zipOut.closeEntry();
-                                } catch (Exception e) {
-                                    LOGGER.error("Zip folder error", e);
-                                }
-                            });
+                    var selectedFile = ApplicationUtil.ensureEndsWith(fileChooser.getSelectedFile().getPath(), ".zip");
+                    
+                    database.exportProject().subscribe(resource -> {
+                        try {
+                            var fileOutputStream = new FileOutputStream(selectedFile);
                             
-                            database.getNotes().subscribe(notes -> {
-                                notes.forEach(note -> {
-                                    try {
-                                        var zipEntry = new ZipEntry(note.getAbsolutePath().substring(1).replace(Folder.SEPARATOR, "/") + ".md");
-                                        zipOut.putNextEntry(zipEntry);
-
-                                        zipOut.write(note.getText().getBytes());
-                                    } catch (Exception e) {
-                                        LOGGER.error("Zip file error", e);
-                                    }
-                                });
-
-                                try {
-                                    zipOut.close();
-                                    fos.close();
-                                } catch (Exception e) {
-                                    LOGGER.error("Export error", e);
-                                }
-                            });
-                        });
-                    } catch (Exception e) {
-                        LOGGER.error("Export error", e);
-                    }
+                            fileOutputStream.write(resource.getContentAsByteArray());
+                            
+                            fileOutputStream.close();
+                        } catch (Exception e) {
+                            showErrorDialog("Ошибка при экспортировании!");
+                        }
+                    });
                 }
             }
 
@@ -310,11 +259,13 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     private void openNote(long id) {
         database.getNote(id).subscribe(note -> {
             database.getClientPerson().subscribe(person -> {
-                var markdownEditor = new MarkdownEditorTool(note, applicationFrame, person);
-                
-                markdownEditor.addMarkdownListener(text -> database.editNote(note.getId(), text));
-                
-                openDock(markdownEditor.getDockable());
+                database.getNoteText(note.getId()).subscribe(text -> {
+                    var markdownEditor = new MarkdownEditorTool(note, text, applicationFrame, person);
+
+                    markdownEditor.addMarkdownListener(text1 -> database.editNote(note.getId(), text1));
+
+                    openDock(markdownEditor.getDockable());
+                });
             });
         });
     }

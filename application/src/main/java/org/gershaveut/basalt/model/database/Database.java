@@ -7,8 +7,13 @@ import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,6 +27,7 @@ import reactor.netty.http.client.HttpClient;
 
 import javax.net.ssl.SSLException;
 import javax.swing.event.EventListenerList;
+import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -172,6 +178,14 @@ public class Database implements WebSocketHandler {
 	
 	public Mono<Note> getNote(long id) {
 		return getEntity(Note.class, NOTES, id);
+	}
+	
+	public Mono<String> getNoteText(long id) {
+		return webClient.get()
+				.uri(NOTES + "/" + id + "/text")
+				.retrieve()
+				.bodyToMono(String.class)
+				.switchIfEmpty(Mono.just(""));
 	}
 	
 	public Mono<Person> getClientPerson() {
@@ -328,6 +342,27 @@ public class Database implements WebSocketHandler {
 				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()
 				.subscribe();
+	}
+	
+	public void importProject(File file, Function<HttpStatusCode, Boolean> onError) {
+		var builder = new MultipartBodyBuilder();
+		builder.part("file", new FileSystemResource(file));
+		
+		webClient.post()
+				.uri(NOTES + "/import")
+				.contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.body(BodyInserters.fromMultipartData(builder.build()))
+				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
+	public Mono<Resource> exportProject() {
+		return webClient.get()
+				.uri(NOTES + "/export")
+				.retrieve()
+				.bodyToMono(Resource.class);
 	}
 	
 	private Function<ClientResponse, Mono<? extends Throwable>> handleError(Function<HttpStatusCode, Boolean> onError) {
