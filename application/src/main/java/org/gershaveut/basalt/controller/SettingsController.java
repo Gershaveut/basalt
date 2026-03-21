@@ -14,6 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
+import javax.swing.*;
+import java.util.Arrays;
+
 public class SettingsController implements SettingsListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(SettingsController.class);
     
@@ -51,7 +54,19 @@ public class SettingsController implements SettingsListener {
 			});
 			
 			applicationSettings.getPassword().addSettingListener(value -> {
-				database.passwordClientPerson(value.toString(), person.getPassword()); // TODO: начать спрашивать старый пароль у пользователя
+				var passwordField = new JPasswordField();
+				int input = JOptionPane.showConfirmDialog(null, passwordField, "Текущий пароль", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				
+				if (input == JOptionPane.OK_OPTION)
+					database.passwordClientPerson(value.toString(), new String(passwordField.getPassword()), httpStatusCode -> {
+						if (httpStatusCode == HttpStatus.BAD_REQUEST) {
+							showErrorDialog("Ошибка смены пароля!");
+							
+							return true;
+						}
+						
+						return false;
+					});
 			});
 			
 			applicationSettings.getDescription().addSettingListener(value -> {
@@ -102,6 +117,10 @@ public class SettingsController implements SettingsListener {
         applicationSettings.loadSettings();
 		
 		settingsFrame.setModel(applicationSettings.getSettingsModel());
+	}
+
+	private void showErrorDialog(String message) {
+		ApplicationUtil.showErrorDialog(settingsFrame, message);
 	}
 	
 	@Override

@@ -56,6 +56,7 @@ public class Person implements UserDetails {
     }
   
     @Override
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

@@ -258,12 +258,13 @@ public class Database implements WebSocketHandler {
 				.subscribe();
 	}
 	
-	public void passwordClientPerson(String newPassword, String oldPassword) {
+	public void passwordClientPerson(String newPassword, String oldPassword, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
 				.uri(PERSONS + "/password")
 				.bodyValue(newPassword)
 				.header("oldPassword", oldPassword)
 				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()
 				.subscribe();
 	}

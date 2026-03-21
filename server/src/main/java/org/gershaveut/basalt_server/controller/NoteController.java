@@ -41,6 +41,7 @@ public class NoteController extends AbstractCurdController<Note, Long> {
     @Autowired
     PersonRepository personRepository;
 
+    @Secured({"ROLE_GUEST"})
     @GetMapping("/{id}/text")
     public ResponseEntity<String> getText(@PathVariable Long id) {
         var noteData = noteRepository.findById(id);
