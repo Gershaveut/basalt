@@ -1,14 +1,13 @@
 package org.gershaveut.basalt.model.database;
 
 import org.gershaveut.basalt_share.Util;
-import org.gershaveut.basalt_share.model.Folder;
-import org.gershaveut.basalt_share.model.Note;
-import org.gershaveut.basalt_share.model.Person;
-import org.gershaveut.basalt_share.model.Role;
+import org.gershaveut.basalt_share.model.*;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -39,6 +38,7 @@ public class Database implements WebSocketHandler {
 	private static final String NOTES = "/notes";
 	private static final String PERSONS = "/persons";
 	private static final String FOLDERS = "/folders";
+	private static final String COMMENTS = "/comments";
 	
 	private static final int DEFAULT_PORT = 7600;
 	
@@ -46,6 +46,8 @@ public class Database implements WebSocketHandler {
 	private final WebClient webClient;
 	
 	private final Disposable session;
+
+	private int commentsSize = 20; 
 	
 	public Database(String ip, String username, String password) throws ServerConnectException, NetworkVersionException, SSLException {
 		if (!ip.contains(":"))
@@ -366,6 +368,38 @@ public class Database implements WebSocketHandler {
 				.bodyToMono(Resource.class);
 	}
 	
+	public Mono<PagedModel<Comment>> getComments(long id, int page) {
+		return webClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path(NOTES + "/{id}" + COMMENTS)
+						.queryParam("page", page)
+						.queryParam("size", commentsSize)
+						.build(id))
+				.retrieve()
+				.bodyToMono(new ParameterizedTypeReference<>() {});
+	}
+	
+	public void addComment(long id, String text, Function<HttpStatusCode, Boolean> onError) {
+		webClient.post()
+				.uri(NOTES + "/" + id + COMMENTS)
+				.bodyValue(text)
+				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
+	public void deleteComment(long id, long commentId, Function<HttpStatusCode, Boolean> onError) {
+		webClient.delete()
+				.uri(uriBuilder -> uriBuilder
+						.path(NOTES + "/{id}" + COMMENTS + "/{commentId}")
+						.build(id, commentId))
+				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
+				.toBodilessEntity()
+				.subscribe();
+	}
+	
 	private Function<ClientResponse, Mono<? extends Throwable>> handleError(Function<HttpStatusCode, Boolean> onError) {
 		return clientResponse -> {
 			if (onError.apply(clientResponse.statusCode())) {
@@ -386,6 +420,10 @@ public class Database implements WebSocketHandler {
 	
 	private void notifyListeners(Consumer<DatabaseListener> action) {
 		Arrays.stream(listeners.getListeners(DatabaseListener.class)).toList().forEach(action);
+	}
+
+	public void setCommentsSize(int commentsSize) {
+		this.commentsSize = commentsSize;
 	}
 }
 

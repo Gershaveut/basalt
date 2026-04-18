@@ -77,7 +77,7 @@ public class NoteController extends AbstractCurdController<Note, Long> {
     
     @Secured({"ROLE_GUEST"})
     @DeleteMapping("/{id}/comments/{commentId}")
-    public ResponseEntity<Comment> removeComment(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @PathVariable Long commentId) {
+    public ResponseEntity<Comment> deleteComment(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @PathVariable Long commentId) {
         if (!noteRepository.existsById(id))
             return ResponseEntity.notFound().build();
 

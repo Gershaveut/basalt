@@ -84,6 +84,10 @@ public class SettingsController implements SettingsListener {
                 graphCanvas.updateGraph();
             });
 			
+			applicationSettings.getCommentsSize().addSettingListener(value -> {
+				database.setCommentsSize(Integer.parseInt(value.toString()));
+			});
+
 			applicationSettings.getDebugMode().addSettingListener(value -> {
 				if ((Boolean) value) {
 					applicationFrame.enableDebug();

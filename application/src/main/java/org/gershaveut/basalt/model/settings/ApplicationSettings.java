@@ -23,6 +23,7 @@ public class ApplicationSettings {
 	private SettingsModel settingsModel;
 	
 	private final Setting theme;
+	private final Setting commentsSize;
 	
 	private final Setting username;
 	private final Setting password;
@@ -58,7 +59,11 @@ public class ApplicationSettings {
 		maxFps = new Setting("Частота кадров", null, "60");
 		physicMaxFps = new Setting("Частота обновления физики", null, "120");
 		spawnZone = new Setting("Область появления нод", null, "600");
-        
+       
+		var noteCategory = new SettingsCategory("Записка");
+
+		commentsSize = new Setting("Количество отображаемых комментариев", null, "20");
+		
 		var debugCategory = new SettingsCategory("Отладка", "Используйте на свой страх и риск!");
 		
 		debugMode = new Setting("Режим отладки", "После отключения отладки требуется перезагрузка!", false);
@@ -75,7 +80,9 @@ public class ApplicationSettings {
 		graphCategory.add(maxFps);
 		graphCategory.add(physicMaxFps);
         graphCategory.add(spawnZone);
+		noteCategory.add(commentsSize);
 		toolTab.add(graphCategory);
+		toolTab.add(noteCategory);
 		
 		//debugCategory.add(debugGenerateDatabase);
 		debugCategory.add(debugMode);
@@ -169,7 +176,11 @@ public class ApplicationSettings {
 	public Setting getTheme() {
 		return theme;
 	}
-	
+
+	public Setting getCommentsSize() {
+		return commentsSize;
+	}
+
 	public Setting getUsername() {
 		return username;
 	}
