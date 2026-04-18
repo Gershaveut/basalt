@@ -21,7 +21,8 @@ public enum Icons {
     SAVE("save"),
     TERMINAL("terminal"),
     PERSON("person"),
-    ARTICLE_PERSON("article_person");
+    ARTICLE_PERSON("article_person"),
+    FORUM("forum");
 
     private static final Color COLOR = Color.GRAY;
 

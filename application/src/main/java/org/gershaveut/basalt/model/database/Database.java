@@ -368,7 +368,7 @@ public class Database implements WebSocketHandler {
 				.bodyToMono(Resource.class);
 	}
 	
-	public Mono<PagedModel<Comment>> getComments(long id, int page) {
+	public Mono<PagedModel<Comment>> getComments(long id, long page) {
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
 						.path(NOTES + "/{id}" + COMMENTS)
@@ -376,15 +376,17 @@ public class Database implements WebSocketHandler {
 						.queryParam("size", commentsSize)
 						.build(id))
 				.retrieve()
-				.bodyToMono(new ParameterizedTypeReference<>() {});
+				.bodyToMono(new ParameterizedTypeReference<JacksonPageModel<Comment>>() {})
+				.map(commentJacksonPageModel -> commentJacksonPageModel);
 	}
 	
-	public void addComment(long id, String text, Function<HttpStatusCode, Boolean> onError) {
+	public void addComment(long id, String text, Function<HttpStatusCode, Boolean> onError, Function<HttpStatusCode, Boolean> onSuccessful) {
 		webClient.post()
 				.uri(NOTES + "/" + id + COMMENTS)
 				.bodyValue(text)
 				.retrieve()
 				.onStatus(HttpStatusCode::isError, handleError(onError))
+				.onStatus(HttpStatusCode::is2xxSuccessful, handleError(onSuccessful))
 				.toBodilessEntity()
 				.subscribe();
 	}

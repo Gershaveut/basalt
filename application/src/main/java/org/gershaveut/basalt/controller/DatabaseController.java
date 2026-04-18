@@ -21,7 +21,7 @@ import org.gershaveut.basalt.view.tool.AbstractTool;
 import org.gershaveut.basalt.view.tool.folder.FolderListener;
 import org.gershaveut.basalt.view.tool.folder.FolderTool;
 import org.gershaveut.basalt.view.tool.graph.GraphTool;
-import org.gershaveut.basalt.view.tool.markdown.MarkdownEditorTool;
+import org.gershaveut.basalt.view.tool.note.NoteTool;
 import org.gershaveut.basalt.view.tool.person.PersonProfileTool;
 import org.gershaveut.basalt.view.tool.person.PersonsListener;
 import org.gershaveut.basalt.view.tool.person.PersonsTool;
@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.objenesis.instantiator.perc.PercInstantiator;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -44,16 +43,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.function.Function;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 public class DatabaseController implements DatabaseListener, FolderListener, PersonsListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseController.class);
@@ -139,7 +131,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                 dockables.forEach(dockable -> {
                     if (dockable instanceof AbstractTool abstractTool) {
                         var toolDockable = abstractTool.getDockable();
-                        if (toolDockable instanceof MarkdownEditorTool editor) {
+                        if (toolDockable instanceof NoteTool editor) {
                             editor.save();
                         }
                     }
@@ -265,9 +257,9 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
         database.getNote(id).subscribe(note -> {
             database.getClientPerson().subscribe(clientPerson -> {
                 database.getNoteText(note.getId()).subscribe(text -> {
-                    var markdownEditor = new MarkdownEditorTool(note, text, applicationFrame, clientPerson);
+                    var markdownEditor = new NoteTool(note, text, applicationFrame, clientPerson, database);
 
-                    markdownEditor.addMarkdownListener(text1 -> database.editNote(note.getId(), text1));
+                    markdownEditor.addNoteListener(text1 -> database.editNote(note.getId(), text1));
 
                     openDock(markdownEditor.getDockable());
                 });
