@@ -1,5 +1,6 @@
 package org.gershaveut.basalt_server.controller;
 
+import org.gershaveut.basalt_server.repository.CommentRepository;
 import org.gershaveut.basalt_server.repository.FolderRepository;
 import org.gershaveut.basalt_server.repository.NoteRepository;
 import org.gershaveut.basalt_server.repository.PersonRepository;
@@ -9,7 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.*;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,6 +44,8 @@ public class NoteController extends AbstractCurdController<Note, Long> {
     NoteRepository noteRepository;
     @Autowired
     PersonRepository personRepository;
+    @Autowired
+    CommentRepository commentRepository;
 
     @Secured({"ROLE_GUEST"})
     @GetMapping("/{id}/text")
@@ -49,6 +55,42 @@ public class NoteController extends AbstractCurdController<Note, Long> {
         return noteData.map(t -> new ResponseEntity<>(t.getText(), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Secured({"ROLE_GUEST"})
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<PagedModel<Comment>> getComments(@PathVariable Long id, @PageableDefault Pageable pageable) {
+        if (!noteRepository.existsById(id))
+            return ResponseEntity.notFound().build();
+        
+        var commentsPage = commentRepository.findByNote(id, pageable);
+        
+        return ResponseEntity.ok(new PagedModel<>(commentsPage));
+    }
+    
+    @Secured({"ROLE_GUEST"})
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<Comment> addComment(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String text) {
+        if (!noteRepository.existsById(id))
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(commentRepository.save(new Comment(id, currentPerson.getId(), text)));
+    }
+    
+    @Secured({"ROLE_GUEST"})
+    @DeleteMapping("/{id}/comments/{commentId}")
+    public ResponseEntity<Comment> removeComment(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @PathVariable Long commentId) {
+        if (!noteRepository.existsById(id))
+            return ResponseEntity.notFound().build();
+
+        var commentData = commentRepository.findById(commentId);
+        
+        if (commentData.isEmpty() || !accessComment(currentPerson, commentData.get()))
+            return ResponseEntity.notFound().build();
+        
+        commentRepository.deleteById(commentId);
+        
+        return ResponseEntity.noContent().build();
+    }
+    
     @Override
     public ResponseEntity<Note> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody Note entity) {
         var name = entity.getName();
@@ -287,7 +329,11 @@ public class NoteController extends AbstractCurdController<Note, Long> {
     private boolean accessNote(Person currnetPerson, Note note) {
         return hasRole(currnetPerson, Role.MEMBER) && note.getPerson() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR);
     }
-
+    
+    private boolean accessComment(Person currnetPerson, Comment comment) {
+        return comment.getPerson() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR);
+    }
+    
     @Override
     protected CrudRepository<Note, Long> getRepository() {
         return noteRepository;

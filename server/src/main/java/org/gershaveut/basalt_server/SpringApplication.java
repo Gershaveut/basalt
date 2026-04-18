@@ -5,9 +5,11 @@ import org.h2.store.fs.FilePath;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.util.Properties;
 
+@EnableJpaAuditing
 @EntityScan("org.gershaveut.basalt_share.model")
 @SpringBootApplication
 public class SpringApplication {
