@@ -35,8 +35,8 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
     private final Parser markdownParser;
     private final HtmlRenderer htmlRenderer;
 
-    private JScrollPane commentsScrollPane;
-    private JLabel pageLabel;
+    private final JScrollPane commentsScrollPane;
+    private final JLabel pageLabel;
 
     private @Nullable Comment currentComment;
     
@@ -75,8 +75,6 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
         this.inputArea = new JTextArea(text);
         this.previewPane = new JEditorPane();
-        this.commentsScrollPane = new JScrollPane(Box.createVerticalBox());
-        this.pageLabel = new JLabel();
         
         var buttonGroup = new ButtonGroup();
 
@@ -128,66 +126,65 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
         });
         commentsButton.addActionListener(e -> {
             cardLayout.show(cardPanel, "comments");
-
-            this.commentsScrollPane = new JScrollPane(Box.createVerticalBox());
-
-            openComments(currentPage);
-
-            var optionPanel = new JPanel();
-
-            pageLabel = new JLabel();
-
-            var scrollEndButton = new JButton("↓");
-            var firstButton = new JButton("<<");
-            var previousButton = new JButton("<");
-            var nextButton = new JButton(">");
-            var lastButton = new JButton(">>");
-            var createButton = new JButton("+");
-
-            optionPanel.add(scrollEndButton);
-            optionPanel.add(firstButton);
-            optionPanel.add(previousButton);
-            optionPanel.add(pageLabel);
-            optionPanel.add(nextButton);
-            optionPanel.add(lastButton);
-            optionPanel.add(createButton);
-
-            scrollEndButton.addActionListener(e1 -> {
-                var verticalScrollBar = commentsScrollPane.getVerticalScrollBar();
-
-                verticalScrollBar.setValue(verticalScrollBar.getMaximum());
-            });
-            
-            firstButton.addActionListener(e1 -> {
-                openComments(0);
-            });
-
-            previousButton.addActionListener(e1 -> {
-                openComments(Math.max(0, currentPage - 1));
-            });
-
-            nextButton.addActionListener(e1 -> {
-                openComments(Math.min(pageMetadata.totalPages() - 1, currentPage + 1));
-            });
-
-            lastButton.addActionListener(e1 -> {
-                openComments(pageMetadata.totalPages() - 1);
-            });
-
-            createButton.addActionListener(e1 -> {
-                var commentText = JOptionPane.showInputDialog(this, "Введите комментарий", "Создание комментария", JOptionPane.PLAIN_MESSAGE);
-
-                if (commentText == null)
-                    return;
-
-                for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
-                    listener.addComment(commentText, pageMetadata.totalPages());
-                }
-            });
-
-            commentsPanel.add(optionPanel, BorderLayout.SOUTH);
-            commentsPanel.add(commentsScrollPane, BorderLayout.CENTER);
         });
+
+        this.commentsScrollPane = new JScrollPane(Box.createVerticalBox());
+        
+        var optionPanelComments = new JPanel();
+
+        pageLabel = new JLabel();
+
+        var scrollEndButton = new JButton("↓");
+        var firstButton = new JButton("<<");
+        var previousButton = new JButton("<");
+        var nextButton = new JButton(">");
+        var lastButton = new JButton(">>");
+        var createButton = new JButton("+");
+
+        optionPanelComments.add(scrollEndButton);
+        optionPanelComments.add(firstButton);
+        optionPanelComments.add(previousButton);
+        optionPanelComments.add(pageLabel);
+        optionPanelComments.add(nextButton);
+        optionPanelComments.add(lastButton);
+        optionPanelComments.add(createButton);
+
+        scrollEndButton.addActionListener(e1 -> {
+            var verticalScrollBar = commentsScrollPane.getVerticalScrollBar();
+
+            verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+        });
+
+        firstButton.addActionListener(e1 -> {
+            openComments(0);
+        });
+
+        previousButton.addActionListener(e1 -> {
+            openComments(Math.max(0, currentPage - 1));
+        });
+
+        nextButton.addActionListener(e1 -> {
+            openComments(Math.min(pageMetadata.totalPages() - 1, currentPage + 1));
+        });
+
+        lastButton.addActionListener(e1 -> {
+            openComments(pageMetadata.totalPages() - 1);
+        });
+
+        createButton.addActionListener(e1 -> {
+            var commentText = JOptionPane.showInputDialog(this, "Введите комментарий", "Создание комментария", JOptionPane.PLAIN_MESSAGE);
+
+            if (commentText == null)
+                return;
+
+            for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
+                listener.addComment(commentText, pageMetadata.totalPages());
+            }
+        });
+
+        commentsPanel.add(optionPanelComments, BorderLayout.SOUTH);
+        commentsPanel.add(commentsScrollPane, BorderLayout.CENTER);
+        
         commentPopupMenu = new JPopupMenu();
 
         var openProfile = new JMenuItem("Открыть профиль");
@@ -236,6 +233,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
         ApplicationUtil.registerActionMap(inputArea, this.getID(), KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK), this::save);
 
         updatePreview();
+        openComments(currentPage);
 
         applicationFrame.addDebugModeListener(this);
     }

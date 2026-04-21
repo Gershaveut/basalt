@@ -192,4 +192,11 @@ public class StartFrame extends JFrame {
 	private void notifyListeners(Consumer<StartListener> action) {
 		Arrays.stream(listeners.getListeners(StartListener.class)).toList().forEach(action);
 	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		
+		this.setEnabled(visible); //TODO: временное решение
+	}
 }

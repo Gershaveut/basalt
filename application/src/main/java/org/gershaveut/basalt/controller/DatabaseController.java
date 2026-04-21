@@ -294,7 +294,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                         @Override
                         public void deleteComment(long commentId, long currentPage) {
                             database.deleteComment(note.getId(), commentId, _ -> false, _ -> {
-                                openComments(currentPage);
+                                openComments(0); //TODO: оставлять на текущей странице
                                 
                                 return true;
                             });
