@@ -21,6 +21,7 @@ import org.gershaveut.basalt.view.tool.AbstractTool;
 import org.gershaveut.basalt.view.tool.folder.FolderListener;
 import org.gershaveut.basalt.view.tool.folder.FolderTool;
 import org.gershaveut.basalt.view.tool.graph.GraphTool;
+import org.gershaveut.basalt.view.tool.note.NoteListener;
 import org.gershaveut.basalt.view.tool.note.NoteTool;
 import org.gershaveut.basalt.view.tool.person.PersonProfileTool;
 import org.gershaveut.basalt.view.tool.person.PersonsListener;
@@ -32,6 +33,7 @@ import org.gershaveut.basalt_share.model.Role;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.domain.AbstractAuditable_;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
@@ -257,11 +259,41 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
         database.getNote(id).subscribe(note -> {
             database.getClientPerson().subscribe(clientPerson -> {
                 database.getNoteText(note.getId()).subscribe(text -> {
-                    var markdownEditor = new NoteTool(note, text, applicationFrame, clientPerson, database);
+                    var noteTool = new NoteTool(note, text, applicationFrame, clientPerson);
 
-                    markdownEditor.addNoteListener(text1 -> database.editNote(note.getId(), text1));
+                    noteTool.addNoteListener(new NoteListener() {
+                        @Override
+                        public void onSave(String text) {
+                            database.editNote(note.getId(), text);
+                        }
 
-                    openDock(markdownEditor.getDockable());
+                        @Override
+                        public void openProfile(long id) {
+                            DatabaseController.this.openProfile(id);
+                        }
+
+                        @Override
+                        public void openComments(long page) {
+                            database.getComments(note.getId(), page).subscribe(commentPagedModel -> {
+                                noteTool.setComments(commentPagedModel, page, longConsumerPair -> {
+                                    database.getPerson(longConsumerPair.getFirst()).subscribe(person -> {
+                                        longConsumerPair.getSecond().accept(person);
+                                    });
+                                });
+                            });
+                        }
+
+                        @Override
+                        public void addComment(String text, long totalPages) {
+                            database.addComment(note.getId(), text, _ -> false, _ -> {
+                                openComments(totalPages - 1);
+
+                                return true;
+                            });
+                        }
+                    });
+
+                    openDock(noteTool.getDockable());
                 });
             });
         });
@@ -374,12 +406,12 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
             return false;
         });
     }
-    
+
     @Override
     public void openProfile(long id) {
         database.getPerson(id).subscribe(person -> {
             var personProfile = new PersonProfileTool(person);
-            
+
             openDock(personProfile.getDockable());
         });
     }
