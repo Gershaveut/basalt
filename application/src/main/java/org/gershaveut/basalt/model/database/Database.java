@@ -391,13 +391,14 @@ public class Database implements WebSocketHandler {
 				.subscribe();
 	}
 	
-	public void deleteComment(long id, long commentId, Function<HttpStatusCode, Boolean> onError) {
+	public void deleteComment(long id, long commentId, Function<HttpStatusCode, Boolean> onError, Function<HttpStatusCode, Boolean> onSuccessful) {
 		webClient.delete()
 				.uri(uriBuilder -> uriBuilder
 						.path(NOTES + "/{id}" + COMMENTS + "/{commentId}")
 						.build(id, commentId))
 				.retrieve()
 				.onStatus(HttpStatusCode::isError, handleError(onError))
+				.onStatus(HttpStatusCode::is2xxSuccessful, handleError(onSuccessful))
 				.toBodilessEntity()
 				.subscribe();
 	}

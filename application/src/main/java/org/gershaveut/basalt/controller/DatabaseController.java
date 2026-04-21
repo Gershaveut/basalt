@@ -33,7 +33,6 @@ import org.gershaveut.basalt_share.model.Role;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.jpa.domain.AbstractAuditable_;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
@@ -288,6 +287,15 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                             database.addComment(note.getId(), text, _ -> false, _ -> {
                                 openComments(totalPages - 1);
 
+                                return true;
+                            });
+                        }
+
+                        @Override
+                        public void deleteComment(long commentId, long currentPage) {
+                            database.deleteComment(note.getId(), commentId, _ -> false, _ -> {
+                                openComments(currentPage);
+                                
                                 return true;
                             });
                         }

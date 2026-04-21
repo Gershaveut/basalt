@@ -2,7 +2,6 @@ package org.gershaveut.basalt.view.tool.note;
 
 import com.javadocking.dockable.DockingMode;
 import jakarta.annotation.Nullable;
-import org.aspectj.weaver.patterns.ThisOrTargetAnnotationPointcut;
 import org.gershaveut.basalt.ApplicationUtil;
 import org.gershaveut.basalt.view.ApplicationFrame;
 import org.gershaveut.basalt.view.DebugModeListener;
@@ -14,7 +13,7 @@ import org.gershaveut.basalt_share.model.Person;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.hibernate.boot.model.source.spi.EntityHierarchySource;
+import org.gershaveut.basalt_share.model.Role;
 import org.springframework.data.util.Pair;
 import org.springframework.data.web.PagedModel;
 
@@ -38,13 +37,18 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
     private JScrollPane commentsScrollPane;
     private JLabel pageLabel;
-    private final JPopupMenu commentPopupMenu;
 
     private @Nullable Comment currentComment;
+    
+    private final JPopupMenu commentPopupMenu;
+
+    private final JSeparator menuSeparator;
+    private final JMenuItem deleteComment;
 
     private final JPanel optionPanel;
 
     private final Note note;
+    private final Person clientPerson;
 
     private PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(0, 0, 0, 0);
     private long currentPage;
@@ -57,6 +61,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
         this.setPreferredSize(ApplicationUtil.BOX_WINDOW_DIMENSION_TOOL);
 
         this.note = note;
+        this.clientPerson = clientPerson;
 
         optionPanel = new JPanel();
 
@@ -186,6 +191,8 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
         commentPopupMenu = new JPopupMenu();
 
         var openProfile = new JMenuItem("Открыть профиль");
+        menuSeparator = new JSeparator();
+        deleteComment = new JMenuItem("Удалить комментарий");
 
         openProfile.addActionListener(e -> {
             for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
@@ -193,8 +200,17 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
                 listener.openProfile(currentComment.getPerson());
             }
         });
+        
+        deleteComment.addActionListener(e -> {
+            for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
+                assert currentComment != null;
+                listener.deleteComment(currentComment.getId(), currentPage);
+            }
+        });
 
         commentPopupMenu.add(openProfile);
+        commentPopupMenu.add(menuSeparator);
+        commentPopupMenu.add(deleteComment);
 
         optionPanel.add(editButton);
         optionPanel.add(previewButton);
@@ -228,7 +244,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
         this.currentPage = currentPage;
         this.pageMetadata = comments.getMetadata();
         
-        pageLabel.setText(currentPage + " / " + (pageMetadata.totalPages() - 1));
+        pageLabel.setText((currentPage + 1) + " / " + pageMetadata.totalPages());
         
         var commentsPanel = (JComponent) commentsScrollPane.getViewport().getView();
         
@@ -242,11 +258,19 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
             optionsButton.addActionListener(e -> {
                 currentComment = comment;
-                commentPopupMenu.show(this, optionsButton.getX(), optionsButton.getY());
+                
+                var hasAccess = ApplicationUtil.hasRole(clientPerson, Role.MODERATOR) || comment.getPerson() == clientPerson.getId();
+                
+                menuSeparator.setVisible(hasAccess);
+                deleteComment.setVisible(hasAccess);
+                
+                commentPopupMenu.show(optionsButton, 0, optionsButton.getHeight());
             });
 
             getPerson.accept(Pair.of(1L, (person) -> {
                 headerPanel.add(new JLabel(person.getUsername()), BorderLayout.WEST);
+                
+                commentsPanel.revalidate();
             }));
 
             headerPanel.add(optionsButton, BorderLayout.EAST);
@@ -269,6 +293,8 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
         var verticalScrollBar = commentsScrollPane.getVerticalScrollBar();
 
         verticalScrollBar.setValue(0);
+        
+        commentsPanel.revalidate();
     }
 
     private void openComments(long page) {
