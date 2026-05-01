@@ -20,6 +20,7 @@ public class Comment {
     private @NotNull long person;
     private @NotNull String text;
     private @LastModifiedDate @Nullable LocalDateTime lastUpdated;
+    private boolean edited;
 
     private Comment() {
         this.text = "";
@@ -50,9 +51,14 @@ public class Comment {
 
     public void setText(@NotNull String text) {
         this.text = text;
+        edited = true;
     }
 
     public @Nullable LocalDateTime getLastUpdated() {
         return lastUpdated;
+    }
+
+    public boolean isEdited() {
+        return edited;
     }
 }

@@ -7,5 +7,6 @@ public interface NoteListener extends EventListener {
     void openProfile(long id);
     void openComments(long page);
     void addComment(String text, long totalPages);
+    void editComment(long commentId, String text, long currentPage);
     void deleteComment(long commentId, long currentPage);
 }

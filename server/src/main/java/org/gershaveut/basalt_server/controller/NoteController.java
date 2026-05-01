@@ -74,7 +74,25 @@ public class NoteController extends AbstractCurdController<Note, Long> {
 
         return ResponseEntity.ok(commentRepository.save(new Comment(id, currentPerson.getId(), text)));
     }
-    
+
+    @Secured({"ROLE_GUEST"})
+    @PostMapping("/{id}/comments/{commentId}/edit")
+    public ResponseEntity<Comment> editComment(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @PathVariable Long commentId, @RequestBody String text) {
+        if (!noteRepository.existsById(id))
+            return ResponseEntity.notFound().build();
+
+        var commentData = commentRepository.findById(commentId);
+
+        if (commentData.isEmpty() || !accessComment(currentPerson, commentData.get()))
+            return ResponseEntity.notFound().build();
+
+        var comment = commentData.get();
+        
+        comment.setText(text);
+        
+        return ResponseEntity.ok(commentRepository.save(comment));
+    }
+
     @Secured({"ROLE_GUEST"})
     @DeleteMapping("/{id}/comments/{commentId}")
     public ResponseEntity<Comment> deleteComment(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @PathVariable Long commentId) {

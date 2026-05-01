@@ -390,6 +390,17 @@ public class Database implements WebSocketHandler {
 				.toBodilessEntity()
 				.subscribe();
 	}
+
+	public void editComment(long id, long commentId, String text, Function<HttpStatusCode, Boolean> onError, Function<HttpStatusCode, Boolean> onSuccessful) {
+		webClient.post()
+				.uri(NOTES + "/" + id + COMMENTS + "/" + commentId + "/edit")
+				.bodyValue(text)
+				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
+				.onStatus(HttpStatusCode::is2xxSuccessful, handleError(onSuccessful))
+				.toBodilessEntity()
+				.subscribe();
+	}
 	
 	public void deleteComment(long id, long commentId, Function<HttpStatusCode, Boolean> onError, Function<HttpStatusCode, Boolean> onSuccessful) {
 		webClient.delete()

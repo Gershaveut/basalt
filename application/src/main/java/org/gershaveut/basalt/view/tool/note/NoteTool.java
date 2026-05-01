@@ -43,6 +43,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
     private final JPopupMenu commentPopupMenu;
 
     private final JSeparator menuSeparator;
+    private final JMenuItem editComment;
     private final JMenuItem deleteComment;
 
     private final JPanel optionPanel;
@@ -189,12 +190,25 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
         var openProfile = new JMenuItem("Открыть профиль");
         menuSeparator = new JSeparator();
+        editComment = new JMenuItem("Редактировать комментарий");
         deleteComment = new JMenuItem("Удалить комментарий");
 
         openProfile.addActionListener(e -> {
             for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
                 assert currentComment != null;
                 listener.openProfile(currentComment.getPerson());
+            }
+        });
+        
+        editComment.addActionListener(e -> { 
+            var commentText = JOptionPane.showInputDialog(this, "Введите комментарий", "Редактирование комментария", JOptionPane.PLAIN_MESSAGE);
+
+            if (commentText == null)
+                return;
+
+            for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
+                assert currentComment != null;
+                listener.editComment(currentComment.getId(), commentText, currentPage);
             }
         });
         
@@ -207,6 +221,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
         commentPopupMenu.add(openProfile);
         commentPopupMenu.add(menuSeparator);
+        commentPopupMenu.add(editComment);
         commentPopupMenu.add(deleteComment);
 
         optionPanel.add(editButton);
@@ -260,6 +275,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
                 var hasAccess = ApplicationUtil.hasRole(clientPerson, Role.MODERATOR) || comment.getPerson() == clientPerson.getId();
                 
                 menuSeparator.setVisible(hasAccess);
+                editComment.setVisible(hasAccess);
                 deleteComment.setVisible(hasAccess);
                 
                 commentPopupMenu.show(optionsButton, 0, optionsButton.getHeight());
@@ -283,6 +299,9 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
             if (comment.getLastUpdated() != null)
                 commentPanel.add(new JLabel(comment.getLastUpdated().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM))), BorderLayout.PAGE_END);
+            
+            if (comment.isEdited())
+                commentPanel.add(new JLabel("изменено"), BorderLayout.PAGE_END);
 
             commentsPanel.add(commentPanel);
             commentsPanel.add(new JSeparator());

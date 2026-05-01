@@ -292,6 +292,15 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                         }
 
                         @Override
+                        public void editComment(long commentId, String text, long currentPage) {
+                            database.editComment(note.getId(), commentId, text, _ -> false, _ -> {
+                                openComments(currentPage);
+
+                                return true;
+                            });
+                        }
+
+                        @Override
                         public void deleteComment(long commentId, long currentPage) {
                             database.deleteComment(note.getId(), commentId, _ -> false, _ -> {
                                 openComments(0); //TODO: оставлять на текущей странице
