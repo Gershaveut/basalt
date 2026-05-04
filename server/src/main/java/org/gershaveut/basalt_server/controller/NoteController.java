@@ -89,6 +89,7 @@ public class NoteController extends AbstractCurdController<Note, Long> {
         var comment = commentData.get();
         
         comment.setText(text);
+        comment.setEdited(true);
         
         return ResponseEntity.ok(commentRepository.save(comment));
     }

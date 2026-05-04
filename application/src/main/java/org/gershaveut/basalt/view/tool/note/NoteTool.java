@@ -17,6 +17,7 @@ import org.gershaveut.basalt_share.model.Role;
 import org.springframework.data.util.Pair;
 import org.springframework.data.web.PagedModel;
 
+import javax.sound.sampled.BooleanControl;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
@@ -127,6 +128,8 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
         });
         commentsButton.addActionListener(e -> {
             cardLayout.show(cardPanel, "comments");
+
+            openComments(currentPage);
         });
 
         this.commentsScrollPane = new JScrollPane(Box.createVerticalBox());
@@ -248,7 +251,6 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
         ApplicationUtil.registerActionMap(inputArea, this.getID(), KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK), this::save);
 
         updatePreview();
-        openComments(currentPage);
 
         applicationFrame.addDebugModeListener(this);
     }
@@ -297,12 +299,16 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
             commentPanel.add(textArea, BorderLayout.CENTER);
 
+            var bottomLabel = new JLabel();
+            
             if (comment.getLastUpdated() != null)
-                commentPanel.add(new JLabel(comment.getLastUpdated().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM))), BorderLayout.PAGE_END);
+                bottomLabel.setText(comment.getLastUpdated().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
             
             if (comment.isEdited())
-                commentPanel.add(new JLabel("изменено"), BorderLayout.PAGE_END);
+                bottomLabel.setText(bottomLabel.getText() + " изменено");
 
+            commentPanel.add(bottomLabel, BorderLayout.PAGE_END);
+                    
             commentsPanel.add(commentPanel);
             commentsPanel.add(new JSeparator());
         });
