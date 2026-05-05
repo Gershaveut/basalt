@@ -3,6 +3,7 @@ package org.gershaveut.basalt_share;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.util.Pair;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -48,5 +49,14 @@ public final class Util {
 		}
 		
 		return configPath + "/" + path;
+	}
+	
+	public static Pair<String, String> splitAbsolutePath(String absolutePath, String slash) {
+		var lastSlashIndex = absolutePath.lastIndexOf(slash) + 1;
+
+		var name = absolutePath.substring(lastSlashIndex);
+		var path = absolutePath.substring(0, lastSlashIndex);
+
+		return Pair.of(name, path);
 	}
 }

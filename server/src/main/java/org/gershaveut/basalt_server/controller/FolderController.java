@@ -1,7 +1,7 @@
 package org.gershaveut.basalt_server.controller;
 
+import org.gershaveut.basalt_server.repository.FileRepository;
 import org.gershaveut.basalt_server.repository.FolderRepository;
-import org.gershaveut.basalt_server.repository.NoteRepository;
 import org.gershaveut.basalt_share.model.Folder;
 import org.gershaveut.basalt_share.model.Person;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 	@Autowired
 	FolderRepository folderRepository;
 	@Autowired
-	NoteRepository noteRepository;
+	FileRepository fileRepository;
 
 	@PatchMapping("/{id}/move")
 	public ResponseEntity<Folder> move(@PathVariable String id, @RequestBody String path) {
@@ -58,9 +58,9 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		while (!queue.isEmpty()) {
 			var currentId = queue.poll();
 			
-			noteRepository.findAll().forEach(note -> {
+			fileRepository.findAll().forEach(note -> {
 				if (note.getPath() != null && note.getPath().equals(currentId)) {
-					noteRepository.delete(note);
+					fileRepository.delete(note);
 				}
 			});
 			
@@ -88,10 +88,10 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		updateAction.accept(target);
 		folderRepository.save(target);
 		
-		noteRepository.findAll().forEach(note -> {
+		fileRepository.findAll().forEach(note -> {
 			if (note.getPath() != null && note.getPath().equals(id)) {
 				note.setPath(target.getPath());
-				noteRepository.save(note);
+				fileRepository.save(note);
 			}
 		});
 		

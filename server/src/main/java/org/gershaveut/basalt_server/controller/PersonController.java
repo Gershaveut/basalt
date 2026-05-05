@@ -1,6 +1,6 @@
 package org.gershaveut.basalt_server.controller;
 
-import org.gershaveut.basalt_server.repository.NoteRepository;
+import org.gershaveut.basalt_server.repository.FileRepository;
 import org.gershaveut.basalt_server.repository.PersonRepository;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
@@ -19,7 +19,7 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	@Autowired
 	PersonRepository personRepository;
 	@Autowired
-	NoteRepository noteRepository;
+	FileRepository fileRepository;
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
@@ -115,9 +115,9 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Person> deleteEntity(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestParam boolean deleteNotes) {
 		if (deleteNotes) {
-			noteRepository.findAll().forEach(note -> {
+			fileRepository.findAll().forEach(note -> {
 				if (note.getPerson() == id) {
-					noteRepository.delete(note);
+					fileRepository.delete(note);
 				}
 			});
 		}
@@ -128,9 +128,9 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	@DeleteMapping("/current")
 	public ResponseEntity<Person> deleteEntity(@AuthenticationPrincipal Person currentPerson, @RequestParam boolean deleteNotes) {
 		if (deleteNotes) {
-			noteRepository.findAll().forEach(note -> {
+			fileRepository.findAll().forEach(note -> {
 				if (note.getPerson() == currentPerson.getId()) {
-					noteRepository.delete(note);
+					fileRepository.delete(note);
 				}
 			});
 		}
