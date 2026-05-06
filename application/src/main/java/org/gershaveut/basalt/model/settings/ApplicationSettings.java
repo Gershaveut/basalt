@@ -1,6 +1,5 @@
 package org.gershaveut.basalt.model.settings;
 
-import org.gershaveut.basalt.ApplicationUtil;
 import org.gershaveut.basalt_share.Util;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -102,7 +101,7 @@ public class ApplicationSettings {
                     
         try {
             var ignored = new File(FILE_NAME).createNewFile();
-            json = ApplicationUtil.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), Setting[].class);
+            json = Util.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), Setting[].class);
         } catch (Exception exception) {
             LOGGER.error("Error load settings", exception);
         }
@@ -156,7 +155,7 @@ public class ApplicationSettings {
 				var settings = settingsModel.getSettings().stream().filter(setting -> !setting.isActionSetting()).toList();
 				
 				BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
-				writer.write(ApplicationUtil.getMapper().writeValueAsString(settings));
+				writer.write(Util.getMapper().writeValueAsString(settings));
 				
 				writer.close();
 			} catch (IOException exception) {

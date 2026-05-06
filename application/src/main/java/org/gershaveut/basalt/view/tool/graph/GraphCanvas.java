@@ -424,7 +424,6 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
     }
 
     public void updateGraph() {
-        dispose();
         world.removeAllBodies();
 
         initializeNodes();

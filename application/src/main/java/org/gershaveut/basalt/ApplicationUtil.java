@@ -1,15 +1,12 @@
 package org.gershaveut.basalt;
 
 import org.gershaveut.basalt.model.note.NoteInfo;
-import org.gershaveut.basalt_share.Util;
-import org.gershaveut.basalt_share.model.Note;
+import org.gershaveut.basalt_server.model.Note;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
 import org.apache.commons.text.WordUtils;
 import org.dyn4j.geometry.Vector2;
 import org.jspecify.annotations.Nullable;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -51,13 +48,6 @@ public final class ApplicationUtil {
     
     public static boolean isDeleteKey(KeyEvent e) {
         return e.getKeyCode() == KeyEvent.VK_DELETE;
-    }
-    
-    public static ObjectMapper getMapper() {
-        var mapper = new ObjectMapper();
-        mapper.writer(SerializationFeature.INDENT_OUTPUT);
-        
-        return mapper;
     }
     
     public static boolean hasAccess(Role role, Role access) {

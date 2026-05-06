@@ -4,6 +4,8 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.Pair;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,5 +60,12 @@ public final class Util {
 		var path = absolutePath.substring(0, lastSlashIndex);
 
 		return Pair.of(name, path);
+	}
+
+	public static ObjectMapper getMapper() {
+		var mapper = new ObjectMapper();
+		mapper.writer(SerializationFeature.INDENT_OUTPUT);
+
+		return mapper;
 	}
 }

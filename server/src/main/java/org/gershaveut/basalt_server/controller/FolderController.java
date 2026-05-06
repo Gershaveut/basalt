@@ -1,8 +1,7 @@
 package org.gershaveut.basalt_server.controller;
 
+import org.gershaveut.basalt_server.model.File;
 import org.gershaveut.basalt_server.repository.FileRepository;
-import org.gershaveut.basalt_server.repository.FolderRepository;
-import org.gershaveut.basalt_share.model.Folder;
 import org.gershaveut.basalt_share.model.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
@@ -17,21 +16,19 @@ import java.util.function.Consumer;
 
 @RestController
 @RequestMapping("/folders")
-public class FolderController extends AbstractCurdController<Folder, String> {
-	@Autowired
-	FolderRepository folderRepository;
+public class FolderController extends AbstractFileController {
 	@Autowired
 	FileRepository fileRepository;
 
 	@PatchMapping("/{id}/move")
-	public ResponseEntity<Folder> move(@PathVariable String id, @RequestBody String path) {
-		var newFolder = Folder.of(id);
+	public ResponseEntity<File> move(@PathVariable String id, @RequestBody String path) {
+		var newFolder = new File();
 		newFolder.setParent(path);
 		
-		if (id.equals(path) || folderRepository.existsById(newFolder.getPath()))
+		if (id.equals(path) || fileRepository.existsById(newFolder.getPath()))
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		
-		var response = updateFolder(id, folder -> folder.setParent(path));
+		var response = updateFolder(id, folder -> folder.setPath(path));
 		
 		sync();
 		return response;
@@ -76,36 +73,30 @@ public class FolderController extends AbstractCurdController<Folder, String> {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
-	private ResponseEntity<Folder> updateFolder(String id, Consumer<Folder> updateAction) {
-		var targetData = folderRepository.findById(id);
+	private ResponseEntity<File> updateFolder(Long id, Consumer<File> updateAction) {
+		var targetData = fileRepository.findById(id);
 		
 		if (targetData.isEmpty())
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		
 		var target = targetData.get();
 		
-		folderRepository.delete(target);
+		fileRepository.delete(target);
 		updateAction.accept(target);
-		folderRepository.save(target);
+		fileRepository.save(target);
 		
 		fileRepository.findAll().forEach(note -> {
-			if (note.getPath() != null && note.getPath().equals(id)) {
-				note.setPath(target.getPath());
-				fileRepository.save(note);
-			}
-		});
+            if (note.getPath() != null) {
+                note.getPath();
+            }
+        });
 		
-		folderRepository.findAll().forEach(folder -> {
-			if (folder.getParent() != null && folder.getParent().getPath().equals(id)) {
-				updateFolder(folder.getPath(), f -> f.setParent(target.getPath()));
-			}
-		});
+		fileRepository.findAll().forEach(folder -> {
+            if (folder.getParent() != null) {
+                folder.getParent();
+            }
+        });
 		
 		return new ResponseEntity<>(target, HttpStatus.OK);
-	}
-	
-	@Override
-	protected CrudRepository<Folder, String> getRepository() {
-		return folderRepository;
 	}
 }

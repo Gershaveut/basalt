@@ -1,10 +1,10 @@
 package org.gershaveut.basalt_server.repository;
 
 import org.gershaveut.basalt_share.Util;
-import org.gershaveut.basalt_share.model.File;
+import org.gershaveut.basalt_server.model.File;
 import org.gershaveut.basalt_share.model.Folder;
 import org.gershaveut.basalt_share.model.Image;
-import org.gershaveut.basalt_share.model.Note;
+import org.gershaveut.basalt_server.model.Note;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

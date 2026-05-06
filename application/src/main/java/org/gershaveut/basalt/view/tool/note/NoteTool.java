@@ -8,7 +8,7 @@ import org.gershaveut.basalt.view.DebugModeListener;
 import org.gershaveut.basalt.view.Icons;
 import org.gershaveut.basalt.view.tool.AbstractTool;
 import org.gershaveut.basalt_share.model.Comment;
-import org.gershaveut.basalt_share.model.Note;
+import org.gershaveut.basalt_server.model.Note;
 import org.gershaveut.basalt_share.model.Person;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -17,7 +17,6 @@ import org.gershaveut.basalt_share.model.Role;
 import org.springframework.data.util.Pair;
 import org.springframework.data.web.PagedModel;
 
-import javax.sound.sampled.BooleanControl;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;

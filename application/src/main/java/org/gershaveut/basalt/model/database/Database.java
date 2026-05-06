@@ -1,5 +1,6 @@
 package org.gershaveut.basalt.model.database;
 
+import org.gershaveut.basalt_server.model.Note;
 import org.gershaveut.basalt_share.Util;
 import org.gershaveut.basalt_share.model.*;
 import io.netty.handler.ssl.SslContextBuilder;

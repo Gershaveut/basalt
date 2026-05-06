@@ -16,8 +16,9 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private @NotNull long note;
-    private @NotNull long person;
+    private @NotNull long file;
+    @ManyToOne
+    private @NotNull Person person;
     private @NotNull String text;
     private @LastModifiedDate @Nullable LocalDateTime lastUpdated;
     private @NotNull boolean edited;
@@ -26,8 +27,8 @@ public class Comment {
         this.text = "";
     }
     
-    public Comment(long note, long person, String text) {
-        this.note = note;
+    public Comment(long file, Person person, String text) {
+        this.file = file;
         this.person = person;
         this.text = text;
     }
@@ -37,11 +38,11 @@ public class Comment {
     }
 
     @JsonIgnore
-    public long getNote() {
-        return note;
+    public long getFile() {
+        return file;
     }
 
-    public long getPerson() {
+    public Person getPerson() {
         return person;
     }
 

@@ -9,13 +9,12 @@ import org.gershaveut.basalt.view.ApplicationFrame;
 import org.gershaveut.basalt.view.settings.SettingsFrame;
 import org.gershaveut.basalt.view.settings.SettingsListener;
 import org.gershaveut.basalt.view.tool.graph.GraphCanvas;
-import org.gershaveut.basalt_share.model.Note;
+import org.gershaveut.basalt_server.model.Note;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import javax.swing.*;
-import java.util.Arrays;
 
 public class SettingsController implements SettingsListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(SettingsController.class);

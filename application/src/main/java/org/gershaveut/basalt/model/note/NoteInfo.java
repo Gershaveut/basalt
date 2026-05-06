@@ -1,7 +1,7 @@
 package org.gershaveut.basalt.model.note;
 
 import org.gershaveut.basalt.model.database.Database;
-import org.gershaveut.basalt_share.model.Note;
+import org.gershaveut.basalt_server.model.Note;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;

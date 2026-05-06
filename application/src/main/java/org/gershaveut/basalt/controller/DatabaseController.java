@@ -27,7 +27,7 @@ import org.gershaveut.basalt.view.tool.person.PersonProfileTool;
 import org.gershaveut.basalt.view.tool.person.PersonsListener;
 import org.gershaveut.basalt.view.tool.person.PersonsTool;
 import org.gershaveut.basalt_share.model.Folder;
-import org.gershaveut.basalt_share.model.Note;
+import org.gershaveut.basalt_server.model.Note;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
 import org.jspecify.annotations.Nullable;

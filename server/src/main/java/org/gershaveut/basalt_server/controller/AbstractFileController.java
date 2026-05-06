@@ -4,8 +4,7 @@ import org.gershaveut.basalt_server.repository.FileRepository;
 import org.gershaveut.basalt_server.repository.FolderRepository;
 import org.gershaveut.basalt_server.repository.PersonRepository;
 import org.gershaveut.basalt_share.Util;
-import org.gershaveut.basalt_share.model.File;
-import org.gershaveut.basalt_share.model.Folder;
+import org.gershaveut.basalt_server.model.File;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ public abstract class AbstractFileController extends AbstractCurdController<File
             name = entity.getBaseName() + " " + number + entity.getExtension();
         }
 
-        return super.addEntity(currentPerson, new File(name, currentPerson.getId(), entity.getRawContent(), path));
+        return super.addEntity(currentPerson, new File(name, path, currentPerson));
     }
 
     @Override
@@ -89,19 +88,21 @@ public abstract class AbstractFileController extends AbstractCurdController<File
     @Secured({"ROLE_MODERATOR"})
     @PatchMapping("/{id}/author")
     public ResponseEntity<File> author(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody Long newAuthor) {
-        if (!personRepository.existsById(newAuthor))
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        var personData = personRepository.findById(newAuthor);
 
-        return updateFile(currentPerson, id, file -> file.setPerson(newAuthor));
+        return personData.map(person -> updateFile(currentPerson, id, file -> file.setPerson(person))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
     }
 
     @PatchMapping("/{id}/edit")
-    public ResponseEntity<File> edit(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody(required = false) String newContent) {
-        if (newContent == null) newContent = "";
-
-        var finalContent = newContent;
-
-        return updateFile(currentPerson, id, file -> file.setContent(finalContent));
+    public ResponseEntity<File> edit(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestParam("multipartFile") MultipartFile multipartFile) {
+        return updateFile(currentPerson, id, file -> {
+            try {
+                file.setContent(multipartFile.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private ResponseEntity<File> updateFile(Person currnetPerson, Long id, Consumer<File> updateAction) {
@@ -124,6 +125,7 @@ public abstract class AbstractFileController extends AbstractCurdController<File
         }
     }
 
+    /* TODO: переделать
     @Secured({"ROLE_MODERATOR"})
     @PostMapping("/import")
     public ResponseEntity<List<File>> importProject(@AuthenticationPrincipal Person currentPerson, @RequestParam("multipartFile") MultipartFile multipartFile) throws IOException {
@@ -208,9 +210,10 @@ public abstract class AbstractFileController extends AbstractCurdController<File
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
+     */
     
     private boolean accessFile(Person currnetPerson, File file) {
-        return hasRole(currnetPerson, Role.MEMBER) && file.getPerson() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR);
+        return hasRole(currnetPerson, Role.MEMBER) && file.getPerson().getId() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR);
     }
     
     @Override
