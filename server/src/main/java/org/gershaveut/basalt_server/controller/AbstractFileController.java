@@ -3,15 +3,12 @@ package org.gershaveut.basalt_server.controller;
 import org.gershaveut.basalt_server.repository.FileRepository;
 import org.gershaveut.basalt_server.repository.FolderRepository;
 import org.gershaveut.basalt_server.repository.PersonRepository;
-import org.gershaveut.basalt_share.Util;
-import org.gershaveut.basalt_server.model.File;
+import org.gershaveut.basalt_server.model.SFile;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.*;
 import org.springframework.security.access.annotation.Secured;
@@ -19,18 +16,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
 import java.util.function.Consumer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 @Secured({"ROLE_MEMBER"})
-public abstract class AbstractFileController extends AbstractCurdController<File, Long> {
+public abstract class AbstractFileController extends AbstractCurdController<SFile, Long> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFileController.class);
 
     @Autowired
@@ -41,7 +31,7 @@ public abstract class AbstractFileController extends AbstractCurdController<File
     PersonRepository personRepository;
     
     @Override
-    public ResponseEntity<File> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody File entity) {
+    public ResponseEntity<SFile> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody SFile entity) {
         var name = entity.getName();
         var path = entity.getPath();
         var number = 0;
@@ -51,12 +41,12 @@ public abstract class AbstractFileController extends AbstractCurdController<File
             name = entity.getBaseName() + " " + number + entity.getExtension();
         }
 
-        return super.addEntity(currentPerson, new File(name, path, currentPerson));
+        return super.addEntity(currentPerson, new SFile(name, path, currentPerson));
     }
 
     @Override
     @Secured({"ROLE_MEMBER"})
-    public ResponseEntity<File> deleteEntity(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id) {
+    public ResponseEntity<SFile> deleteEntity(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id) {
         var fileData = fileRepository.findById(id);
 
         if (fileData.isPresent()) {
@@ -71,7 +61,7 @@ public abstract class AbstractFileController extends AbstractCurdController<File
     }
 
     @PatchMapping("/{id}/rename")
-    public ResponseEntity<File> rename(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String newName) {
+    public ResponseEntity<SFile> rename(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String newName) {
         var fileData = fileRepository.findById(id);
         
         if (fileData.isEmpty() || fileRepository.findByAbsolutePath(fileData.get().getPath() + "/" + newName).isPresent())
@@ -81,13 +71,13 @@ public abstract class AbstractFileController extends AbstractCurdController<File
     }
 
     @PatchMapping("/{id}/move")
-    public ResponseEntity<File> move(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String newPath) {
+    public ResponseEntity<SFile> move(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String newPath) {
         return updateFile(currentPerson, id, file -> file.setPath(newPath));
     }
 
     @Secured({"ROLE_MODERATOR"})
     @PatchMapping("/{id}/author")
-    public ResponseEntity<File> author(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody Long newAuthor) {
+    public ResponseEntity<SFile> author(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody Long newAuthor) {
         var personData = personRepository.findById(newAuthor);
 
         return personData.map(person -> updateFile(currentPerson, id, file -> file.setPerson(person))).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -95,7 +85,7 @@ public abstract class AbstractFileController extends AbstractCurdController<File
     }
 
     @PatchMapping("/{id}/edit")
-    public ResponseEntity<File> edit(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestParam("multipartFile") MultipartFile multipartFile) {
+    public ResponseEntity<SFile> edit(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestParam("multipartFile") MultipartFile multipartFile) {
         return updateFile(currentPerson, id, file -> {
             try {
                 file.setContent(multipartFile.getBytes());
@@ -105,7 +95,7 @@ public abstract class AbstractFileController extends AbstractCurdController<File
         });
     }
 
-    private ResponseEntity<File> updateFile(Person currnetPerson, Long id, Consumer<File> updateAction) {
+    private ResponseEntity<SFile> updateFile(Person currnetPerson, Long id, Consumer<SFile> updateAction) {
         var fileData = fileRepository.findById(id);
 
         if (fileData.isPresent()) {
@@ -212,12 +202,12 @@ public abstract class AbstractFileController extends AbstractCurdController<File
     }
      */
     
-    private boolean accessFile(Person currnetPerson, File file) {
+    private boolean accessFile(Person currnetPerson, SFile file) {
         return hasRole(currnetPerson, Role.MEMBER) && file.getPerson().getId() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR);
     }
     
     @Override
-    protected CrudRepository<File, Long> getRepository() {
+    protected CrudRepository<SFile, Long> getRepository() {
         return fileRepository;
     }
 }

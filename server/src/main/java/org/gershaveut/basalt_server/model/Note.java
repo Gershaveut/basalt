@@ -5,15 +5,10 @@ import org.gershaveut.basalt_share.Util;
 import org.gershaveut.basalt_share.model.Person;
 import tools.jackson.core.type.TypeReference;
 
-import java.io.IOException;
 import java.util.List;
 
 @Entity
-public class Note extends File {
-	private Note() {
-        this("Null", "");
-    }
-	
+public class Note extends SFile {
 	public Note(String name, String path, Person person) {
         super(name + ".md", path, person);
     }

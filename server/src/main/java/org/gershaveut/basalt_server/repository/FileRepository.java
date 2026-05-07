@@ -1,7 +1,7 @@
 package org.gershaveut.basalt_server.repository;
 
 import org.gershaveut.basalt_share.Util;
-import org.gershaveut.basalt_server.model.File;
+import org.gershaveut.basalt_server.model.SFile;
 import org.gershaveut.basalt_share.model.Folder;
 import org.gershaveut.basalt_share.model.Image;
 import org.gershaveut.basalt_server.model.Note;
@@ -11,10 +11,10 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 
-public interface FileRepository extends CrudRepository<File, Long> {
-	Optional<File> findByNameAndPath(String name, String path);
+public interface FileRepository extends CrudRepository<SFile, Long> {
+	Optional<SFile> findByNameAndPath(String name, String path);
 	
-	default Optional<File> findByAbsolutePath(String absolutePath) {
+	default Optional<SFile> findByAbsolutePath(String absolutePath) {
 		var splitAbsolutePath = Util.splitAbsolutePath(absolutePath, Folder.SEPARATOR);
 	
 		var path = splitAbsolutePath.getSecond();

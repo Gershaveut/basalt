@@ -1,6 +1,6 @@
 package org.gershaveut.basalt_server.controller;
 
-import org.gershaveut.basalt_server.model.File;
+import org.gershaveut.basalt_server.model.SFile;
 import org.gershaveut.basalt_server.model.Note;
 import org.gershaveut.basalt_server.repository.CommentRepository;
 import org.gershaveut.basalt_server.repository.FileRepository;
@@ -31,8 +31,8 @@ public class NoteController extends AbstractFileController {
     CommentRepository commentRepository;
 
     @Override
-    public ResponseEntity<List<File>> getEntities() {
-        var entities = new ArrayList<File>();
+    public ResponseEntity<List<SFile>> getEntities() {
+        var entities = new ArrayList<SFile>();
 
         fileRepository.findAllNotes().forEach(entities::add);
 
@@ -44,7 +44,7 @@ public class NoteController extends AbstractFileController {
     }
     
     @Override
-    public ResponseEntity<File> getEntity(@PathVariable Long id) {
+    public ResponseEntity<SFile> getEntity(@PathVariable Long id) {
         var noteData = fileRepository.findNoteById(id);
         
         if (noteData.isPresent())
@@ -54,7 +54,7 @@ public class NoteController extends AbstractFileController {
     }
     
     @Override
-    public ResponseEntity<File> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody File entity) {
+    public ResponseEntity<SFile> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody SFile entity) {
         var response = super.addEntity(currentPerson, new Note(entity.getName(), currentPerson.getId(), entity.getContent(), entity.getPath()));
         var body = response.getBody();
 
@@ -65,7 +65,7 @@ public class NoteController extends AbstractFileController {
     }
 
     @Override
-    public ResponseEntity<File> rename(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String newName) {
+    public ResponseEntity<SFile> rename(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String newName) {
         var response = super.rename(currentPerson, id, newName);
         var body = response.getBody();
 
@@ -77,7 +77,7 @@ public class NoteController extends AbstractFileController {
     }
 
     @Override
-    public ResponseEntity<File> edit(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody(required = false) String newContent) {
+    public ResponseEntity<SFile> edit(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody(required = false) String newContent) {
         var response = super.edit(currentPerson, id, newContent); 
         var body = response.getBody();
 
@@ -88,7 +88,7 @@ public class NoteController extends AbstractFileController {
     }
 
     @Override
-    public ResponseEntity<List<File>> importProject(@AuthenticationPrincipal Person currentPerson, @RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<List<SFile>> importProject(@AuthenticationPrincipal Person currentPerson, @RequestParam("file") MultipartFile file) throws IOException {
         var response = super.importProject(currentPerson, file);
         var body = response.getBody();
 
@@ -162,7 +162,7 @@ public class NoteController extends AbstractFileController {
         return ResponseEntity.noContent().build();
     }
 
-    private ResponseEntity<File> updateNoteLinks(Long id) {
+    private ResponseEntity<SFile> updateNoteLinks(Long id) {
         var noteData = fileRepository.findNoteById(id);
 
         if (noteData.isPresent()) {

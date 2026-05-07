@@ -5,13 +5,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.gershaveut.basalt_share.model.Person;
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
+import java.io.File;
+import java.util.List;
 
 @Entity
-public class File {
+public class SFile {
     public static final String SEPARATOR = "/";
     public static final String SEND_SEPARATOR = "@";
     
@@ -27,28 +29,28 @@ public class File {
     @ManyToOne
     private @NotNull Person person;
 
-    private File() {
+    protected SFile() {
         path = "";
     }
     
-    public File(String name, String path, Person person) {
+    public SFile(String name, String path, Person person) {
         this.name = name;
         this.path = path;
         this.person = person;
     }
     
-    public File(String name, Person person) {
+    public SFile(String name, Person person) {
         this(name, "", person);
     }
     
-    public static File mkdir(String name, String path, Person person) {
-        var dir = new File(name, path, person);
+    public static SFile mkdir(String name, String path, Person person) {
+        var dir = new SFile(name, path, person);
         dir.isDirectory = true;
         
         return dir;
     }
 
-    public static File mkdir(String name, Person person) {
+    public static SFile mkdir(String name, Person person) {
         return mkdir(name, "", person);
     }
    
@@ -75,22 +77,6 @@ public class File {
     @JsonIgnore
     public String getAbsolutePath() {
         return path + SEPARATOR + name;
-    }
-    
-    public byte[] getContent() {
-        try {
-            return FileUtils.readFileToByteArray(new java.io.File(path));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public void setContent(byte[] content) {
-        try {
-            FileUtils.writeByteArrayToFile(new java.io.File(path), content);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
     
     public long getId() {
@@ -131,5 +117,9 @@ public class File {
 
     public void setPerson(Person person) {
         this.person = person;
+    }
+    
+    public File toFile() {
+        return new File(getAbsolutePath());
     }
 }

@@ -1,10 +1,9 @@
 package org.gershaveut.basalt_server.controller;
 
-import org.gershaveut.basalt_server.model.File;
+import org.gershaveut.basalt_server.model.SFile;
 import org.gershaveut.basalt_server.repository.FileRepository;
 import org.gershaveut.basalt_share.model.Person;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,8 +20,8 @@ public class FolderController extends AbstractFileController {
 	FileRepository fileRepository;
 
 	@PatchMapping("/{id}/move")
-	public ResponseEntity<File> move(@PathVariable String id, @RequestBody String path) {
-		var newFolder = new File();
+	public ResponseEntity<SFile> move(@PathVariable String id, @RequestBody String path) {
+		var newFolder = new SFile();
 		newFolder.setParent(path);
 		
 		if (id.equals(path) || fileRepository.existsById(newFolder.getPath()))
@@ -73,7 +72,7 @@ public class FolderController extends AbstractFileController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
-	private ResponseEntity<File> updateFolder(Long id, Consumer<File> updateAction) {
+	private ResponseEntity<SFile> updateFolder(Long id, Consumer<SFile> updateAction) {
 		var targetData = fileRepository.findById(id);
 		
 		if (targetData.isEmpty())
