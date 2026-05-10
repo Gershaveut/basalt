@@ -120,6 +120,6 @@ public class SFile {
     }
     
     public File toFile() {
-        return new File(getAbsolutePath());
+        return new File("./" + getAbsolutePath());
     }
 }

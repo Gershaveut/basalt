@@ -65,5 +65,4 @@ public class Comment {
     public void setEdited(@NotNull boolean edited) {
         this.edited = edited;
     }
-
 }

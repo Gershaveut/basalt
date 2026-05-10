@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import java.util.Properties;
 
 @EnableJpaAuditing
-@EntityScan("org.gershaveut.basalt_share.model")
+@EntityScan({"org.gershaveut.basalt_share.model", "org.gershaveut.basalt_server.model"})
 @SpringBootApplication
 public class SpringApplication {
     static void main(String[] args) {

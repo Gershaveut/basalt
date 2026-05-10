@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    Page<Comment> findByNote(Long note, Pageable pageable);
+    Page<Comment> findByFile(Long file, Pageable pageable);
 }

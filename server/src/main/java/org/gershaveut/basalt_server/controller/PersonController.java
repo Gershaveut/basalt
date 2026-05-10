@@ -2,6 +2,7 @@ package org.gershaveut.basalt_server.controller;
 
 import org.gershaveut.basalt_server.repository.FileRepository;
 import org.gershaveut.basalt_server.repository.PersonRepository;
+import org.gershaveut.basalt_server.service.FileService;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +14,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/persons")
 public class PersonController extends AbstractCurdController<Person, Long> {
+	@Autowired
+	FileService fileService;
+	
 	@Autowired
 	PersonRepository personRepository;
 	@Autowired
@@ -115,9 +121,14 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Person> deleteEntity(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestParam boolean deleteNotes) {
 		if (deleteNotes) {
-			fileRepository.findAll().forEach(note -> {
-				if (note.getPerson() == id) {
-					fileRepository.delete(note);
+			fileRepository.findAll().forEach(file -> {
+				if (file.getPerson().getId() == id) {
+                    try {
+                        fileService.delete(file);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    fileRepository.delete(file);
 				}
 			});
 		}
@@ -128,9 +139,14 @@ public class PersonController extends AbstractCurdController<Person, Long> {
 	@DeleteMapping("/current")
 	public ResponseEntity<Person> deleteEntity(@AuthenticationPrincipal Person currentPerson, @RequestParam boolean deleteNotes) {
 		if (deleteNotes) {
-			fileRepository.findAll().forEach(note -> {
-				if (note.getPerson() == currentPerson.getId()) {
-					fileRepository.delete(note);
+			fileRepository.findAll().forEach(file -> {
+				if (file.getPerson().getId() == currentPerson.getId()) {
+                    try {
+                        fileService.delete(file);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    fileRepository.delete(file);
 				}
 			});
 		}

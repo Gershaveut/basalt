@@ -17,14 +17,6 @@ public class Note extends SFile {
         this(name, path, null);
     }
  
-    public String getText() {
-        return new String(getContent());
-    }
-
-    public void setText(String text) {
-        setContent(text.getBytes());
-    }
-    
     public List<Long> getLinks() {
         return Util.getMapper().readValue(getMetadata(), new TypeReference<>() {});
     }
