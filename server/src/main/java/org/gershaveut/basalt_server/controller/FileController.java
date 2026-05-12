@@ -161,10 +161,6 @@ public class FileController extends AbstractCurdController<SFile, Long> {
         return updateFiles(currentPerson, id, file -> {
             try {
                 fileService.write(file, multipartFile.getBytes());
-
-                if (Util.isNote(file.getExtension())) {
-                    updateNoteLinks(file);
-                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -299,43 +295,6 @@ public class FileController extends AbstractCurdController<SFile, Long> {
         commentRepository.deleteById(commentId);
 
         return ResponseEntity.noContent().build();
-    }
-
-    private ResponseEntity<SFile> updateNoteLinks(SFile note) throws IOException {
-        var links = new ArrayList<String>();
-
-        var patternId = Pattern.compile("\\{(\\d*?)}");
-        var patternName = Pattern.compile("\\[\\[(.*?)]]");
-
-        var text = new String(fileService.read(note));
-
-        var matcherId = patternId.matcher(text);
-        var matcherName = patternName.matcher(text);
-
-        while (matcherId.find()) {
-            try {
-                var id = matcherId.group(1).trim();
-
-                if (Long.parseLong(id) != note.getId() && links.stream().noneMatch(l -> Objects.equals(l, id)))
-                    links.add(id);
-            } catch (Exception ignored) {
-            }
-        }
-
-        while (matcherName.find()) {
-            try {
-                var name = matcherName.group(1).trim();
-
-                if (!name.equals(note.getName()) && links.stream().noneMatch(l -> Objects.equals(l, name)))
-                    links.add(name);
-            } catch (Exception ignored) {
-            }
-        }
-
-        note.setMetadata(Util.getMapper().writeValueAsString(links));
-        fileRepository.save(note);
-
-        return new ResponseEntity<>(note, HttpStatus.OK);
     }
 
     private ResponseEntity<SFile> updateFiles(Person currnetPerson, Long id, Consumer<SFile> updateAction) {
