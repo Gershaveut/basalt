@@ -1,5 +1,6 @@
 package org.gershaveut.basalt_share;
 
+import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public final class Util {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Util.class);
@@ -67,5 +69,9 @@ public final class Util {
 		mapper.writer(SerializationFeature.INDENT_OUTPUT);
 
 		return mapper;
+	}
+	
+	public static boolean isNote(@Nullable String extension) {
+		return Objects.equals(extension, "md");
 	}
 }

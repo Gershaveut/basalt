@@ -7,13 +7,16 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+import java.util.Arrays;
 import java.util.Properties;
 
 @EnableJpaAuditing
 @EntityScan({"org.gershaveut.basalt_share.model", "org.gershaveut.basalt_server.model"})
 @SpringBootApplication
 public class SpringApplication {
-    static void main(String[] args) {
+	public static String storagePath;
+
+	static void main(String[] args) {
         startServer(args);
     }
     
@@ -31,6 +34,10 @@ public class SpringApplication {
 		var properties = new Properties();
 		properties.put("spring.application.name", Util.APPLICATION_NAME + "-server");
 		properties.put("server.ssl.key-store", "file:" + CertificateGenerator.FILE_NAME);
+		
+		storagePath = Arrays.stream(args).filter(a -> a.startsWith("--storage.path")).findFirst().orElse("=./database").split("=")[1];
+		
+		properties.put("spring.datasource.url", "jdbc:h2:save:" + storagePath);
 		
 		
 		application.setDefaultProperties(properties);

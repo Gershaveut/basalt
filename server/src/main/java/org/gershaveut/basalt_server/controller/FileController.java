@@ -5,12 +5,12 @@ import org.gershaveut.basalt_server.repository.FileRepository;
 import org.gershaveut.basalt_server.repository.PersonRepository;
 import org.gershaveut.basalt_server.model.SFile;
 import org.gershaveut.basalt_server.service.FileService;
+import org.gershaveut.basalt_share.Util;
 import org.gershaveut.basalt_share.model.Comment;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -24,9 +24,19 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 @RestController
 @Secured({"ROLE_MEMBER"})
@@ -36,18 +46,19 @@ public class FileController extends AbstractCurdController<SFile, Long> {
 
     @Autowired
     FileService fileService;
-    
+
     @Autowired
     FileRepository fileRepository;
     @Autowired
     CommentRepository commentRepository;
     @Autowired
     PersonRepository personRepository;
-    
+
     @Override
     public ResponseEntity<SFile> addEntity(@AuthenticationPrincipal Person currentPerson, @RequestBody SFile entity) {
         var name = entity.getName();
         var path = entity.getPath();
+        var isDirectory = entity.isDirectory();
         var number = 0;
 
         while (fileRepository.findByNameAndPath(name, path).isPresent()) {
@@ -55,7 +66,11 @@ public class FileController extends AbstractCurdController<SFile, Long> {
             name = entity.getBaseName() + " " + number + entity.getExtension();
         }
 
-        return super.addEntity(currentPerson, new SFile(name, path, currentPerson));
+        var file = new SFile(name, path, currentPerson);
+
+        file.setDirectory(isDirectory);
+
+        return super.addEntity(currentPerson, file);
     }
 
     @Override
@@ -65,7 +80,7 @@ public class FileController extends AbstractCurdController<SFile, Long> {
 
         if (fileData.isPresent()) {
             var file = fileData.get();
-            
+
             if (accessFile(currentPerson, file)) {
                 try {
                     fileService.delete(file);
@@ -84,7 +99,7 @@ public class FileController extends AbstractCurdController<SFile, Long> {
     @PatchMapping("/{id}/rename")
     public ResponseEntity<SFile> rename(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody String newName) throws IOException {
         var fileData = fileRepository.findById(id);
-        
+
         if (fileData.isEmpty() || fileRepository.findByAbsolutePath(fileData.get().getPath() + "/" + newName).isPresent())
             return new ResponseEntity<>(HttpStatus.CONFLICT);
 
@@ -96,10 +111,10 @@ public class FileController extends AbstractCurdController<SFile, Long> {
     public ResponseEntity<SFile> move(@AuthenticationPrincipal Person currentPerson, @PathVariable Long fromId, @RequestBody Long toId) throws IOException {
         var fromData = fileRepository.findById(fromId);
         var toData = fileRepository.findById(toId);
-        
+
         if (fromData.isEmpty() || toData.isEmpty())
             return ResponseEntity.notFound().build();
-        
+
         fileService.move(fromData.get(), toData.get());
         return updateFiles(currentPerson, fromId, file -> file.setPath(fromData.get().getPath()));
     }
@@ -117,12 +132,12 @@ public class FileController extends AbstractCurdController<SFile, Long> {
     @GetMapping("/{id}/read")
     public ResponseEntity<Resource> read(@PathVariable Long id) throws IOException {
         var fileData = fileRepository.findById(id);
-        
+
         if (fileData.isEmpty())
             return ResponseEntity.notFound().build();
-        
+
         var file = fileData.get();
-        
+
         var resource = new ByteArrayResource(fileService.read(file));
 
         var mediaType = MediaTypeFactory
@@ -140,44 +155,47 @@ public class FileController extends AbstractCurdController<SFile, Long> {
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
-    
+
     @PatchMapping("/{id}/write")
     public ResponseEntity<SFile> write(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestParam("multipartFile") MultipartFile multipartFile) {
         return updateFiles(currentPerson, id, file -> {
             try {
                 fileService.write(file, multipartFile.getBytes());
+
+                if (Util.isNote(file.getExtension())) {
+                    updateNoteLinks(file);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
-    /* TODO: переделать
     @Secured({"ROLE_MODERATOR"})
     @PostMapping("/import")
-    public ResponseEntity<List<File>> importProject(@AuthenticationPrincipal Person currentPerson, @RequestParam("multipartFile") MultipartFile multipartFile) throws IOException {
+    public ResponseEntity<List<SFile>> importProject(@AuthenticationPrincipal Person currentPerson, @RequestParam("multipartFile") MultipartFile multipartFile) throws IOException {
         var zis = new ZipInputStream(multipartFile.getInputStream());
         var zipEntry = zis.getNextEntry();
 
         while (zipEntry != null) {
             var zipName = zipEntry.getName();
 
-            if (zipEntry.isDirectory()) {
-                folderRepository.save(new Folder(zipName.substring(0, zipName.length() - 1).replace("/", Folder.SEPARATOR)));
+            var content = zis.readAllBytes();
+            SFile file;
+
+            if (zipName.contains("/")) {
+                var splitAbsolutePath = Util.splitAbsolutePath(zipName, "/");
+
+                file = new SFile(splitAbsolutePath.getFirst(),SFile.SEPARATOR + splitAbsolutePath.getSecond(), currentPerson);
             } else {
-                var content = zis.readAllBytes();
-                File file;
-
-                if (zipName.contains("/")) {
-                    var splitAbsolutePath = Util.splitAbsolutePath(zipName, "/");
-                    
-                    file = new File(splitAbsolutePath.getFirst(), currentPerson.getId(), content, Folder.SEPARATOR + splitAbsolutePath.getSecond().replace("/", Folder.SEPARATOR));
-                } else {
-                    file = new File(zipName, currentPerson.getId(), content, null);
-                }
-
-                fileRepository.save(file);
+                file = new SFile(zipName, currentPerson);
             }
+            
+            file.setDirectory(zipEntry.isDirectory());
+
+            fileRepository.save(file);
+            
+            fileService.write(file, content);
 
             zipEntry = zis.getNextEntry();
         }
@@ -196,22 +214,12 @@ public class FileController extends AbstractCurdController<SFile, Long> {
         var fos = new ByteArrayOutputStream();
         var zipOut = new ZipOutputStream(fos);
 
-        folderRepository.findAll().forEach(folder -> {
-            try {
-                var zipEntry = new ZipEntry(folder.getPath().substring(1).replace(Folder.SEPARATOR, "/") + '/');
-                zipOut.putNextEntry(zipEntry);
-                zipOut.closeEntry();
-            } catch (Exception e) {
-                LOGGER.error("Zip folder error", e);
-            }
-        });
-
         fileRepository.findAll().forEach(file -> {
             try {
-                var zipEntry = new ZipEntry(file.getAbsolutePath().substring(1).replace(Folder.SEPARATOR, "/"));
+                var zipEntry = new ZipEntry(file.getAbsolutePath().substring(1));
                 zipOut.putNextEntry(zipEntry);
 
-                zipOut.write(file.getRawContent());
+                zipOut.write(fileService.read(file));
             } catch (Exception e) {
                 LOGGER.error("Zip file error", e);
             }
@@ -237,7 +245,6 @@ public class FileController extends AbstractCurdController<SFile, Long> {
 
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
-     */
 
     @Secured({"ROLE_GUEST"})
     @GetMapping("/{id}/comments")
@@ -294,64 +301,54 @@ public class FileController extends AbstractCurdController<SFile, Long> {
         return ResponseEntity.noContent().build();
     }
 
-    /*
-    private ResponseEntity<SFile> updateNoteLinks(Long id) {
-        var noteData = fileRepository.findNoteById(id);
+    private ResponseEntity<SFile> updateNoteLinks(SFile note) throws IOException {
+        var links = new ArrayList<String>();
 
-        if (noteData.isPresent()) {
-            var note = noteData.get();
+        var patternId = Pattern.compile("\\{(\\d*?)}");
+        var patternName = Pattern.compile("\\[\\[(.*?)]]");
 
-            var links = new ArrayList<Long>();
+        var text = new String(fileService.read(note));
 
-            var patternId = Pattern.compile("\\{(\\d*?)}");
-            var patternName = Pattern.compile("\\[\\[(.*?)]]");
+        var matcherId = patternId.matcher(text);
+        var matcherName = patternName.matcher(text);
 
-            var matcherId = patternId.matcher(note.getText());
-            var matcherName = patternName.matcher(note.getText());
+        while (matcherId.find()) {
+            try {
+                var id = matcherId.group(1).trim();
 
-            while (matcherId.find()) {
-                try {
-                    var number = Long.parseLong(matcherId.group(1).trim());
-
-                    if (number != note.getId() && links.stream().noneMatch(l -> l == number))
-                        links.add(number);
-                } catch (Exception ignored) {
-                }
+                if (Long.parseLong(id) != note.getId() && links.stream().noneMatch(l -> Objects.equals(l, id)))
+                    links.add(id);
+            } catch (Exception ignored) {
             }
-
-            while (matcherName.find()) {
-                try {
-                    var name = matcherName.group(1).trim();
-
-                    var number = fileRepository.findByAbsolutePath(name).orElseThrow().getId();
-
-                    if (number != note.getId() && links.stream().noneMatch(l -> l == number))
-                        links.add(number);
-                } catch (Exception ignored) {
-                }
-            }
-
-            note.setLinks(links);
-            fileRepository.save(note);
-
-            return new ResponseEntity<>(note, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        while (matcherName.find()) {
+            try {
+                var name = matcherName.group(1).trim();
+
+                if (!name.equals(note.getName()) && links.stream().noneMatch(l -> Objects.equals(l, name)))
+                    links.add(name);
+            } catch (Exception ignored) {
+            }
+        }
+
+        note.setMetadata(Util.getMapper().writeValueAsString(links));
+        fileRepository.save(note);
+
+        return new ResponseEntity<>(note, HttpStatus.OK);
     }
-     */
 
     private ResponseEntity<SFile> updateFiles(Person currnetPerson, Long id, Consumer<SFile> updateAction) {
         var fileData = fileRepository.findById(id);
-        
+
         if (fileData.isEmpty())
             return ResponseEntity.notFound().build();
-        
+
         var file = fileData.get();
-        
+
         if (!accessFile(currnetPerson, file))
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        
+
         var oldDirPath = file.getPath();
 
         updateAction.accept(file);
@@ -370,15 +367,15 @@ public class FileController extends AbstractCurdController<SFile, Long> {
 
         return new ResponseEntity<>(file, HttpStatus.OK);
     }
-    
+
     private boolean accessComment(Person currnetPerson, Comment comment) {
         return comment.getPerson().getId() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR);
     }
-    
+
     private boolean accessFile(Person currnetPerson, SFile file) {
         return hasRole(currnetPerson, Role.MEMBER) && file.getPerson().getId() == currnetPerson.getId() || hasRole(currnetPerson, Role.MODERATOR);
     }
-    
+
     @Override
     protected CrudRepository<SFile, Long> getRepository() {
         return fileRepository;

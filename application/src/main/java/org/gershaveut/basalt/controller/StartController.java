@@ -58,7 +58,7 @@ public class StartController implements StartListener {
 		
 		try {
 			try {
-				context = SpringApplication.startServer(List.of("--spring.datasource.url=jdbc:h2:save:" + file.getPath().split("\\.")[0]).toArray(new String[1]));
+				context = SpringApplication.startServer(List.of("--storage.path=" + file.getPath().split("\\.")[0]).toArray(new String[1]));
 			} catch (Exception exception) {
 				throw new UnknownException(exception);
 			}

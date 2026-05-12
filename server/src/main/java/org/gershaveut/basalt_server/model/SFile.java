@@ -3,14 +3,12 @@ package org.gershaveut.basalt_server.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.gershaveut.basalt_server.SpringApplication;
 import org.gershaveut.basalt_share.model.Person;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
-import java.util.List;
 
 @Entity
 public class SFile {
@@ -24,6 +22,7 @@ public class SFile {
     private @NotNull String name;
     private @NotNull String path;
     private @Nullable String metadata;
+
     private boolean isDirectory;
     
     @ManyToOne
@@ -111,6 +110,10 @@ public class SFile {
         return isDirectory;
     }
 
+    public void setDirectory(boolean directory) {
+        isDirectory = directory;
+    }
+
     public Person getPerson() {
         return person;
     }
@@ -120,6 +123,6 @@ public class SFile {
     }
     
     public File toFile() {
-        return new File("./" + getAbsolutePath());
+        return new File(FilenameUtils.getFullPath(SpringApplication.storagePath) + getAbsolutePath());
     }
 }

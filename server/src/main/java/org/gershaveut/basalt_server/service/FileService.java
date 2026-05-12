@@ -1,10 +1,7 @@
 package org.gershaveut.basalt_server.service;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.gershaveut.basalt_server.model.SFile;
-import org.gershaveut.basalt_server.repository.FileRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
