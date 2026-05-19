@@ -9,6 +9,7 @@ import org.gershaveut.basalt_share.Util;
 import org.gershaveut.basalt_share.model.Comment;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
+import org.gershaveut.basalt_share.model.SFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,7 +183,7 @@ public class FileController extends AbstractCurdController<SFile, Long> {
             if (zipName.contains("/")) {
                 var splitAbsolutePath = Util.splitAbsolutePath(zipName, "/");
 
-                file = new SFile(splitAbsolutePath.getFirst(),SFile.SEPARATOR + splitAbsolutePath.getSecond(), currentPerson);
+                file = new SFile(splitAbsolutePath.getFirst(), SFileHelper.SEPARATOR + splitAbsolutePath.getSecond(), currentPerson);
             } else {
                 file = new SFile(zipName, currentPerson);
             }

@@ -1,7 +1,6 @@
 package org.gershaveut.basalt.view.tool.folder;
 
-import org.gershaveut.basalt.model.note.NoteInfo;
-import org.gershaveut.basalt_share.model.Folder;
+import org.gershaveut.basalt.model.file.Note;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.*;
@@ -14,11 +13,11 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.Objects;
 
-public class FolderTransferHandler extends TransferHandler {
+public class DirectoryTransferHandler extends TransferHandler {
     private final DataFlavor flavor = new DataFlavor(TransferableFile.class, "Tree Node");
 	private final EventListenerList listeners;
 	
-	public FolderTransferHandler(EventListenerList listeners) {
+	public DirectoryTransferHandler(EventListenerList listeners) {
 		this.listeners = listeners;
 	}
     
@@ -50,12 +49,12 @@ public class FolderTransferHandler extends TransferHandler {
             var file = ((TransferableFile)support.getTransferable().getTransferData(flavor)).getFile();
             var targetFolder = (Folder) ((DefaultMutableTreeNode)((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject();
           
-            if (file instanceof NoteInfo note) {
-               for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+            if (file instanceof Note note) {
+               for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
                     listener.moveFile(note.getId(), targetFolder.getPath());
                }
             } else {
-               for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+               for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
                    listener.moveFolder(((Folder) file).getPath(), targetFolder.getPath());
                }
             }
@@ -68,12 +67,12 @@ public class FolderTransferHandler extends TransferHandler {
 
     private class TransferableFile implements Transferable {
         private @Nullable Folder folder = null;
-        private @Nullable NoteInfo note = null;
+        private @Nullable Note note = null;
 
         public TransferableFile(DefaultMutableTreeNode node) {
             var nodeContent = node.getUserObject();
             
-            if (nodeContent instanceof NoteInfo noteNode) {
+            if (nodeContent instanceof Note noteNode) {
                 this.note = noteNode;
             } else {
                 this.folder = (Folder) nodeContent;

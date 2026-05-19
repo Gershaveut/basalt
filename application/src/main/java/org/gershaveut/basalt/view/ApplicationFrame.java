@@ -15,7 +15,7 @@ import org.gershaveut.basalt.view.menubar.MenuBar;
 import org.gershaveut.basalt.view.start.StartFrame;
 import org.gershaveut.basalt.view.tool.AbstractTool;
 import org.gershaveut.basalt.view.tool.LogTool;
-import org.gershaveut.basalt.view.tool.folder.FolderTool;
+import org.gershaveut.basalt.view.tool.folder.FilesTool;
 import org.gershaveut.basalt.view.tool.graph.GraphTool;
 import org.gershaveut.basalt.view.tool.person.PersonsTool;
 import org.gershaveut.basalt_share.Util;
@@ -49,7 +49,7 @@ public class ApplicationFrame extends JFrame {
 
         var graph = new Graph();
         var graphTool = new GraphTool(graph, this);
-        var folderTool = new FolderTool(this);
+        var folderTool = new FilesTool(this);
         var personsTool = new PersonsTool(this);
         var logTool = new LogTool();
         

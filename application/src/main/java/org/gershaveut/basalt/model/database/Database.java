@@ -1,11 +1,12 @@
 package org.gershaveut.basalt.model.database;
 
-import org.gershaveut.basalt_server.model.Note;
+import org.gershaveut.basalt.model.file.SFile;
 import org.gershaveut.basalt_share.Util;
 import org.gershaveut.basalt_share.model.*;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.web.PagedModel;
@@ -36,9 +37,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Database implements WebSocketHandler {
-	private static final String NOTES = "/notes";
+	private static final String FILES = "/files";
 	private static final String PERSONS = "/persons";
-	private static final String FOLDERS = "/folders";
 	private static final String COMMENTS = "/comments";
 	
 	private static final int DEFAULT_PORT = 7600;
@@ -167,28 +167,23 @@ public class Database implements WebSocketHandler {
 		deleteEntity(uri, String.valueOf(id));
 	}
 	
-	public Mono<List<Note>> getNotes() {
-		return getEntities(Note.class, NOTES);
+	public Mono<List<SFile>> getFiles() {
+		return getEntities(SFile.class, FILES);
 	}
 	
 	public Mono<List<Person>> getPersons() {
 		return getEntities(Person.class, PERSONS);
 	}
 	
-	public Mono<List<Folder>> getFolders() {
-		return getEntities(Folder.class, FOLDERS);
+	public Mono<SFile> getFile(long id) {
+		return getEntity(SFile.class, FILES, id);
 	}
 	
-	public Mono<Note> getNote(long id) {
-		return getEntity(Note.class, NOTES, id);
-	}
-	
-	public Mono<String> getNoteText(long id) {
+	public Mono<Resource> readFile(long id) {
 		return webClient.get()
-				.uri(NOTES + "/" + id + "/text")
+				.uri(FILES + "/" + id + "/")
 				.retrieve()
-				.bodyToMono(String.class)
-				.switchIfEmpty(Mono.just(""));
+				.bodyToMono(Resource.class);
 	}
 	
 	public Mono<Person> getClientPerson() {
@@ -209,20 +204,16 @@ public class Database implements WebSocketHandler {
 				.bodyToMono(Person.class);
 	}
 	
-	public void addNote(Note note) {
-		addEntity(NOTES, note);
+	public void addFile(SFile file) {
+		addEntity(FILES, file);
 	}
 	
 	public void addPerson(Person person, Function<HttpStatusCode, Boolean> onError) {
 		addEntity(PERSONS + "/register", person, onError);
 	}
 	
-	public void addFolder(Folder folder) {
-		addEntity(FOLDERS, folder);
-	}
-	
-	public void deleteNote(long id) {
-		deleteEntity(NOTES, id);
+	public void deleteFile(long id) {
+		deleteEntity(FILES, id);
 	}
 	
 	public void deletePerson(long id, boolean deleteNotes) {
@@ -247,10 +238,6 @@ public class Database implements WebSocketHandler {
 				.subscribe();
 	}
 	
-	public void deleteFolder(String path) {
-		deleteEntity(FOLDERS, path);
-	}
-
 	public void renameClientPerson(String newName, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
 				.uri(PERSONS + "/rename")
@@ -290,9 +277,9 @@ public class Database implements WebSocketHandler {
 				.subscribe();
 	}
 	
-	public void renameNote(long id, String newName, Function<HttpStatusCode, Boolean> onError) {
+	public void renameFile(long id, String newName, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
-				.uri(NOTES + "/" + id + "/rename")
+				.uri(FILES + "/" + id + "/rename")
 				.bodyValue(newName)
 				.retrieve()
 				.onStatus(HttpStatusCode::isError, handleError(onError))
@@ -300,48 +287,33 @@ public class Database implements WebSocketHandler {
 				.subscribe();
 	}
 	
-	public void editNote(long id, String newText) {
-		webClient.patch()
-				.uri(NOTES + "/" + id + "/edit")
-				.bodyValue(newText)
+	public void writeFile(long id, byte[] content) {
+		var builder = new MultipartBodyBuilder();
+		builder.part("file", new ByteArrayResource(content));
+
+		webClient.post()
+				.uri(FILES + "/" + id + "/write")
+				.contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.body(BodyInserters.fromMultipartData(builder.build()))
 				.retrieve()
 				.toBodilessEntity()
 				.subscribe();
 	}
 	
-	public void moveNote(long id, String path) {
+	public void moveFile(long id, String path, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
-				.uri(NOTES + "/" + id + "/move")
+				.uri(FILES + "/" + id + "/move")
 				.bodyValue(path)
 				.retrieve()
+				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()
 				.subscribe();
 	}
 	
-	public void authorNote(long id, long newAuthor, Function<HttpStatusCode, Boolean> onError) {
+	public void authorFile(long id, long newAuthor, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
-				.uri(NOTES + "/" + id + "/author")
+				.uri(FILES + "/" + id + "/author")
 				.bodyValue(newAuthor)
-				.retrieve()
-				.onStatus(HttpStatusCode::isError, handleError(onError))
-				.toBodilessEntity()
-				.subscribe();
-	}
-	
-	public void moveFolder(String id, String path, Function<HttpStatusCode, Boolean> onError) {
-		webClient.patch()
-				.uri(FOLDERS + "/" + id + "/move")
-				.bodyValue(path)
-				.retrieve()
-				.onStatus(HttpStatusCode::isError, handleError(onError))
-				.toBodilessEntity()
-				.subscribe();
-	}
-	
-	public void renameFolder(String id, String newName, Function<HttpStatusCode, Boolean> onError) {
-		webClient.patch()
-				.uri(FOLDERS + "/" + id + "/rename")
-				.bodyValue(newName)
 				.retrieve()
 				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()
@@ -353,7 +325,7 @@ public class Database implements WebSocketHandler {
 		builder.part("file", new FileSystemResource(file));
 		
 		webClient.post()
-				.uri(NOTES + "/import")
+				.uri(FILES + "/import")
 				.contentType(MediaType.APPLICATION_OCTET_STREAM)
 				.body(BodyInserters.fromMultipartData(builder.build()))
 				.retrieve()
@@ -364,7 +336,7 @@ public class Database implements WebSocketHandler {
 	
 	public Mono<Resource> exportProject() {
 		return webClient.get()
-				.uri(NOTES + "/export")
+				.uri(FILES + "/export")
 				.retrieve()
 				.bodyToMono(Resource.class);
 	}
@@ -372,7 +344,7 @@ public class Database implements WebSocketHandler {
 	public Mono<PagedModel<Comment>> getComments(long id, long page) {
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
-						.path(NOTES + "/{id}" + COMMENTS)
+						.path(FILES + "/{id}" + COMMENTS)
 						.queryParam("page", page)
 						.queryParam("size", commentsSize)
 						.build(id))
@@ -383,7 +355,7 @@ public class Database implements WebSocketHandler {
 	
 	public void addComment(long id, String text, Function<HttpStatusCode, Boolean> onError, Function<HttpStatusCode, Boolean> onSuccessful) {
 		webClient.post()
-				.uri(NOTES + "/" + id + COMMENTS)
+				.uri(FILES + "/" + id + COMMENTS)
 				.bodyValue(text)
 				.retrieve()
 				.onStatus(HttpStatusCode::isError, handleError(onError))
@@ -394,7 +366,7 @@ public class Database implements WebSocketHandler {
 
 	public void editComment(long id, long commentId, String text, Function<HttpStatusCode, Boolean> onError, Function<HttpStatusCode, Boolean> onSuccessful) {
 		webClient.post()
-				.uri(NOTES + "/" + id + COMMENTS + "/" + commentId + "/edit")
+				.uri(FILES + "/" + id + COMMENTS + "/" + commentId + "/edit")
 				.bodyValue(text)
 				.retrieve()
 				.onStatus(HttpStatusCode::isError, handleError(onError))
@@ -406,7 +378,7 @@ public class Database implements WebSocketHandler {
 	public void deleteComment(long id, long commentId, Function<HttpStatusCode, Boolean> onError, Function<HttpStatusCode, Boolean> onSuccessful) {
 		webClient.delete()
 				.uri(uriBuilder -> uriBuilder
-						.path(NOTES + "/{id}" + COMMENTS + "/{commentId}")
+						.path(FILES + "/{id}" + COMMENTS + "/{commentId}")
 						.build(id, commentId))
 				.retrieve()
 				.onStatus(HttpStatusCode::isError, handleError(onError))

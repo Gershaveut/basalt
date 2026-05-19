@@ -9,7 +9,6 @@ import org.gershaveut.basalt.view.ApplicationFrame;
 import org.gershaveut.basalt.view.settings.SettingsFrame;
 import org.gershaveut.basalt.view.settings.SettingsListener;
 import org.gershaveut.basalt.view.tool.graph.GraphCanvas;
-import org.gershaveut.basalt_server.model.Note;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -90,23 +89,6 @@ public class SettingsController implements SettingsListener {
 			applicationSettings.getDebugMode().addSettingListener(value -> {
 				if ((Boolean) value) {
 					applicationFrame.enableDebug();
-				}
-			});
-			applicationSettings.getDebugGenerateDatabase().addSettingListener(value -> {
-				if ((Boolean) value) {
-					var debugDatabase = applicationFrame.database;
-					
-					debugDatabase.getNotes().subscribe(notes -> {
-						if (notes.size() < 20) {
-							for (int i = 1; i < 25; i++) {
-								var note = new Note(String.valueOf(i), null);
-								
-								note.setText(String.format("[[%d]]", i + 1));
-								
-								debugDatabase.addNote(note);
-							}
-						}
-					});
 				}
 			});
 			

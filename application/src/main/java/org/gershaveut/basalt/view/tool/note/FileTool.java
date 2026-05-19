@@ -3,12 +3,12 @@ package org.gershaveut.basalt.view.tool.note;
 import com.javadocking.dockable.DockingMode;
 import jakarta.annotation.Nullable;
 import org.gershaveut.basalt.ApplicationUtil;
+import org.gershaveut.basalt.model.file.SFile;
 import org.gershaveut.basalt.view.ApplicationFrame;
 import org.gershaveut.basalt.view.DebugModeListener;
 import org.gershaveut.basalt.view.Icons;
 import org.gershaveut.basalt.view.tool.AbstractTool;
 import org.gershaveut.basalt_share.model.Comment;
-import org.gershaveut.basalt_server.model.Note;
 import org.gershaveut.basalt_share.model.Person;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -21,11 +21,12 @@ import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.function.Consumer;
 
-public class NoteTool extends AbstractTool implements DebugModeListener {
+public class FileTool extends AbstractTool implements DebugModeListener {
     private final EventListenerList listeners = new EventListenerList();
 
     private static final int ICON_SIZE = 20;
@@ -48,7 +49,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
     private final JPanel optionPanel;
 
-    private final Note note;
+    private final SFile file;
     private final Person clientPerson;
 
     private PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(0, 0, 0, 0);
@@ -56,12 +57,12 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
     private boolean saved;
 
-    public NoteTool(Note note, String text, ApplicationFrame applicationFrame, Person clientPerson) {
+    public FileTool(SFile file, String text, ApplicationFrame applicationFrame, Person clientPerson) {
         this.setLayout(new BorderLayout());
 
         this.setPreferredSize(ApplicationUtil.BOX_WINDOW_DIMENSION_TOOL);
 
-        this.note = note;
+        this.file = file;
         this.clientPerson = clientPerson;
 
         optionPanel = new JPanel();
@@ -85,7 +86,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
         var commentsButton = getResizeButton(new JToggleButton(Icons.FORUM.getIcon(ICON_SIZE)));
         var saveButton = getResizeButton(new JButton(Icons.SAVE.getIcon(ICON_SIZE)));
 
-        saveButton.setEnabled(ApplicationUtil.accessNote(clientPerson, note));
+        saveButton.setEnabled(ApplicationUtil.accessFile(clientPerson, file));
 
         saveButton.setAlignmentX(Container.RIGHT_ALIGNMENT);
 
@@ -198,7 +199,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
         openProfile.addActionListener(e -> {
             for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
                 assert currentComment != null;
-                listener.openProfile(currentComment.getPerson());
+                listener.openProfile(currentComment.getPerson().getId());
             }
         });
         
@@ -273,7 +274,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
             optionsButton.addActionListener(e -> {
                 currentComment = comment;
                 
-                var hasAccess = ApplicationUtil.hasRole(clientPerson, Role.MODERATOR) || comment.getPerson() == clientPerson.getId();
+                var hasAccess = ApplicationUtil.hasRole(clientPerson, Role.MODERATOR) || comment.getPerson().getId() == clientPerson.getId();
                 
                 menuSeparator.setVisible(hasAccess);
                 editComment.setVisible(hasAccess);
@@ -375,12 +376,12 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
     @Override
     public String getID() {
-        return "markdown_editor " + note.getId();
+        return "markdown_editor " + file.getId();
     }
 
     @Override
     public String getTitle() {
-        return note.getName();
+        return file.getName();
     }
 
     @Override
@@ -395,7 +396,7 @@ public class NoteTool extends AbstractTool implements DebugModeListener {
 
     @Override
     public void debugEnabled() {
-        var debugText = new JLabel("Id: " + note.getId());
+        var debugText = new JLabel("Id: " + file.getId());
 
         optionPanel.add(debugText);
     }

@@ -2,10 +2,10 @@ package org.gershaveut.basalt.view.tool.folder;
 
 import com.javadocking.dockable.DockingMode;
 import org.gershaveut.basalt.ApplicationUtil;
-import org.gershaveut.basalt.model.note.NoteInfo;
+import org.gershaveut.basalt.model.file.Note;
+import org.gershaveut.basalt.model.file.SFile;
 import org.gershaveut.basalt.view.Icons;
 import org.gershaveut.basalt.view.tool.AbstractTool;
-import org.gershaveut.basalt_share.model.Folder;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
 import org.jspecify.annotations.Nullable;
@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class FolderTool extends AbstractTool {
+public class FilesTool extends AbstractTool {
 	private final EventListenerList listeners = new EventListenerList();
 	
 	private final JTree tree = new JTree(new Object[0]);
 	private final JPopupMenu popupMenu = new JPopupMenu();
 	private final JMenuItem newFile;
-	private final JMenuItem newFolder;
+	private final JMenuItem newDirectory;
 	private final JMenuItem openFile;
 	private final JMenuItem author;
 	private final JMenuItem rename;
@@ -42,17 +42,17 @@ public class FolderTool extends AbstractTool {
 	private @Nullable TreePath selectedTreePath;
 	private @Nullable Person clientPerson;
 	
-	public FolderTool(JFrame parentFrame) {
+	public FilesTool(JFrame parentFrame) {
 		this.setLayout(new BorderLayout());
 		
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.ON_OR_INSERT);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		
-		tree.setTransferHandler(new FolderTransferHandler(listeners));
+		tree.setTransferHandler(new DirectoryTransferHandler(listeners));
 		
 		newFile = new JMenuItem("Новый файл");
-		newFolder = new JMenuItem("Новая папка");
+		newDirectory = new JMenuItem("Новая папка");
 		
 		openFile = new JMenuItem("Открыть файл");
 		
@@ -62,50 +62,42 @@ public class FolderTool extends AbstractTool {
 		
 		openFile.addActionListener(e -> {
 			if (getSelectedNode() != null) {
-				var selectedNote = (NoteInfo) getSelectedNode();
+				var selectedNote = (Note) getSelectedNode();
 				
-				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+				for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
 					listener.openFile(selectedNote.getId());
 				}
 			}
 		});
 		newFile.addActionListener(e -> {
 			Object selected = getSelectedNode();
-			Folder folder = null;
+			SFile file = null;
 			
 			if (selected != null) {
-				if (selected instanceof Folder f) {
-					folder = f;
-				} else {
-					assert getSelectedParentNode() != null;
-					folder = (Folder) getSelectedParentNode();
-				}
+				assert getSelectedParentNode() != null;
+				file = (SFile) getSelectedParentNode();
 			}
 			
-			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-				listener.newFile(folder);
+			for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
+				listener.newFile(file, false);
 			}
 		});
-		newFolder.addActionListener(e -> {
+		newDirectory.addActionListener(e -> {
 			Object selected = getSelectedNode();
-			Folder folder = null;
+			SFile file = (SFile) selected;
 			
-			if (selected instanceof Folder f) {
-				folder = f;
-			}
-			
-			for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-				listener.newFolder(folder);
+			for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
+				listener.newFile(file, true);
 			}
 		});
 		author.addActionListener(e -> {
 			if (getSelectedNode() != null) {
-				NoteInfo note = (NoteInfo) getSelectedNode();
+				Note note = (Note) getSelectedNode();
 				
 				var input = JOptionPane.showInputDialog(parentFrame, "Назначить автора", note.getName(), JOptionPane.PLAIN_MESSAGE);
 				
 				if (input != null && !input.isEmpty()) {
-					for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
+					for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
 						listener.author(note.getId(), input);
 					}
 				}
@@ -113,37 +105,21 @@ public class FolderTool extends AbstractTool {
 		});
 		rename.addActionListener(e -> {
 			if (getSelectedNode() != null) {
-				String name;
+				SFile file = (SFile) getSelectedNode();
 				
-				if (getSelectedNode() instanceof NoteInfo note) {
-					name = note.getName();
-				} else {
-					name = ((Folder) getSelectedNode()).getName();
-				}
-				
-				var input = JOptionPane.showInputDialog(parentFrame, "Переименовать", name, JOptionPane.PLAIN_MESSAGE);
+				var input = JOptionPane.showInputDialog(parentFrame, "Переименовать", file.getName(), JOptionPane.PLAIN_MESSAGE);
 				
 				if (input != null && !input.isEmpty()) {
-					for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-						if (getSelectedNode() instanceof NoteInfo note) {
-							listener.renameNote(note.getId(), input);
-						} else {
-							var folder = (Folder) getSelectedNode();
-							
-							listener.renameFolder(folder.getPath(), input);
-						}
+					for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
+						listener.renameFile(file.getId(), input);
 					}
 				}
 			}
 		});
 		delete.addActionListener(e -> {
 			if (getSelectedNode() != null) {
-				for (FolderListener listener : listeners.getListeners(FolderListener.class)) {
-					if (getSelectedNode() instanceof NoteInfo note) {
-						listener.deleteNote(note.getId());
-					} else {
-						listener.deleteFolder(((Folder) getSelectedNode()).getPath());
-					}
+				for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
+					listener.deleteFile(((SFile) getSelectedNode()).getId());
 				}
 			}
 		});
@@ -152,7 +128,7 @@ public class FolderTool extends AbstractTool {
 		separator2 = new JSeparator();
 		
 		popupMenu.add(newFile);
-		popupMenu.add(newFolder);
+		popupMenu.add(newDirectory);
 		popupMenu.add(separator1);
 		popupMenu.add(openFile);
 		popupMenu.add(separator2);
@@ -161,7 +137,7 @@ public class FolderTool extends AbstractTool {
 		popupMenu.add(delete);
 		
 		registerAccelerator(newFile, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
-		registerAccelerator(newFolder, KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+		registerAccelerator(newDirectory, KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
 		
 		registerAccelerator(openFile, KeyStroke.getKeyStroke("ENTER"));
 		
@@ -235,14 +211,14 @@ public class FolderTool extends AbstractTool {
 	private void updateMenuContext() {
 		var context = PopupMenuContext.Empty;
 		
-		if (getSelectedNode() instanceof NoteInfo) {
+		if (getSelectedNode() instanceof Note) {
 			context = PopupMenuContext.Note;
 		} else if (getSelectedNode() instanceof Folder) {
-			context = PopupMenuContext.Folder;
+			context = PopupMenuContext.Directory;
 		}
 		
 		newFile.setVisible(false);
-		newFolder.setVisible(false);
+		newDirectory.setVisible(false);
 		separator1.setVisible(false);
 		openFile.setVisible(false);
 		separator2.setVisible(false);
@@ -252,14 +228,14 @@ public class FolderTool extends AbstractTool {
 		
 		if (ApplicationUtil.hasRole(clientPerson, Role.MEMBER)) {
 			newFile.setVisible(true);
-			newFolder.setVisible(true);
+			newDirectory.setVisible(true);
 		}
 		
 		switch (context) {
 			case PopupMenuContext.Note -> {
 				openFile.setVisible(true);
 				
-				if (ApplicationUtil.accessNote(clientPerson, (NoteInfo) Objects.requireNonNull(getSelectedNode()))) {
+				if (ApplicationUtil.accessNote(clientPerson, (Note) Objects.requireNonNull(getSelectedNode()))) {
 					separator1.setVisible(true);
 					
 					rename.setVisible(true);
@@ -270,7 +246,7 @@ public class FolderTool extends AbstractTool {
 				if (ApplicationUtil.hasRole(clientPerson, Role.MODERATOR))
 					author.setVisible(true);
 			}
-			case PopupMenuContext.Folder -> {
+			case PopupMenuContext.Directory -> {
 				if (ApplicationUtil.hasRole(clientPerson, Role.MEMBER)) {
 					rename.setVisible(true);
 					delete.setVisible(true);
@@ -282,12 +258,12 @@ public class FolderTool extends AbstractTool {
 		}
 	}
 	
-	public void addFolderListener(FolderListener folderListener) {
-		listeners.add(FolderListener.class, folderListener);
+	public void addFolderListener(FilesListener filesListener) {
+		listeners.add(FilesListener.class, filesListener);
 	}
 	
-	public void removeFolderListener(FolderListener folderListener) {
-		listeners.remove(FolderListener.class, folderListener);
+	public void removeFolderListener(FilesListener filesListener) {
+		listeners.remove(FilesListener.class, filesListener);
 	}
 	
 	public String getExpansionState() {
@@ -315,7 +291,7 @@ public class FolderTool extends AbstractTool {
 		}
 	}
 	
-	public void setModel(List<NoteInfo> notes, List<Folder> folders, Person clientPerson) {
+	public void setModel(List<Note> notes, List<Folder> folders, Person clientPerson) {
 		this.clientPerson = clientPerson;
 		
 		var rootNode = new DefaultMutableTreeNode(new Folder());

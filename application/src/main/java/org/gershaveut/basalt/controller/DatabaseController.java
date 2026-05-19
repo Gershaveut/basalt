@@ -11,18 +11,18 @@ import org.gershaveut.basalt.model.database.Database;
 import org.gershaveut.basalt.model.database.DatabaseListener;
 import org.gershaveut.basalt.model.graph.Graph;
 import org.gershaveut.basalt.model.graph.Node;
-import org.gershaveut.basalt.model.note.NoteInfo;
-import org.gershaveut.basalt.model.note.NoteNode;
+import org.gershaveut.basalt.model.file.Note;
+import org.gershaveut.basalt.model.file.NoteNode;
 import org.gershaveut.basalt.view.ApplicationFrame;
 import org.gershaveut.basalt.view.menubar.MenuBar;
 import org.gershaveut.basalt.view.menubar.MenuBarListener;
 import org.gershaveut.basalt.view.start.StartFrame;
 import org.gershaveut.basalt.view.tool.AbstractTool;
-import org.gershaveut.basalt.view.tool.folder.FolderListener;
-import org.gershaveut.basalt.view.tool.folder.FolderTool;
+import org.gershaveut.basalt.view.tool.folder.FilesListener;
+import org.gershaveut.basalt.view.tool.folder.FilesTool;
 import org.gershaveut.basalt.view.tool.graph.GraphTool;
 import org.gershaveut.basalt.view.tool.note.NoteListener;
-import org.gershaveut.basalt.view.tool.note.NoteTool;
+import org.gershaveut.basalt.view.tool.note.FileTool;
 import org.gershaveut.basalt.view.tool.person.PersonProfileTool;
 import org.gershaveut.basalt.view.tool.person.PersonsListener;
 import org.gershaveut.basalt.view.tool.person.PersonsTool;
@@ -48,7 +48,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.function.Function;
 
-public class DatabaseController implements DatabaseListener, FolderListener, PersonsListener {
+public class DatabaseController implements DatabaseListener, FilesListener, PersonsListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseController.class);
 	
     public final Database database;
@@ -56,7 +56,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
 	private final StartFrame startFrame;
     private final ApplicationFrame applicationFrame;
     private final GraphTool graphTool;
-    private final FolderTool folderTool;
+    private final FilesTool filesTool;
     private final PersonsTool personsTool;
     private final StartController startController;
     private final MenuBar menuBar;
@@ -68,11 +68,11 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     
     private final FileNameExtensionFilter zipFilter = new FileNameExtensionFilter("Базальт проект (.zip)", "zip");
     
-    public DatabaseController(ApplicationFrame applicationFrame, GraphTool graphTool, FolderTool folderTool, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController, PersonsTool personsTool) {
+    public DatabaseController(ApplicationFrame applicationFrame, GraphTool graphTool, FilesTool filesTool, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController, PersonsTool personsTool) {
         this.startFrame = startFrame;
         this.applicationFrame = applicationFrame;
         this.graphTool = graphTool;
-        this.folderTool = folderTool;
+        this.filesTool = filesTool;
         this.personsTool = personsTool;
         this.tabDock = tabDock;
 		this.dock = dock;
@@ -82,7 +82,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
 		
         this.applicationFrameTitle = applicationFrame.getTitle();
 		
-        folderTool.addFolderListener(this);
+        filesTool.addFolderListener(this);
         personsTool.addPersonsListener(this);
 
         graphTool.graphCanvas.addMouseListener(new MouseAdapter() {
@@ -132,7 +132,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
                 dockables.forEach(dockable -> {
                     if (dockable instanceof AbstractTool abstractTool) {
                         var toolDockable = abstractTool.getDockable();
-                        if (toolDockable instanceof NoteTool editor) {
+                        if (toolDockable instanceof FileTool editor) {
                             editor.save();
                         }
                     }
@@ -218,14 +218,14 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     @Override
     public synchronized void sync() {
         database.getNotes().subscribe(notes -> {
-            var notesInfo = notes.stream().map(n -> new NoteInfo(n, database)).toList();
+            var notesInfo = notes.stream().map(n -> new Note(n, database)).toList();
             var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
           
             database.getClientPerson().subscribe(clientPerson -> {
                 applicationFrame.setTitle(applicationFrameTitle + " - " + clientPerson.getRole());
                 
                 database.getFolders().subscribe(folders -> {
-                    folderTool.setModel(notesInfo, folders, clientPerson);
+                    filesTool.setModel(notesInfo, folders, clientPerson);
                 });
                 database.getPersons().subscribe(persons -> {
                    personsTool.setModel(persons, clientPerson);
@@ -244,12 +244,12 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     }
     
     private void openSelectedNote() {
-        TreePath treeNode = folderTool.getTree().getSelectionPath();
+        TreePath treeNode = filesTool.getTree().getSelectionPath();
 
         if (treeNode != null) {
             var selected = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
 
-            if (selected instanceof NoteInfo note)
+            if (selected instanceof Note note)
                 openNote(note.getId());
         }
     }
@@ -258,7 +258,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
         database.getNote(id).subscribe(note -> {
             database.getClientPerson().subscribe(clientPerson -> {
                 database.getNoteText(note.getId()).subscribe(text -> {
-                    var noteTool = new NoteTool(note, text, applicationFrame, clientPerson);
+                    var noteTool = new FileTool(note, text, applicationFrame, clientPerson);
 
                     noteTool.addNoteListener(new NoteListener() {
                         @Override
@@ -388,7 +388,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     }
     
     @Override
-    public void renameNote(long id, String newName) {
+    public void renameFile(long id, String newName) {
         database.renameNote(id, newName, httpStatusCode -> {
             if (httpStatusCode == HttpStatus.CONFLICT) {
                 showErrorDialog("Имя записки уже занято!");
@@ -451,7 +451,7 @@ public class DatabaseController implements DatabaseListener, FolderListener, Per
     }
     
     @Override
-    public void deleteNote(long id) {
+    public void deleteFile(long id) {
         ApplicationUtil.foreachNonList(tabDock::getDockableCount, tabDock::getDockable, (dockable) -> {
             if (dockable.getID().contains(String.valueOf(id)))
                 tabDock.removeDockable(dockable);

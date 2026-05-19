@@ -8,7 +8,7 @@ import java.util.List;
 public interface Node {
     String getName();
     @Nullable String getAuthor();
-    List<Long> getLinks();
+    List<String> getLinks();
     
     long getId();
 

@@ -1,76 +1,63 @@
-package org.gershaveut.basalt_server.model;
+package org.gershaveut.basalt.model.file;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import org.apache.commons.io.FilenameUtils;
-import org.gershaveut.basalt_server.SpringApplication;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.SFileHelper;
 import org.jspecify.annotations.Nullable;
 
-import java.io.File;
-
-@Entity
 public class SFile {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    
-    private @NotNull String name;
-    private @NotNull String path;
+
+    private String name;
+    private String path;
     private @Nullable String metadata;
 
     private boolean isDirectory;
-    
-    @ManyToOne
-    private @NotNull Person person;
 
+    private Person person; 
+    
     protected SFile() {
         path = "";
+        name = "Null";
+        person = null;
     }
-    
+
     public SFile(String name, String path, Person person) {
         this.name = name;
         this.path = path;
         this.person = person;
     }
-    
+
     public SFile(String name, Person person) {
         this(name, "", person);
     }
-    
+
     public static SFile mkdir(String name, String path, Person person) {
-        var dir = new SFile(name, path, person);
+        var dir = new org.gershaveut.basalt_server.model.SFile(name, path, person);
         dir.isDirectory = true;
-        
+
         return dir;
     }
 
     public static SFile mkdir(String name, Person person) {
         return mkdir(name, "", person);
     }
-   
-    @JsonIgnore
+    
     public @Nullable String getParent() {
         return SFileHelper.getParent(path);
     }
-   
-    @JsonIgnore
+
     public String getBaseName() {
         return SFileHelper.getBaseName(name);
     }
-    
-    @JsonIgnore
+
     public String getExtension() {
         return SFileHelper.getExtension(name);
     }
-    
-    @JsonIgnore
+
     public String getAbsolutePath() {
         return SFileHelper.getAbsolutePath(path, name);
     }
-    
+
     public long getId() {
         return id;
     }
@@ -113,9 +100,5 @@ public class SFile {
 
     public void setPerson(Person person) {
         this.person = person;
-    }
-    
-    public File toFile() {
-        return new File(FilenameUtils.getFullPath(SpringApplication.storagePath) + getAbsolutePath());
     }
 }

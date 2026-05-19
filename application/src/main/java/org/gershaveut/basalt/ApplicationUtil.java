@@ -1,7 +1,6 @@
 package org.gershaveut.basalt;
 
-import org.gershaveut.basalt.model.note.NoteInfo;
-import org.gershaveut.basalt_server.model.Note;
+import org.gershaveut.basalt.model.file.SFile;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
 import org.apache.commons.text.WordUtils;
@@ -61,19 +60,15 @@ public final class ApplicationUtil {
         return hasAccess(person.getRole(), role);
     }
     
-    public static boolean accessNote(@Nullable Person person, long noteAuthor) {
+    public static boolean accessFile(@Nullable Person person, long author) {
         if (person == null)
             return false;
         
-        return hasRole(person, Role.MEMBER) && person.getId() == noteAuthor || hasRole(person, Role.MODERATOR);
+        return hasRole(person, Role.MEMBER) && person.getId() == author || hasRole(person, Role.MODERATOR);
     }
     
-    public static boolean accessNote(@Nullable Person person, Note note) {
-        return accessNote(person, note.getPerson());
-    }
-    
-    public static boolean accessNote(@Nullable Person person, NoteInfo note) {
-        return accessNote(person, note.getPerson());
+    public static boolean accessFile(@Nullable Person person, SFile file) {
+        return accessFile(person, file.getPerson().getId());
     }
     
     public static boolean anyComponentsVisible(JComponent component) {
