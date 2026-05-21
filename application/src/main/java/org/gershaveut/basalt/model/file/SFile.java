@@ -5,7 +5,7 @@ import org.gershaveut.basalt_share.model.SFileHelper;
 import org.jspecify.annotations.Nullable;
 
 public class SFile {
-    private long id;
+    protected long id;
 
     private String name;
     private String path;
@@ -32,7 +32,7 @@ public class SFile {
     }
 
     public static SFile mkdir(String name, String path, Person person) {
-        var dir = new org.gershaveut.basalt_server.model.SFile(name, path, person);
+        var dir = new SFile(name, path, person);
         dir.isDirectory = true;
 
         return dir;
@@ -100,5 +100,10 @@ public class SFile {
 
     public void setPerson(Person person) {
         this.person = person;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

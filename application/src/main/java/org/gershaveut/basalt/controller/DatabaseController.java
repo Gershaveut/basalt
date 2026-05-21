@@ -9,10 +9,10 @@ import com.javadocking.dockable.Dockable;
 import org.gershaveut.basalt.ApplicationUtil;
 import org.gershaveut.basalt.model.database.Database;
 import org.gershaveut.basalt.model.database.DatabaseListener;
+import org.gershaveut.basalt.model.file.SFile;
 import org.gershaveut.basalt.model.graph.Graph;
 import org.gershaveut.basalt.model.graph.Node;
 import org.gershaveut.basalt.model.file.Note;
-import org.gershaveut.basalt.model.file.NoteNode;
 import org.gershaveut.basalt.view.ApplicationFrame;
 import org.gershaveut.basalt.view.menubar.MenuBar;
 import org.gershaveut.basalt.view.menubar.MenuBarListener;
@@ -26,8 +26,6 @@ import org.gershaveut.basalt.view.tool.note.FileTool;
 import org.gershaveut.basalt.view.tool.person.PersonProfileTool;
 import org.gershaveut.basalt.view.tool.person.PersonsListener;
 import org.gershaveut.basalt.view.tool.person.PersonsTool;
-import org.gershaveut.basalt_share.model.Folder;
-import org.gershaveut.basalt_server.model.Note;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
 import org.jspecify.annotations.Nullable;
@@ -67,7 +65,8 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
     private final String applicationFrameTitle;
     
     private final FileNameExtensionFilter zipFilter = new FileNameExtensionFilter("Базальт проект (.zip)", "zip");
-    
+    private @Nullable Person clientPerson;
+
     public DatabaseController(ApplicationFrame applicationFrame, GraphTool graphTool, FilesTool filesTool, TabDock tabDock, CompositeDock dock, Database database, MenuBar menuBar, StartFrame startFrame, StartController startController, PersonsTool personsTool) {
         this.startFrame = startFrame;
         this.applicationFrame = applicationFrame;
@@ -92,7 +91,7 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
 
                 if (focusNode == null) return;
 
-                openNote((focusNode.getId()));
+                openFile(focusNode.getId());
             }
         });
 
@@ -217,20 +216,19 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
     
     @Override
     public synchronized void sync() {
-        database.getNotes().subscribe(notes -> {
-            var notesInfo = notes.stream().map(n -> new Note(n, database)).toList();
-            var notesNode = notes.stream().map(n -> new NoteNode(n, database)).toList();
+        database.getFiles().subscribe(files -> {
+            var notes = files.stream().filter(file -> file.getExtension().equals(".md")).map(Note::new).toList();
           
             database.getClientPerson().subscribe(clientPerson -> {
+                this.clientPerson = clientPerson;
+                
                 applicationFrame.setTitle(applicationFrameTitle + " - " + clientPerson.getRole());
                 
-                database.getFolders().subscribe(folders -> {
-                    filesTool.setModel(notesInfo, folders, clientPerson);
-                });
+                filesTool.setModel(files, clientPerson);
                 database.getPersons().subscribe(persons -> {
                    personsTool.setModel(persons, clientPerson);
                 });
-                graphTool.graphCanvas.setGraph(new Graph(new ArrayList<>(notesNode)));
+                graphTool.graphCanvas.setGraph(new Graph(new ArrayList<>(notes)));
                 
                 menuBar.updateAccess(clientPerson);
             });
@@ -250,20 +248,25 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
             var selected = ((DefaultMutableTreeNode) treeNode.getLastPathComponent()).getUserObject();
 
             if (selected instanceof Note note)
-                openNote(note.getId());
+                openFile(note.getId());
         }
     }
-
-    private void openNote(long id) {
-        database.getNote(id).subscribe(note -> {
+    
+    private void showErrorDialog(String message) {
+        ApplicationUtil.showErrorDialog(applicationFrame, message);
+    }
+    
+    @Override
+    public void openFile(long id) {
+        database.getFile(id).subscribe(file -> {
             database.getClientPerson().subscribe(clientPerson -> {
-                database.getNoteText(note.getId()).subscribe(text -> {
-                    var noteTool = new FileTool(note, text, applicationFrame, clientPerson);
+                database.readFile(file.getId()).subscribe(resource -> {
+                    var fileTool = new FileTool(file, resource, applicationFrame, clientPerson);
 
-                    noteTool.addNoteListener(new NoteListener() {
+                    fileTool.addNoteListener(new NoteListener() {
                         @Override
                         public void onSave(String text) {
-                            database.editNote(note.getId(), text);
+                            database.writeFile(file.getId(), text.getBytes());
                         }
 
                         @Override
@@ -273,8 +276,8 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
 
                         @Override
                         public void openComments(long page) {
-                            database.getComments(note.getId(), page).subscribe(commentPagedModel -> {
-                                noteTool.setComments(commentPagedModel, page, longConsumerPair -> {
+                            database.getComments(file.getId(), page).subscribe(commentPagedModel -> {
+                                fileTool.setComments(commentPagedModel, page, longConsumerPair -> {
                                     database.getPerson(longConsumerPair.getFirst()).subscribe(person -> {
                                         longConsumerPair.getSecond().accept(person);
                                     });
@@ -284,7 +287,7 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
 
                         @Override
                         public void addComment(String text, long totalPages) {
-                            database.addComment(note.getId(), text, _ -> false, _ -> {
+                            database.addComment(file.getId(), text, _ -> false, _ -> {
                                 openComments(totalPages - 1);
 
                                 return true;
@@ -293,7 +296,7 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
 
                         @Override
                         public void editComment(long commentId, String text, long currentPage) {
-                            database.editComment(note.getId(), commentId, text, _ -> false, _ -> {
+                            database.editComment(file.getId(), commentId, text, _ -> false, _ -> {
                                 openComments(currentPage);
 
                                 return true;
@@ -302,59 +305,41 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
 
                         @Override
                         public void deleteComment(long commentId, long currentPage) {
-                            database.deleteComment(note.getId(), commentId, _ -> false, _ -> {
+                            database.deleteComment(file.getId(), commentId, _ -> false, _ -> {
                                 openComments(0); //TODO: оставлять на текущей странице
-                                
+
                                 return true;
                             });
                         }
                     });
 
-                    openDock(noteTool.getDockable());
+                    openDock(fileTool.getDockable());
                 });
             });
         });
     }
-    
-    private void showErrorDialog(String message) {
-        ApplicationUtil.showErrorDialog(applicationFrame, message);
-    }
-    
-    @Override
-    public void openFile(long id) {
-        openNote(id);
-    }
 
     @Override
-    public void newFile(@Nullable Folder parent) {
-        String path = null;
+    public void newFile(@Nullable SFile parent, boolean isDirectory) {
+        String path = "";
         
         if (parent != null)
             path = parent.getPath();
-            
-        database.addNote(new Note("Новая записка", path));
+        
+        var name = "Новый файл";
+        
+        if (isDirectory)
+            name = "Новая папка";
+
+        assert clientPerson != null;
+        database.addFile(new SFile(name, path, clientPerson));
     }
 
-    @Override
-    public void newFolder(@Nullable Folder parent) {
-        var newFolder = new Folder("Новая папка", parent);
-
-        database.addFolder(newFolder);
-    }
-    
     @Override
     public void moveFile(long id, String path) {
-       database.moveNote(id, path);
-    }
-    
-    @Override
-    public void moveFolder(String id, String path) {
-        if (id.equals(path))
-            return;
-        
-        database.moveFolder(id, path, httpStatusCode -> {
+        database.moveFile(id, path, httpStatusCode -> {
             if (httpStatusCode == HttpStatus.CONFLICT) {
-                showErrorDialog("Неправильное место размещения папки!");
+                showErrorDialog("Неправильное место размещения файла!");
                 return true;
             }
             
@@ -375,7 +360,7 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
         };
         
         try {
-            database.authorNote(id, Long.parseLong(author), onError);
+            database.authorFile(id, Long.parseLong(author), onError);
         } catch (Exception ignored) {
             var person = database.getPerson(author).block();
             long peronId = -1;
@@ -383,15 +368,15 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
             if (person != null)
                 peronId = person.getId();
                 
-            database.authorNote(id, peronId, onError);
+            database.authorFile(id, peronId, onError);
         }
     }
     
     @Override
     public void renameFile(long id, String newName) {
-        database.renameNote(id, newName, httpStatusCode -> {
+        database.renameFile(id, newName, httpStatusCode -> {
             if (httpStatusCode == HttpStatus.CONFLICT) {
-                showErrorDialog("Имя записки уже занято!");
+                showErrorDialog("Имя файла уже занято!");
                 return true;
             }
             
@@ -399,18 +384,6 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
 		});
     }
    
-    @Override
-    public void renameFolder(String path, String newName) {
-        database.renameFolder(path, newName, httpStatusCode -> {
-            if (httpStatusCode == HttpStatus.CONFLICT) {
-                showErrorDialog("Имя папки уже занято!");
-                return true;
-            }
-            
-            return false;
-        });
-    }
-    
     @Override
     public void createPerson(Person person) {
         database.addPerson(person, httpStatusCode -> {
@@ -457,11 +430,6 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
                 tabDock.removeDockable(dockable);
         });
         
-        database.deleteNote(id);
-    }
-
-    @Override
-    public void deleteFolder(String path) {
-        database.deleteFolder(path);
+        database.deleteFile(id);
     }
 }

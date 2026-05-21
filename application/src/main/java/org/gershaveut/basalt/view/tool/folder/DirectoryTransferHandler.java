@@ -1,7 +1,6 @@
 package org.gershaveut.basalt.view.tool.folder;
 
-import org.gershaveut.basalt.model.file.Note;
-import org.jspecify.annotations.Nullable;
+import org.gershaveut.basalt.model.file.SFile;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -15,19 +14,19 @@ import java.util.Objects;
 
 public class DirectoryTransferHandler extends TransferHandler {
     private final DataFlavor flavor = new DataFlavor(TransferableFile.class, "Tree Node");
-	private final EventListenerList listeners;
-	
-	public DirectoryTransferHandler(EventListenerList listeners) {
-		this.listeners = listeners;
-	}
-    
+    private final EventListenerList listeners;
+
+    public DirectoryTransferHandler(EventListenerList listeners) {
+        this.listeners = listeners;
+    }
+
     @Override
     protected Transferable createTransferable(JComponent c) {
         JTree tree = (JTree) c;
-        
+
         TreePath path = Objects.requireNonNull(tree.getSelectionPath());
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-        
+
         return new TransferableFile(node);
     }
 
@@ -38,45 +37,32 @@ public class DirectoryTransferHandler extends TransferHandler {
 
     @Override
     public boolean canImport(TransferSupport support) {
-        return support.isDataFlavorSupported(flavor) && ((DefaultMutableTreeNode)((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject() instanceof Folder;
-	}
+        return support.isDataFlavorSupported(flavor) && ((DefaultMutableTreeNode) ((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject() instanceof SFile;
+    }
 
     @Override
     public boolean importData(TransferSupport support) {
         if (!canImport(support)) return false;
-        
+
         try {
-            var file = ((TransferableFile)support.getTransferable().getTransferData(flavor)).getFile();
-            var targetFolder = (Folder) ((DefaultMutableTreeNode)((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject();
-          
-            if (file instanceof Note note) {
-               for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
-                    listener.moveFile(note.getId(), targetFolder.getPath());
-               }
-            } else {
-               for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
-                   listener.moveFolder(((Folder) file).getPath(), targetFolder.getPath());
-               }
+            var file = (SFile) ((TransferableFile) support.getTransferable().getTransferData(flavor)).getFile();
+            var targetDirectory = (SFile) ((DefaultMutableTreeNode) ((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject();
+         
+            for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
+                listener.moveFile(file.getId(), targetDirectory.getPath());
             }
-            
+
             return true;
         } catch (UnsupportedFlavorException | IOException ignored) {
-			return false;
-		}
-	}
+            return false;
+        }
+    }
 
     private class TransferableFile implements Transferable {
-        private @Nullable Folder folder = null;
-        private @Nullable Note note = null;
+        private final SFile file;
 
         public TransferableFile(DefaultMutableTreeNode node) {
-            var nodeContent = node.getUserObject();
-            
-            if (nodeContent instanceof Note noteNode) {
-                this.note = noteNode;
-            } else {
-                this.folder = (Folder) nodeContent;
-            }
+            this.file = (SFile) node.getUserObject();
         }
 
         @Override
@@ -91,16 +77,11 @@ public class DirectoryTransferHandler extends TransferHandler {
 
         @Override
         public Object getTransferData(DataFlavor f) {
-           return this;
+            return this;
         }
-        
+
         public Object getFile() {
-            if (folder != null) {
-                return folder;
-            } else {
-                assert note != null;
-                return note;
-            }
+            return file;
         }
     }
 }

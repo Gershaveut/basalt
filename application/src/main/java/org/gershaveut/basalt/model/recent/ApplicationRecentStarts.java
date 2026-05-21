@@ -33,7 +33,7 @@ public class ApplicationRecentStarts {
 		var created = new File(FILE_NAME).createNewFile();
 		
 		if (!created) {
-			var json = ApplicationUtil.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), RecentStart[].class);
+			var json = Util.getMapper().readValue(Files.readString(Path.of(FILE_NAME)), RecentStart[].class);
 			
 			if (json != null) {
 				recentStarts = new ArrayList<>(Arrays.stream(json).toList());
@@ -43,7 +43,7 @@ public class ApplicationRecentStarts {
 	
 	private void saveRecents() throws Exception {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME));
-		writer.write(ApplicationUtil.getMapper().writeValueAsString(recentStarts));
+		writer.write(Util.getMapper().writeValueAsString(recentStarts));
 		
 		writer.close();
 	}

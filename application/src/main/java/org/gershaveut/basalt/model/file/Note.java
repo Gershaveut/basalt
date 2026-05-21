@@ -10,15 +10,17 @@ import java.util.List;
 public class Note extends SFile implements Node {
     private final Body body = new Body();
 
+    public Note(SFile file) {
+        super(file.getName(), file.getPath(), file.getPerson());
+       
+        id = file.id;
+        setMetadata(file.getMetadata());
+    }
+    
     public List<String> getLinks() {
         return List.of(Util.getMapper().readValue(getMetadata(), String[].class));
     }
 
-    @Override
-    public String toString() {
-        return getName();
-    }
-    
     @Override
     public @Nullable String getAuthor() {
         return getPerson().getUsername();

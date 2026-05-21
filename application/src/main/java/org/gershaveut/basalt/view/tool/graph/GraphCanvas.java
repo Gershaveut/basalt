@@ -260,7 +260,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
         var nodes = graph.getNodes();
         var spawnedNodes = new ArrayList<Node>();
         
-        var toLinkList = new ArrayList<Pair<Long, Long>>();
+        var toLinkList = new ArrayList<Pair<String, String>>();
         
         nodes.forEach(node -> {
 			var body = node.getBody();
@@ -268,19 +268,19 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
 			var links = new ArrayList<>(node.getLinks());
 			
 			if (!links.isEmpty()) {
-				Node link = spawnedNodes.stream().filter(node1 -> node1.getId() == links.getFirst()).findFirst().orElse(null);
+				Node link = spawnedNodes.stream().filter(node1 -> String.valueOf(node1.getId()).equals(links.getFirst())).findFirst().orElse(null);
 				
 				if (link != null) {
                     linkTo(body, link);
                 } else {
-					toLinkList.add(Pair.of(node.getId(), links.getFirst()));
+					toLinkList.add(Pair.of(String.valueOf(node.getId()), links.getFirst()));
                     
                     tryLink(node, toLinkList, body, spawnedNodes);
 				}
 				
 				links.removeFirst();
 				
-				toLinkList.addAll(links.stream().map(link1 -> Pair.of(node.getId(), link1)).toList());
+				toLinkList.addAll(links.stream().map(link1 -> Pair.of(String.valueOf(node.getId()), link1)).toList());
 			} else {
                 tryLink(node, toLinkList, body, spawnedNodes);
             }
@@ -301,7 +301,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
             
             node.getLinks().forEach(id -> {
                 try {
-                    var linkBody = nodes.stream().filter(node1 -> node1.getId() == id).findFirst().orElseThrow().getBody();
+                    var linkBody = nodes.stream().filter(node1 -> String.valueOf(node1.getId()).equals(id)).findFirst().orElseThrow().getBody();
                     
                     DistanceJoint<Body> joint = new DistanceJoint<>(body, linkBody, body.getTransform().getTranslation(), linkBody.getTransform().getTranslation());
                     joint.setRestDistance(REST_DISTANCE);
@@ -318,13 +318,13 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
         world.update(50);
     }
     
-    private void tryLink(Node node, ArrayList<Pair<Long, Long>> toLinkList, Body body, ArrayList<Node> spawnedNodes) {
-        var toLink = toLinkList.stream().filter(pair -> pair.getSecond() == node.getId()).findFirst().orElse(null);
+    private void tryLink(Node node, ArrayList<Pair<String, String>> toLinkList, Body body, ArrayList<Node> spawnedNodes) { // TODO: проверка по имени
+        var toLink = toLinkList.stream().filter(pair -> pair.getSecond().equals(String.valueOf(node.getId()))).findFirst().orElse(null);
         
         if (toLink != null) {
             var toLinkId = toLink.getFirst();
             
-            linkTo(body, spawnedNodes.stream().filter(node1 -> node1.getId() == toLinkId).findFirst().orElseThrow());
+            linkTo(body, spawnedNodes.stream().filter(node1 -> String.valueOf(node1.getId()).equals(toLinkId)).findFirst().orElseThrow());
         } else {
            body.translate(random.nextInt(spawnZone * 2) - spawnZone, random.nextInt(spawnZone * 2) - spawnZone);
         }
@@ -371,7 +371,7 @@ public class GraphCanvas extends JComponent implements ComponentListener, MouseL
            
             node.getLinks().forEach(id -> {
                 try {
-                    var link = graph.getNodes().stream().filter(node1 -> node1.getId() == id).findFirst().orElseThrow();
+                    var link = graph.getNodes().stream().filter(node1 -> String.valueOf(node1.getId()).equals(id)).findFirst().orElseThrow();
                     
                     var linkX = (int) link.getBody().getWorldCenter().x;
                     var linkY = (int) link.getBody().getWorldCenter().y;

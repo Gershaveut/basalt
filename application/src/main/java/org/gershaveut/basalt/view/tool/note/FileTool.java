@@ -14,6 +14,7 @@ import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.gershaveut.basalt_share.model.Role;
+import org.springframework.core.io.Resource;
 import org.springframework.data.util.Pair;
 import org.springframework.data.web.PagedModel;
 
@@ -21,7 +22,8 @@ import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.function.Consumer;
@@ -57,7 +59,7 @@ public class FileTool extends AbstractTool implements DebugModeListener {
 
     private boolean saved;
 
-    public FileTool(SFile file, String text, ApplicationFrame applicationFrame, Person clientPerson) {
+    public FileTool(SFile file, Resource resource, ApplicationFrame applicationFrame, Person clientPerson) {
         this.setLayout(new BorderLayout());
 
         this.setPreferredSize(ApplicationUtil.BOX_WINDOW_DIMENSION_TOOL);
@@ -75,7 +77,12 @@ public class FileTool extends AbstractTool implements DebugModeListener {
         var bothPanel = new JPanel(new GridLayout(1, 2, 10, 0));
         var commentsPanel = new JPanel(new BorderLayout());
 
-        this.inputArea = new JTextArea(text);
+        try {
+            this.inputArea = new JTextArea(resource.getContentAsString(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
         this.previewPane = new JEditorPane();
         
         var buttonGroup = new ButtonGroup();
