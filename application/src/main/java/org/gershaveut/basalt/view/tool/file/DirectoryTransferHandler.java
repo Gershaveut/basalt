@@ -1,4 +1,4 @@
-package org.gershaveut.basalt.view.tool.folder;
+package org.gershaveut.basalt.view.tool.file;
 
 import org.gershaveut.basalt.model.file.SFile;
 
@@ -37,7 +37,10 @@ public class DirectoryTransferHandler extends TransferHandler {
 
     @Override
     public boolean canImport(TransferSupport support) {
-        return support.isDataFlavorSupported(flavor) && ((DefaultMutableTreeNode) ((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject() instanceof SFile;
+        if (((DefaultMutableTreeNode) ((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject() instanceof SFile file)
+            return support.isDataFlavorSupported(flavor) && file.isDirectory();
+        
+        return false;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class DirectoryTransferHandler extends TransferHandler {
             var targetDirectory = (SFile) ((DefaultMutableTreeNode) ((JTree.DropLocation) support.getDropLocation()).getPath().getLastPathComponent()).getUserObject();
          
             for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
-                listener.moveFile(file.getId(), targetDirectory.getPath());
+                listener.moveFile(file.getId(), targetDirectory.getId());
             }
 
             return true;

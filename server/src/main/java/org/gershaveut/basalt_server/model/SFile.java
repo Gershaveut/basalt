@@ -114,8 +114,13 @@ public class SFile {
     public void setPerson(Person person) {
         this.person = person;
     }
+  
+    @JsonIgnore
+    public String getFilePath() {
+        return FilenameUtils.getFullPath(SpringApplication.storagePath);
+    }
     
     public File toFile() {
-        return new File(FilenameUtils.getFullPath(SpringApplication.storagePath) + getAbsolutePath());
+        return new File(getFilePath() + getAbsolutePath());
     }
 }

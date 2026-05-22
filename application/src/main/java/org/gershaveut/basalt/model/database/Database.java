@@ -1,10 +1,12 @@
 package org.gershaveut.basalt.model.database;
 
-import org.gershaveut.basalt.model.file.SFile;
-import org.gershaveut.basalt_share.Util;
-import org.gershaveut.basalt_share.model.*;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import org.gershaveut.basalt.model.file.SFile;
+import org.gershaveut.basalt_share.Util;
+import org.gershaveut.basalt_share.model.Comment;
+import org.gershaveut.basalt_share.model.Person;
+import org.gershaveut.basalt_share.model.Role;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -14,11 +16,9 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.reactive.function.client.*;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
@@ -55,11 +55,17 @@ public class Database implements WebSocketHandler {
 			ip = ip + ":" + DEFAULT_PORT;
 		
 		var httpClient = getHttpClient();
+
+		var size = (int) DataSize.ofGigabytes(1).toBytes();
+		var strategies = ExchangeStrategies.builder()
+				.codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
+				.build();
 		
 		this.webClient = WebClient.builder()
 				.baseUrl("https://" + ip)
 				.filter(ExchangeFilterFunctions.basicAuthentication(username, password))
 				.clientConnector(new ReactorClientHttpConnector(httpClient))
+				.exchangeStrategies(strategies)
 				.build();
 		
 		try {
@@ -181,7 +187,7 @@ public class Database implements WebSocketHandler {
 	
 	public Mono<Resource> readFile(long id) {
 		return webClient.get()
-				.uri(FILES + "/" + id + "/")
+				.uri(FILES + "/" + id + "/read")
 				.retrieve()
 				.bodyToMono(Resource.class);
 	}
@@ -291,7 +297,7 @@ public class Database implements WebSocketHandler {
 		var builder = new MultipartBodyBuilder();
 		builder.part("file", new ByteArrayResource(content));
 
-		webClient.post()
+		webClient.patch()
 				.uri(FILES + "/" + id + "/write")
 				.contentType(MediaType.APPLICATION_OCTET_STREAM)
 				.body(BodyInserters.fromMultipartData(builder.build()))
@@ -300,10 +306,10 @@ public class Database implements WebSocketHandler {
 				.subscribe();
 	}
 	
-	public void moveFile(long id, String path, Function<HttpStatusCode, Boolean> onError) {
+	public void moveFile(long id, long toId, Function<HttpStatusCode, Boolean> onError) {
 		webClient.patch()
 				.uri(FILES + "/" + id + "/move")
-				.bodyValue(path)
+				.bodyValue(toId)
 				.retrieve()
 				.onStatus(HttpStatusCode::isError, handleError(onError))
 				.toBodilessEntity()

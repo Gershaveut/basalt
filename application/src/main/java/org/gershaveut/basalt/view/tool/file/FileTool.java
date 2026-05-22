@@ -1,7 +1,10 @@
-package org.gershaveut.basalt.view.tool.note;
+package org.gershaveut.basalt.view.tool.file;
 
 import com.javadocking.dockable.DockingMode;
 import jakarta.annotation.Nullable;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.gershaveut.basalt.ApplicationUtil;
 import org.gershaveut.basalt.model.file.SFile;
 import org.gershaveut.basalt.view.ApplicationFrame;
@@ -10,9 +13,6 @@ import org.gershaveut.basalt.view.Icons;
 import org.gershaveut.basalt.view.tool.AbstractTool;
 import org.gershaveut.basalt_share.model.Comment;
 import org.gershaveut.basalt_share.model.Person;
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
 import org.gershaveut.basalt_share.model.Role;
 import org.springframework.core.io.Resource;
 import org.springframework.data.util.Pair;
@@ -188,7 +188,7 @@ public class FileTool extends AbstractTool implements DebugModeListener {
             if (commentText == null)
                 return;
 
-            for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
+            for (FileListener listener : listeners.getListeners(FileListener.class)) {
                 listener.addComment(commentText, pageMetadata.totalPages());
             }
         });
@@ -204,7 +204,7 @@ public class FileTool extends AbstractTool implements DebugModeListener {
         deleteComment = new JMenuItem("Удалить комментарий");
 
         openProfile.addActionListener(e -> {
-            for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
+            for (FileListener listener : listeners.getListeners(FileListener.class)) {
                 assert currentComment != null;
                 listener.openProfile(currentComment.getPerson().getId());
             }
@@ -216,14 +216,14 @@ public class FileTool extends AbstractTool implements DebugModeListener {
             if (commentText == null)
                 return;
 
-            for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
+            for (FileListener listener : listeners.getListeners(FileListener.class)) {
                 assert currentComment != null;
                 listener.editComment(currentComment.getId(), commentText, currentPage);
             }
         });
         
         deleteComment.addActionListener(e -> {
-            for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
+            for (FileListener listener : listeners.getListeners(FileListener.class)) {
                 assert currentComment != null;
                 listener.deleteComment(currentComment.getId(), currentPage);
             }
@@ -328,7 +328,7 @@ public class FileTool extends AbstractTool implements DebugModeListener {
     }
 
     private void openComments(long page) {
-        for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
+        for (FileListener listener : listeners.getListeners(FileListener.class)) {
             listener.openComments(page);
         }
     }
@@ -361,7 +361,7 @@ public class FileTool extends AbstractTool implements DebugModeListener {
 
     public void save() {
         if (!saved) {
-            for (NoteListener listener : listeners.getListeners(NoteListener.class)) {
+            for (FileListener listener : listeners.getListeners(FileListener.class)) {
                 listener.onSave(getText());
             }
 
@@ -373,12 +373,12 @@ public class FileTool extends AbstractTool implements DebugModeListener {
         return inputArea.getText();
     }
 
-    public void addNoteListener(NoteListener noteListener) {
-        listeners.add(NoteListener.class, noteListener);
+    public void addFileListener(FileListener fileListener) {
+        listeners.add(FileListener.class, fileListener);
     }
 
-    public void removeNoteListener(NoteListener noteListener) {
-        listeners.remove(NoteListener.class, noteListener);
+    public void removeFileListener(FileListener fileListener) {
+        listeners.remove(FileListener.class, fileListener);
     }
 
     @Override

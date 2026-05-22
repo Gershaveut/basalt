@@ -1,14 +1,14 @@
 package org.gershaveut.basalt.view.tool.graph;
 
-import org.gershaveut.basalt.ApplicationUtil;
-import org.gershaveut.basalt.model.graph.Graph;
-import org.gershaveut.basalt.model.graph.Node;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.joint.DistanceJoint;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.dyn4j.world.World;
+import org.gershaveut.basalt.ApplicationUtil;
+import org.gershaveut.basalt.model.graph.Graph;
+import org.gershaveut.basalt.model.graph.Node;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -4,16 +4,13 @@ import org.apache.commons.io.FileUtils;
 import org.gershaveut.basalt_server.model.SFile;
 import org.gershaveut.basalt_server.repository.FileRepository;
 import org.gershaveut.basalt_share.Util;
-import org.gershaveut.basalt_share.model.SFileHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.jndi.JndiLookupFailureException;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Service
@@ -74,7 +71,12 @@ public class FileService {
     }
     
     public void rename(SFile file, String newName) throws IOException {
-        FileUtils.moveFile(file.toFile(), new File(file.getPath() + SFileHelper.SEPARATOR + newName));
+        var destFile = new File(file.getFilePath() + newName);
+        
+        if (file.isDirectory())
+            FileUtils.moveDirectory(file.toFile(), destFile);
+        else
+            FileUtils.moveFile(file.toFile(), destFile);
     }
     
     public void move(SFile from, SFile to) throws IOException {

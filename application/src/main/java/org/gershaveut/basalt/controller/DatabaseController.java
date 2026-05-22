@@ -9,20 +9,20 @@ import com.javadocking.dockable.Dockable;
 import org.gershaveut.basalt.ApplicationUtil;
 import org.gershaveut.basalt.model.database.Database;
 import org.gershaveut.basalt.model.database.DatabaseListener;
+import org.gershaveut.basalt.model.file.Note;
 import org.gershaveut.basalt.model.file.SFile;
 import org.gershaveut.basalt.model.graph.Graph;
 import org.gershaveut.basalt.model.graph.Node;
-import org.gershaveut.basalt.model.file.Note;
 import org.gershaveut.basalt.view.ApplicationFrame;
 import org.gershaveut.basalt.view.menubar.MenuBar;
 import org.gershaveut.basalt.view.menubar.MenuBarListener;
 import org.gershaveut.basalt.view.start.StartFrame;
 import org.gershaveut.basalt.view.tool.AbstractTool;
-import org.gershaveut.basalt.view.tool.folder.FilesListener;
-import org.gershaveut.basalt.view.tool.folder.FilesTool;
+import org.gershaveut.basalt.view.tool.file.FileListener;
+import org.gershaveut.basalt.view.tool.file.FileTool;
+import org.gershaveut.basalt.view.tool.file.FilesListener;
+import org.gershaveut.basalt.view.tool.file.FilesTool;
 import org.gershaveut.basalt.view.tool.graph.GraphTool;
-import org.gershaveut.basalt.view.tool.note.NoteListener;
-import org.gershaveut.basalt.view.tool.note.FileTool;
 import org.gershaveut.basalt.view.tool.person.PersonProfileTool;
 import org.gershaveut.basalt.view.tool.person.PersonsListener;
 import org.gershaveut.basalt.view.tool.person.PersonsTool;
@@ -81,7 +81,7 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
 		
         this.applicationFrameTitle = applicationFrame.getTitle();
 		
-        filesTool.addFolderListener(this);
+        filesTool.addFilesListener(this);
         personsTool.addPersonsListener(this);
 
         graphTool.graphCanvas.addMouseListener(new MouseAdapter() {
@@ -263,7 +263,7 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
                 database.readFile(file.getId()).subscribe(resource -> {
                     var fileTool = new FileTool(file, resource, applicationFrame, clientPerson);
 
-                    fileTool.addNoteListener(new NoteListener() {
+                    fileTool.addFileListener(new FileListener() {
                         @Override
                         public void onSave(String text) {
                             database.writeFile(file.getId(), text.getBytes());
@@ -332,12 +332,12 @@ public class DatabaseController implements DatabaseListener, FilesListener, Pers
             name = "Новая папка";
 
         assert clientPerson != null;
-        database.addFile(new SFile(name, path, clientPerson));
+        database.addFile(new SFile(name, path, clientPerson, isDirectory));
     }
 
     @Override
-    public void moveFile(long id, String path) {
-        database.moveFile(id, path, httpStatusCode -> {
+    public void moveFile(long id, long toId) {
+        database.moveFile(id, toId, httpStatusCode -> {
             if (httpStatusCode == HttpStatus.CONFLICT) {
                 showErrorDialog("Неправильное место размещения файла!");
                 return true;

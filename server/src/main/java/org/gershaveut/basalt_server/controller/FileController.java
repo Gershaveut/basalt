@@ -1,9 +1,9 @@
 package org.gershaveut.basalt_server.controller;
 
+import org.gershaveut.basalt_server.model.SFile;
 import org.gershaveut.basalt_server.repository.CommentRepository;
 import org.gershaveut.basalt_server.repository.FileRepository;
 import org.gershaveut.basalt_server.repository.PersonRepository;
-import org.gershaveut.basalt_server.model.SFile;
 import org.gershaveut.basalt_server.service.FileService;
 import org.gershaveut.basalt_share.Util;
 import org.gershaveut.basalt_share.model.Comment;
@@ -26,15 +26,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -70,6 +67,12 @@ public class FileController extends AbstractCurdController<SFile, Long> {
         var file = new SFile(name, path, currentPerson);
 
         file.setDirectory(isDirectory);
+
+        try {
+            fileService.write(file, new byte[0]);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return super.addEntity(currentPerson, file);
     }
@@ -109,15 +112,15 @@ public class FileController extends AbstractCurdController<SFile, Long> {
     }
 
     @PatchMapping("/{id}/move")
-    public ResponseEntity<SFile> move(@AuthenticationPrincipal Person currentPerson, @PathVariable Long fromId, @RequestBody Long toId) throws IOException {
-        var fromData = fileRepository.findById(fromId);
+    public ResponseEntity<SFile> move(@AuthenticationPrincipal Person currentPerson, @PathVariable Long id, @RequestBody Long toId) throws IOException {
+        var fromData = fileRepository.findById(id);
         var toData = fileRepository.findById(toId);
 
         if (fromData.isEmpty() || toData.isEmpty())
             return ResponseEntity.notFound().build();
 
         fileService.move(fromData.get(), toData.get());
-        return updateFiles(currentPerson, fromId, file -> file.setPath(fromData.get().getPath()));
+        return updateFiles(currentPerson, id, file -> file.setPath(toData.get().getAbsolutePath()));
     }
 
     @Secured({"ROLE_MODERATOR"})
@@ -325,6 +328,8 @@ public class FileController extends AbstractCurdController<SFile, Long> {
             }
         });
 
+        sync();
+        
         return new ResponseEntity<>(file, HttpStatus.OK);
     }
 

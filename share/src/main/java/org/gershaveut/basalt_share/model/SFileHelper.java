@@ -8,12 +8,10 @@ public class SFileHelper {
     public static final String SEND_SEPARATOR = "@";
 
     public static @Nullable String getParent(String path) {
-        var parent = FilenameUtils.getFullPath(path);
-
-        if (parent.isEmpty())
+        if (path.isEmpty())
             return null;
 
-        return parent;
+        return path;
     }
 
     public static String getBaseName(String name) {

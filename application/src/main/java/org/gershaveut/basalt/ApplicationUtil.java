@@ -1,10 +1,10 @@
 package org.gershaveut.basalt;
 
+import org.apache.commons.text.WordUtils;
+import org.dyn4j.geometry.Vector2;
 import org.gershaveut.basalt.model.file.SFile;
 import org.gershaveut.basalt_share.model.Person;
 import org.gershaveut.basalt_share.model.Role;
-import org.apache.commons.text.WordUtils;
-import org.dyn4j.geometry.Vector2;
 import org.jspecify.annotations.Nullable;
 
 import javax.swing.*;

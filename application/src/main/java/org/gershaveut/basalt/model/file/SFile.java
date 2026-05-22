@@ -21,10 +21,15 @@ public class SFile {
         person = null;
     }
 
-    public SFile(String name, String path, Person person) {
+    public SFile(String name, String path, Person person, boolean isDirectory) {
         this.name = name;
         this.path = path;
         this.person = person;
+        this.isDirectory = isDirectory;
+    }
+    
+    public SFile(String name, String path, Person person) {
+        this(name, path, person, false);
     }
 
     public SFile(String name, Person person) {

@@ -1,8 +1,8 @@
-package org.gershaveut.basalt.view.tool.note;
+package org.gershaveut.basalt.view.tool.file;
 
 import java.util.EventListener;
 
-public interface NoteListener extends EventListener {
+public interface FileListener extends EventListener {
     void onSave(String text);
     void openProfile(long id);
     void openComments(long page);

@@ -1,7 +1,7 @@
 package org.gershaveut.basalt.view;
 
-import org.gershaveut.basalt_share.Util;
 import org.apache.commons.text.WordUtils;
+import org.gershaveut.basalt_share.Util;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

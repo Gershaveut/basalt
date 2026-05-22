@@ -1,5 +1,6 @@
 package org.gershaveut.basalt.view.start;
 
+import org.apache.commons.text.WordUtils;
 import org.gershaveut.basalt.ApplicationUtil;
 import org.gershaveut.basalt.controller.SettingsController;
 import org.gershaveut.basalt.controller.StartController;
@@ -7,7 +8,6 @@ import org.gershaveut.basalt.model.recent.ApplicationRecentStarts;
 import org.gershaveut.basalt.model.recent.RecentStart;
 import org.gershaveut.basalt.view.settings.SettingsFrame;
 import org.gershaveut.basalt_share.Util;
-import org.apache.commons.text.WordUtils;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;

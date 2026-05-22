@@ -1,8 +1,7 @@
-package org.gershaveut.basalt.view.tool.folder;
+package org.gershaveut.basalt.view.tool.file;
 
 import com.javadocking.dockable.DockingMode;
 import org.gershaveut.basalt.ApplicationUtil;
-import org.gershaveut.basalt.model.file.Note;
 import org.gershaveut.basalt.model.file.SFile;
 import org.gershaveut.basalt.view.Icons;
 import org.gershaveut.basalt.view.tool.AbstractTool;
@@ -21,6 +20,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -64,6 +64,9 @@ public class FilesTool extends AbstractTool {
             if (getSelectedNode() != null) {
                 var selectedFile = (SFile) getSelectedNode();
 
+                if (selectedFile.isDirectory())
+                    return;
+                
                 for (FilesListener listener : listeners.getListeners(FilesListener.class)) {
                     listener.openFile(selectedFile.getId());
                 }
@@ -259,11 +262,11 @@ public class FilesTool extends AbstractTool {
         }
     }
 
-    public void addFolderListener(FilesListener filesListener) {
+    public void addFilesListener(FilesListener filesListener) {
         listeners.add(FilesListener.class, filesListener);
     }
 
-    public void removeFolderListener(FilesListener filesListener) {
+    public void removeFilesListener(FilesListener filesListener) {
         listeners.remove(FilesListener.class, filesListener);
     }
 
@@ -295,13 +298,13 @@ public class FilesTool extends AbstractTool {
     public void setModel(List<SFile> files, Person clientPerson) {
         this.clientPerson = clientPerson;
 
-        var rootNode = new DefaultMutableTreeNode(new SFile("", "", clientPerson));
+        var rootNode = new DefaultMutableTreeNode(new SFile("", "", clientPerson, true));
         var filesNodes = new ArrayList<>(List.of(rootNode));
 
-        files.forEach(file -> {
+        files.stream().sorted(Comparator.comparing(SFile::isDirectory).reversed()).forEach(file -> {
             var parent = file.getParent();
 
-            var parentNode = filesNodes.stream().filter(treeNode -> ((SFile) treeNode.getUserObject()).getPath().equals(parent)).findFirst().orElse(rootNode);
+            var parentNode = filesNodes.stream().filter(treeNode -> ((SFile) treeNode.getUserObject()).getAbsolutePath().equals(parent)).findFirst().orElse(rootNode);
 
             var directoryNode = new DefaultMutableTreeNode(file);
 
@@ -327,7 +330,7 @@ public class FilesTool extends AbstractTool {
 
     @Override
     public String getID() {
-        return "folder";
+        return "files";
     }
 
     @Override
